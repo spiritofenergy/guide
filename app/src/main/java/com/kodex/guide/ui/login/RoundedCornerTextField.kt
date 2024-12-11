@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose.ui.login
+package com.kodex.guide.ui.login
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.kodex.bookmarketcompose.ui.theme.ButtonColor
+import com.kodex.guide.ui.theme.ButtonColor
 
 @Composable
 fun RoundedCornerTextField (

@@ -23,8 +23,8 @@ import androidx.compose.ui.res.painterResource
  import androidx.compose.ui.tooling.preview.Preview
  import androidx.compose.ui.unit.dp
  import com.kodex.bookmarketcompose.R
- import com.kodex.bookmarketcompose.ui.theme.BookMarketComposeTheme
- import com.kodex.bookmarketcompose.ui.theme.BoxFilterColor
+ import com.kodex.guide.ui.theme.BookMarketComposeTheme
+ import com.kodex.guide.ui.theme.BoxFilterColor
 
 
  @Composable

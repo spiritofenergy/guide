@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose.ui.theme
+package com.kodex.guide.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -12,4 +12,5 @@ val Pink40 = Color(0xFF7D5260)
 val BoxFilterColor = Color(0x31008BF5)
 val ButtonColor = Color(0x9c008BF5)
 val DarkBlue = Color(0x9c1c384c)
+val GreenSea = Color(0x754CAF50)
 val GrayLite = Color(0x2260676E)

@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose.ui
+package com.kodex.guide.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -11,10 +11,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kodex.bookmarketcompose.ui.bottomMenu.BottomMenu
+import com.kodex.guide.ui.bottomMenu.BottomMenu
 
 
- @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
  @Composable
 fun MenuScreen() {
     val drawerState = rememberDrawerState(DrawerValue.Open)
@@ -30,7 +30,7 @@ fun MenuScreen() {
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            bottomBar = { BottomMenu()}
+            bottomBar = { BottomMenu() }
         ) {
 
         }

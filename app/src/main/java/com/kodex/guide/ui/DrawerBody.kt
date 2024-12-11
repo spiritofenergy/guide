@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose.ui
+package com.kodex.guide.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,23 +23,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kodex.bookmarketcompose.R
-import com.kodex.bookmarketcompose.ui.theme.GrayLite
-
+import com.kodex.guide.ui.theme.GrayLite
 
 
 @Composable
 fun DrawerBody() {
     // ClickableText() { }: (@Composable () -> Unit)? = null) {}
     val categoriesList = listOf(
-        "Favorites",
-        "Fantasy",
-        "Drama",
-        "Bestseller"
+
+        "Еда",
+        "Торговля",
+        "Развлечения",
+        "Бронирование",
     )
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.bottle),
+            painter = painterResource(id = R.drawable.wey),
             contentDescription = "",
             alpha = 0.2f,
             contentScale = ContentScale.Crop
@@ -47,13 +47,13 @@ fun DrawerBody() {
          Column (modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                Spacer(modifier = Modifier.height(16.dp))
+              /*  Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Categories",
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
-                    )
+                    )*/
              Spacer(modifier = Modifier.height(16.dp))
              Box(modifier = Modifier.fillMaxWidth()
                  .height(1.dp).background(GrayLite)

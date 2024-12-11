@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose.ui
+package com.kodex.guide.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kodex.bookmarketcompose.R
-import com.kodex.bookmarketcompose.ui.theme.DarkBlue
+import com.kodex.guide.ui.theme.ButtonColor
 
 
 @Composable
@@ -26,19 +26,19 @@ fun DrawerHeader() {
     Column(
         Modifier.fillMaxWidth()
             .height(170.dp)
-            .background(DarkBlue),
+            .background(ButtonColor),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
 
     ) {
         Image(
             modifier = Modifier.size(90.dp),
-            painter = painterResource(id = R.drawable.book),
+            painter = painterResource(id = R.drawable.signboard),
             contentDescription = ""
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Nig Book Store",
+            text = "поселок Кучугуры",
             color = Color.White,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
