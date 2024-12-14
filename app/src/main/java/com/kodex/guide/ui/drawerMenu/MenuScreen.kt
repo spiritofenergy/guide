@@ -1,4 +1,4 @@
-package com.kodex.guide.ui
+package com.kodex.guide.ui.drawerMenu
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -12,19 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.kodex.guide.ui.bottomMenu.BottomMenu
+import com.kodex.guide.ui.data.MainScreenDataObject
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
  @Composable
-fun MenuScreen() {
+fun MenuScreen(navData: MainScreenDataObject) {
     val drawerState = rememberDrawerState(DrawerValue.Open)
     ModalNavigationDrawer(
         drawerState = drawerState,
         modifier = Modifier.fillMaxWidth(),
         drawerContent = {
              Column (Modifier.fillMaxWidth(0.7f)){
-                DrawerHeader()
-                DrawerBody()  }
+                DrawerHeader(navData.email)
+                 DrawerBody()
+             }
 
         }
     ) {
@@ -41,7 +43,6 @@ fun MenuScreen() {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-
-        MenuScreen()
+        MenuScreen(navData = MainScreenDataObject())
 
 }

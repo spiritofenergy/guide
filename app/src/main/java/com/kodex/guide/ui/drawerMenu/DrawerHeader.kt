@@ -1,4 +1,4 @@
-package com.kodex.guide.ui
+package com.kodex.guide.ui.drawerMenu
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,7 +22,7 @@ import com.kodex.guide.ui.theme.ButtonColor
 
 
 @Composable
-fun DrawerHeader() {
+fun DrawerHeader(email: String) {
     Column(
         Modifier.fillMaxWidth()
             .height(170.dp)
@@ -43,6 +43,10 @@ fun DrawerHeader() {
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
+        Text(
+            email,
+            color = Color.Green,
+            fontSize = 16.sp)
         /*Spacer(modifier = Modifier.height(10.dp))
         Box(
             modifier = Modifier.fillMaxWidth()

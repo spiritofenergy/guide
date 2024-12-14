@@ -35,10 +35,10 @@ fun LoginScreen(
         Firebase.auth
     }
     val emailState = remember {
-        mutableStateOf("")
+        mutableStateOf("nigmatullov@mail.ru")
     }
     val passwordState = remember {
-        mutableStateOf("")
+        mutableStateOf("Faxer56!")
     }
             Image(painter = painterResource(
                 id = R.drawable.wey),
