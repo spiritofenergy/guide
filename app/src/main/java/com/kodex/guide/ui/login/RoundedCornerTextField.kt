@@ -9,11 +9,13 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kodex.guide.ui.theme.ButtonColor
-
 @Composable
 fun RoundedCornerTextField (
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
     text: String,
     label: String,
     onValueChange: (String) -> Unit
@@ -29,10 +31,13 @@ fun RoundedCornerTextField (
             unfocusedIndicatorColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent
         ),
-        modifier = Modifier.fillMaxWidth().border(2.dp, ButtonColor, RoundedCornerShape(20.dp)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(2.dp, ButtonColor, RoundedCornerShape(20.dp)),
         label = {
             Text(text = label, color =  Color.Gray)
         },
-        singleLine = true
+        singleLine = singleLine,
+        maxLines = maxLines
     )
 }

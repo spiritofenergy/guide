@@ -34,14 +34,16 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.DarkTransparentBlue
 import com.kodex.guide.ui.theme.GrayLite
-import com.kodex.guide.ui.theme.GreenSea
 
 
 @Composable
-fun DrawerBody() {
-    // ClickableText() { }: (@Composable () -> Unit)? = null) {}
+fun DrawerBody(
+    onAdminClick: () -> Unit = {}
+) {
+
     val categoriesList = listOf(
 
         "Еда",
@@ -59,7 +61,8 @@ fun DrawerBody() {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()
+        .background(ButtonColorBlue)) {
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = R.drawable.wey),
@@ -78,6 +81,7 @@ fun DrawerBody() {
                     fontWeight = FontWeight.Bold
                     )*/
              Spacer(modifier = Modifier.height(16.dp))
+
              Box(modifier = Modifier.fillMaxWidth()
                  .height(1.dp).background(GrayLite)
              )
@@ -112,12 +116,14 @@ fun DrawerBody() {
                  Button(
                      onClick = {
                      isAdmin {  }
-                 },
+                     onAdminClick()
+               },
                      modifier = Modifier.fillMaxWidth()
                          .padding(5.dp),
                      colors = ButtonDefaults.buttonColors(
                          containerColor = DarkTransparentBlue
-                     )) {
+                     )
+                 ) {
                      Text(text = "Admin panel")
                  }
          }
@@ -129,7 +135,7 @@ fun isAdmin(onAdmin: (Boolean)-> Unit){
     Firebase.firestore.collection("admin")
         .document(uid).get().addOnSuccessListener{
             onAdmin(it.get("isAdmin") as Boolean)
-               // Log.d("MyLog", "isAdmin: ${it.get("isAdmin")}")
+                Log.d("MyLog", "isAdmin: ${it.get("isAdmin")}")
         }
 }
 
@@ -138,71 +144,3 @@ fun isAdmin(onAdmin: (Boolean)-> Unit){
 fun Preview(){
     DrawerBody()
 }
-/* if(isAdminState.value)
-  Button(onClick = {
-      isAdmin { }
-  },
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(5.dp),
-      colors = ButtonDefaults.buttonColors(
-          containerColor = GreenSea
-      )
-  ) {
-      Text(text = "Admin panel")
-  }*/
-
-/*Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.bottle),
-            contentDescription = "",
-            alpha = 0.2f,
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Categories",
-                color = Color.Black,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .height(1.dp).background(GrayLite)
-            )
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(categoriesList) { item ->
-
-                    Column(Modifier
-                        .fillMaxWidth()
-                    ) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = item,
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth()
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayLite)
-                        )
-                    }
-
-                }
-
-            }
-        }*/
-

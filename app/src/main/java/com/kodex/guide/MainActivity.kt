@@ -8,7 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.kodex.guide.ui.drawerMenu.MenuScreen
+import com.kodex.guide.ui.addscreen.AddBookScreen
+import com.kodex.guide.ui.addscreen.data.AddScreenObject
+import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.data.LoginScreenObject
 import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.login.LoginScreen
@@ -32,7 +34,12 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<MainScreenDataObject> { navEntry ->
                     val navData = navEntry.toRoute<MainScreenDataObject>()
-                    MenuScreen(navData)
+                    MenuScreen(navData){
+                        navController.navigate(AddScreenObject)
+                    }
+                }
+                composable<AddScreenObject>{ navEntry ->
+                    AddBookScreen()
                 }
             }
         }

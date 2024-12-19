@@ -60,12 +60,20 @@ fun LoginScreen(
                     modifier = Modifier.height(250.dp).padding(bottom = 50.dp)
 
                 )*/
+
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Кучугуры",
                     color = Color.Black,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Serif
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Guide база Instagram",
+                    color = Color.Black,
+                    fontSize = 20.sp,
                     fontFamily = FontFamily.Serif
                 )
                 Spacer(modifier = Modifier.height(40.dp))
