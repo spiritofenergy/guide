@@ -1,25 +1,32 @@
 [versions]
-agp = "8.7.2"
-coilCompose = "2.0.0"
-firebaseBom = "33.7.0"
-kotlin = "2.0.0"
-coreKtx = "1.10.1"
+agp = "8.7.3"
+coilCompose = "2.7.0"
+firebaseBom = "33.9.0"
+kotlin = "2.1.10"
+coreKtx = "1.15.0"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.6.1"
-activityCompose = "1.8.0"
-composeBom = "2024.04.01"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+lifecycleRuntimeKtx = "2.8.7"
+activityCompose = "1.10.1"
+composeBom = "2025.02.00"
 googleGmsGoogleServices = "4.4.2"
-firebaseAuth = "23.1.0"
+firebaseAuth = "23.2.0"
 
 
-navigationCompose = "2.8.0-beta05"
-serializationVersion = "2.0.0"
-serializationKotlin = "1.7.1"
+navigationCompose = "2.8.8"
+serializationVersion = "2.1.0"
+serializationKotlin = "1.8.0"
 firebaseDatabase = "21.0.0"
-firebaseFirestore = "25.1.1"
+firebaseFirestore = "25.1.2"
 firebaseStorage = "21.0.1"
+
+hiltAndroid = "2.54"
+hiltNavigationCompose = "1.2.0"
+kspPlugin = "2.1.10-1.0.30"
+hiltPlugin = "2.55"
+
+
 
 
 [libraries]
@@ -49,6 +56,13 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 
+android-hilt = {module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid"}
+android-hilt-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid"}
+
+hilt-navigation-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose"}
+hilt-navigation-compose-compiler = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose"}
+
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -58,5 +72,9 @@ google-gms-google-services = { id = "com.google.gms.google-services", version.re
 
 plugin-serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationVersion" }
 compose-compiler = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
+
+
+ksp-plugin = {id = "com.google.devtools.ksp", version.ref = "kspPlugin"}
+hilt-plugin = {id = "com.google.dagger.hilt.android", version.ref = "hiltPlugin"}
 
 

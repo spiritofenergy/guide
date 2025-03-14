@@ -1,7 +1,5 @@
 package com.kodex.guide.ui.bottomMenu
 
-import android.R.attr.icon
-import android.R.id.icon
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -12,22 +10,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 
 @Composable
-fun BottomMenu() {
+fun BottomMenu(
+    selectedItem: String,
+    onFavesClick: ()-> Unit = {},
+    onHomeClick: ()-> Unit = {}
+) {
     val items = listOf(
         BottomMenuItem.Home,
-        BottomMenuItem.Favorite,
+        BottomMenuItem.Faves,
         BottomMenuItem.Settings
 
       )
 
-    val selectedItem = remember { mutableStateOf("Home") }
 
     NavigationBar {
         items.forEach { item ->
             NavigationBarItem(
-                selected = selectedItem.value == item.title,
+                selected = selectedItem == item.title,
                 onClick = {
-                    selectedItem.value = item.title
+                    when(item.title){
+                        BottomMenuItem.Home.title -> onHomeClick()
+                        BottomMenuItem.Faves.title -> onFavesClick()
+                    }
                 },
                 icon = {
                     Icon(painter = painterResource(id = item.iconId),

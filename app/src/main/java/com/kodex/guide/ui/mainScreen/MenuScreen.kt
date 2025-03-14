@@ -1,6 +1,5 @@
 package com.kodex.guide.ui.mainScreen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,11 +17,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.ui.addscreen.data.Favorite
 import com.kodex.guide.ui.bottomMenu.BottomMenu
+import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
@@ -30,47 +31,94 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MenuScreen(navData: MainScreenDataObject,
-               onAdminClick: () -> Unit
+fun MenuScreen(
+    viewModel: MsViewModel = hiltViewModel(),
+    navData: MainScreenDataObject,
+    onBookEdinClick: (Book)-> Unit,
+    onBookClick: (Book) -> Unit,
+    onAdminClick: () -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Open)
     val coroutineScope = rememberCoroutineScope()
-    val booksListState = remember {
-        mutableStateOf(emptyList<Book>())
+
+        val selectedBottomItemState = remember {
+        mutableStateOf(BottomMenuItem.Home.title)
     }
-    LaunchedEffect(Unit) {
-        val db = Firebase.firestore
-        getAllBooks(db) { books ->
-            booksListState.value = books
-        }
+    val isAdminState = remember {
+        mutableStateOf(false)
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.getAllBooks()
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         modifier = Modifier.fillMaxWidth(),
         drawerContent = {
              Column (Modifier.fillMaxWidth(0.7f)){
                 DrawerHeader(navData.email)
-                 DrawerBody {
-                     coroutineScope.launch {
-                         drawerState.close()
-                     }
-                     onAdminClick()
-                 }
+                 DrawerBody (
+                     onAdmin = { isAdmin ->
+                        isAdminState.value = isAdmin
+                     },
+                     onFavesClick = {
+                         selectedBottomItemState.value = BottomMenuItem.Faves.title
+                         viewModel.getAllFavesBook ()
+                         coroutineScope.launch{
+                             drawerState.close()
+                         }
+                     },
+                     onAdminClick = {
+                         coroutineScope.launch{
+                             drawerState.close()
+                         }
+                         onAdminClick()
+                     },
+
+                        onCategoryClick = { category ->
+                            viewModel.getBooksFromCategory(category)
+                            coroutineScope.launch{
+                                drawerState.close()
+                            }
+                        }
+                 )
              }
         }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                BottomMenu()
+                BottomMenu(
+                    selectedBottomItemState.value,
+                    onFavesClick = {
+                        selectedBottomItemState.value = BottomMenuItem.Faves.title
+                        viewModel.getAllFavesBook ()
+                    },
+                    onHomeClick = {
+                        selectedBottomItemState.value = BottomMenuItem.Home.title
+                        viewModel.getAllBooks()
+                    }
+                )
             }
         ) {paddingValues ->
-            LazyVerticalGrid(columns = GridCells.Fixed(2),
+            LazyVerticalGrid(columns = GridCells.Fixed(1),
                 modifier = Modifier.fillMaxSize()
-                    .padding(paddingValues)) {
-                items(booksListState.value){ book ->
-                    BookListItemUi(book)
+                    .padding(paddingValues)
+            ) {
+                items(viewModel.bookListState.value){ book ->
+                    BookListItemUi(
+                        isAdminState.value,
+                        book,
+                        onBookClick = {
+                            onBookClick(book)
+                        },
+                        onEditClick = {
+                            onBookEdinClick(it)
+                        },
+                        onFavClick = {
+                            viewModel.onFavesClick(book, selectedBottomItemState.value)
+                        }
+                    )
                 }
             }
         }
@@ -79,21 +127,7 @@ fun MenuScreen(navData: MainScreenDataObject,
 
 
 
- private fun getAllBooks (
-     db: FirebaseFirestore,
-     onBooks: (List<Book>)-> Unit
- ){
-     db.collection("guide_posts")
-    // db.collection("imajes")
-    // db.collection("users")
-         .get()
-         .addOnSuccessListener { task ->
-            // onBooks(task.toObjects(Book::class.java))
-             val bookList = task.toObjects(Book::class.java)
-             onBooks(bookList)
-         }
-         .addOnFailureListener{
 
-     }
 
- }
+
+

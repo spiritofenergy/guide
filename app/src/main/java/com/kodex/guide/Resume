@@ -1,0 +1,20 @@
+Все работает
+Guide база Instagram
+Base64 Кодирование фото
+При редактировании создает новый post Исправлено
+
+Вторую кнопку
+FAB с плюсиком
+Дизайн
+Всплывающие уведомления
+Выбор категории Готово
+Срханение паролей
+Регистрация через GoogleAccount
+через ВК
+
+
+Ошибка Bk
+
+
+FATAL EXCEPTION: main                                                                               Process: com.kodex.bookmarketcompose, PID: 7896
+ AndroidRuntime          com.kodex.bookmarketcompose          E  java.lang.IllegalArgumentException: Navigation destination that matches request NavDeepLinkRequest{ uri=android-app://androidx.navigation/com.kodex.guide.ui.addscreen.data.AddScreenObject?key=G62eBNcT9fkIMeuon72P&title=%D0%A6%D0%B5%D0%BD%D1%82%D1%80%D0

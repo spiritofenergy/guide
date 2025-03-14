@@ -26,10 +26,16 @@ import java.nio.file.WatchEvent
 
 @Composable
 fun RoundedCornerDropDownMenu (
+    defCategory: String,
     onOptionSelected: (String)-> Unit
 ){
     val expanded = remember { mutableStateOf(false) }
-    val selectedOption = remember { mutableStateOf("Торговля") }
+
+
+    val selectedOption = remember { mutableStateOf(defCategory) }
+    if (defCategory.isEmpty()){
+        selectedOption.value = "Выберете категорию"
+    }
     val categoriesList = listOf(
 
         "Еда",

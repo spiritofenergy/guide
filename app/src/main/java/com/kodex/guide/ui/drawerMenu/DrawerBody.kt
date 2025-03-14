@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
@@ -41,11 +40,16 @@ import com.kodex.guide.ui.theme.GrayLite
 
 @Composable
 fun DrawerBody(
-    onAdminClick: () -> Unit = {}
+    onFavesClick: ()-> Unit,
+    onAdmin: (Boolean) -> Unit = {},
+    onAdminClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {}
 ) {
 
     val categoriesList = listOf(
 
+        "Favorites",
+        "All",
         "Еда",
         "Торговля",
         "Развлечения",
@@ -58,11 +62,13 @@ fun DrawerBody(
     LaunchedEffect(Unit) {
         isAdmin { isAdmin ->
             isAdminState.value = isAdmin
+            onAdmin(isAdmin)
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()
         .background(ButtonColorBlue)) {
+        // background first Screen
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = R.drawable.wey),
@@ -73,13 +79,6 @@ fun DrawerBody(
          Column (modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-              /*  Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Categories",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                    )*/
              Spacer(modifier = Modifier.height(16.dp))
 
              Box(modifier = Modifier.fillMaxWidth()
@@ -89,7 +88,14 @@ fun DrawerBody(
                  items(categoriesList) { item ->
                      Column(
                          Modifier.fillMaxWidth()
-                             .clickable {}
+                             .clickable {
+                                 if (categoriesList[0] == item){
+                                     onFavesClick()
+                                 }else{
+                                    onCategoryClick(item)
+                                 }
+
+                             }
                      ) {
                          Spacer(modifier = Modifier.height(10.dp))
                          Text(
@@ -112,8 +118,7 @@ fun DrawerBody(
                      }
                  }
              }
-             if (isAdminState.value)
-                 Button(
+            if (isAdminState.value) Button(
                      onClick = {
                      isAdmin {  }
                      onAdminClick()
@@ -125,6 +130,19 @@ fun DrawerBody(
                      )
                  ) {
                      Text(text = "Admin panel")
+                 }
+                 Button(
+                     onClick = {
+                     isAdmin {  }
+                     onAdminClick()
+               },
+                     modifier = Modifier.fillMaxWidth()
+                         .padding(5.dp),
+                     colors = ButtonDefaults.buttonColors(
+                         containerColor = DarkTransparentBlue
+                     )
+                 ) {
+                     Text(text = "Добавить")
                  }
          }
     }
@@ -139,8 +157,10 @@ fun isAdmin(onAdmin: (Boolean)-> Unit){
         }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun Preview(){
     DrawerBody()
 }
+*/
