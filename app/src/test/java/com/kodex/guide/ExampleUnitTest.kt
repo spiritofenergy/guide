@@ -1,4 +1,4 @@
-package com.kodex.bookmarketcompose
+package com.kodex.guide
 
 import org.junit.Test
 

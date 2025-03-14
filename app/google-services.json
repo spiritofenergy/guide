@@ -1,152 +1,45 @@
 {
   "project_info": {
-    "project_number": "203151794581",
-    "project_id": "instagram-e15ed",
-    "storage_bucket": "instagram-e15ed.appspot.com"
+    "project_number": "531323110422",
+    "project_id": "guide-e6ef0",
+    "storage_bucket": "guide-e6ef0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:203151794581:android:8b8fe6d390cf52e7afd69c",
+        "mobilesdk_app_id": "1:531323110422:android:b9d8b8819bebb4afbde137",
         "android_client_info": {
           "package_name": "com.kodex.bookmarketcompose"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAJqCGqmrA0so9pRPy_HbefqzCTA8qgmes"
+          "current_key": "AIzaSyA1JznwAP0hvUj-G5rZ5Y81Fv8x3M-hZoc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:203151794581:android:ea3056ca84ae22c4afd69c",
-        "android_client_info": {
-          "package_name": "com.kodex.bookmarketcompose.ui"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAJqCGqmrA0so9pRPy_HbefqzCTA8qgmes"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:203151794581:android:b66877680e0b1fcdafd69c",
+        "mobilesdk_app_id": "1:531323110422:android:2117d86fadffe5d9bde137",
         "android_client_info": {
           "package_name": "com.kodex.guide"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAJqCGqmrA0so9pRPy_HbefqzCTA8qgmes"
+          "current_key": "AIzaSyA1JznwAP0hvUj-G5rZ5Y81Fv8x3M-hZoc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:203151794581:android:311902a6abb0d4b2afd69c",
-        "android_client_info": {
-          "package_name": "com.kodex.guide.ui"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAJqCGqmrA0so9pRPy_HbefqzCTA8qgmes"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:203151794581:android:e48522451f90463bafd69c",
-        "android_client_info": {
-          "package_name": "com.kodex.instagram"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAJqCGqmrA0so9pRPy_HbefqzCTA8qgmes"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "203151794581-ujq6aja75h30ud9rb8e39epceh79ojfg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

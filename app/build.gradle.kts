@@ -1,17 +1,21 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-  //  alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 
-    alias(libs.plugins.compose.compiler) apply true
-    alias((libs.plugins.plugin.serialization)) apply true
+    alias(libs.plugins.compose.compiler)
+    alias((libs.plugins.plugin.serialization))
+    alias(libs.plugins.ksp.plugin)
+    alias(libs.plugins.hilt.plugin)
+
+
 
 }
 
 android {
     namespace = "com.kodex.bookmarketcompose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.kodex.bookmarketcompose"
@@ -42,9 +46,17 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
+
+
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.navigation.compose.compiler)
+
+    implementation(libs.android.hilt)
+    ksp(libs.android.hilt.compiler)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)

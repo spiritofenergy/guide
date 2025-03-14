@@ -1,8 +1,17 @@
 package com.kodex.guide.ui.login
 
+import android.R.attr.strokeWidth
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -15,14 +24,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kodex.bookmarketcompose.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.data.MainScreenDataObject
+import com.kodex.guide.ui.theme.BoxFilterColor
+import com.kodex.guide.ui.theme.ButtonColor
+import kotlinx.serialization.descriptors.PrimitiveKind
 
 @Composable
 fun LoginScreen(
@@ -31,17 +43,25 @@ fun LoginScreen(
     val errorState = remember {
         mutableStateOf("")
     }
+    val isUpload = remember {
+        mutableStateOf(false)
+   }
     val auth = remember {
         Firebase.auth
     }
     val emailState = remember {
-        mutableStateOf("nigmatullov@mail.ru")
+        mutableStateOf("test@mail.ru")
     }
+
+  /*  val context = Context.
+    val text = "Пора покормить кота!"
+    val duration = Toast.LENGTH_SHORT
+*/
     val passwordState = remember {
-        mutableStateOf("Faxer56!")
+        mutableStateOf("test01")
     }
             Image(painter = painterResource(
-                id = R.drawable.wey),
+                id = R.drawable.bereg),
                 contentDescription =  "BG",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
@@ -69,15 +89,8 @@ fun LoginScreen(
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "Guide база Instagram",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily.Serif
-                )
-                Spacer(modifier = Modifier.height(40.dp))
 
+                Spacer(modifier = Modifier.height(50.dp))
                 RoundedCornerTextField(
                     text = emailState.value,
                     label = "Email:"
@@ -99,11 +112,14 @@ fun LoginScreen(
                     Text(
                         text = errorState.value,
                         color = Color.Red,
+                        fontSize = 20.sp,
                         textAlign = TextAlign.Center
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+
                 LoginButton(
-                    text = "Sign in ",
+                    text = "Вход ",
                   //  color = Color.White,
                     ){
                     signIn(
@@ -121,7 +137,8 @@ fun LoginScreen(
                     Log.d("MyTeg", "Press SignIn Button")
                 }
 
-                LoginButton(text = "Sign up ") {
+                LoginButton(text = "Регистрация ") {
+                    isUpload.value = true
                     signUp(
                         auth,
                         emailState.value,
@@ -134,10 +151,21 @@ fun LoginScreen(
                         }
                     )
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+                Box{
+                    if (isUpload.value == true)
+                        CircularProgressIndicator(
+                        modifier = Modifier.height(30.dp),
+                        color = ButtonColor
+                    )
+                }
             }
         }
 
+
+
 fun signUp(
+  //  isUpload: Boolean = true,
     auth: FirebaseAuth,
     email: String,
     password: String,
@@ -155,6 +183,7 @@ fun signUp(
         .addOnFailureListener(){
             onSignUpFailure(it.message ?: "Sign Up Error")
         }
+   // isUpload
 
 }
 fun signIn(
@@ -184,11 +213,3 @@ fun signIn(
 }
 
 
- /*   @Preview(showBackground = true)
-    @Composable
-    fun PreviewLoginScreen() {
-        LoginScreen { navData ->
-            navController.navigate(navData)
-        }
-    }
-*/
