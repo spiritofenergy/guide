@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.kodex.guide.ui.addscreen.data.Book
 
@@ -38,6 +40,7 @@ fun BookListItemUi(
     showEditButton: Boolean = false,
     book: Book,
     onEditClick: (Book)-> Unit = {},
+    onDeleteClick: (Book)-> Unit = {},
     onFavClick: ()-> Unit = {},
     onBookClick: ()-> Unit = {}
     ) {
@@ -118,6 +121,7 @@ fun BookListItemUi(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
+
            if (showEditButton) IconButton(onClick = {
                     onEditClick(book)
             }) {
@@ -126,6 +130,15 @@ fun BookListItemUi(
                     contentDescription = ""
                 )
             }
+            if (showEditButton) IconButton(onClick = {
+                    onDeleteClick(book)
+            }) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = ""
+                )
+            }
+
             IconButton(onClick = {
                    onFavClick()
             }) {

@@ -1,5 +1,7 @@
 package com.kodex.guide.ui.mainScreen
 
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,13 +12,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -34,78 +39,92 @@ import kotlinx.coroutines.launch
 fun MenuScreen(
     viewModel: MsViewModel = hiltViewModel(),
     navData: MainScreenDataObject,
-    onBookEdinClick: (Book)-> Unit,
+    onBookEdinClick: (Book) -> Unit,
+    onBookDeleteClick: (Book) -> Unit,
     onBookClick: (Book) -> Unit,
     onAdminClick: () -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Open)
     val coroutineScope = rememberCoroutineScope()
 
-        val selectedBottomItemState = remember {
-        mutableStateOf(BottomMenuItem.Home.title)
-    }
     val isAdminState = remember {
         mutableStateOf(false)
     }
-
+        Log.d("MyLog", "MainScreen")
     LaunchedEffect(Unit) {
-        viewModel.getAllBooks()
+        if (viewModel.bookListState.value.isEmpty()){
+            viewModel.getAllBooks()
+            Log.d("MyLog", "GetAllBook")
+        }
     }
     ModalNavigationDrawer(
         drawerState = drawerState,
         modifier = Modifier.fillMaxWidth(),
         drawerContent = {
-             Column (Modifier.fillMaxWidth(0.7f)){
+            Column(Modifier.fillMaxWidth(0.7f)) {
                 DrawerHeader(navData.email)
-                 DrawerBody (
-                     onAdmin = { isAdmin ->
+                DrawerBody(
+                    onAdmin = { isAdmin ->
                         isAdminState.value = isAdmin
-                     },
-                     onFavesClick = {
-                         selectedBottomItemState.value = BottomMenuItem.Faves.title
-                         viewModel.getAllFavesBook ()
-                         coroutineScope.launch{
-                             drawerState.close()
-                         }
-                     },
-                     onAdminClick = {
-                         coroutineScope.launch{
-                             drawerState.close()
-                         }
-                         onAdminClick()
-                     },
-
-                        onCategoryClick = { category ->
-                            viewModel.getBooksFromCategory(category)
-                            coroutineScope.launch{
-                                drawerState.close()
-                            }
+                    },
+                    onFavesClick = {
+                        viewModel.selectedBottomItemState.value = BottomMenuItem.Faves.title
+                        viewModel.getAllFavesBook()
+                        coroutineScope.launch {
+                            drawerState.close()
                         }
-                 )
-             }
+                    },
+                    onAdminClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        onAdminClick()
+                    },
+
+                    onCategoryClick = { category ->
+                        viewModel.getBooksFromCategory(category)
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                    }
+                )
+            }
         }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
                 BottomMenu(
-                    selectedBottomItemState.value,
+                    viewModel.selectedBottomItemState.value,
                     onFavesClick = {
-                        selectedBottomItemState.value = BottomMenuItem.Faves.title
-                        viewModel.getAllFavesBook ()
+                        viewModel.selectedBottomItemState.value = BottomMenuItem.Faves.title
+                        viewModel.getAllFavesBook()
                     },
                     onHomeClick = {
-                        selectedBottomItemState.value = BottomMenuItem.Home.title
+                        viewModel.selectedBottomItemState.value = BottomMenuItem.Home.title
                         viewModel.getAllBooks()
                     }
                 )
             }
-        ) {paddingValues ->
-            LazyVerticalGrid(columns = GridCells.Fixed(1),
-                modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            if (viewModel.isFavesListEmptyState.value) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Пустой лист",
+                        color = Color.LightGray
+                    )
+                }
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(1),
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                items(viewModel.bookListState.value){ book ->
+                items(viewModel.bookListState.value) { book ->
                     BookListItemUi(
                         isAdminState.value,
                         book,
@@ -115,8 +134,11 @@ fun MenuScreen(
                         onEditClick = {
                             onBookEdinClick(it)
                         },
+                        onDeleteClick = {
+                            onBookDeleteClick(book)
+                        },
                         onFavClick = {
-                            viewModel.onFavesClick(book, selectedBottomItemState.value)
+                            viewModel.onFavesClick(book, viewModel.selectedBottomItemState.value)
                         }
                     )
                 }

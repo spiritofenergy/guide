@@ -118,7 +118,8 @@ fun DrawerBody(
                      }
                  }
              }
-            if (isAdminState.value) Button(
+            if (isAdminState.value)
+                Button(
                      onClick = {
                      isAdmin {  }
                      onAdminClick()

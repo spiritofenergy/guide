@@ -5,7 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.kodex.guide.ui.utils.FirebaseManager
+import com.kodex.guide.ui.utils.firebase.AuthManager
+import com.kodex.guide.ui.utils.firebase.FireStoreManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,8 +31,15 @@ object MainModule {
     fun provideFirebaseManager(
         auth: FirebaseAuth,
         db: FirebaseFirestore
-    ): FirebaseManager{
-        return FirebaseManager(auth,db)
+    ): FireStoreManager{
+        return FireStoreManager(auth,db)
+
+    }@Provides
+    @Singleton
+    fun provideAuthManager(
+        auth: FirebaseAuth
+    ): AuthManager{
+        return AuthManager(auth)
 
     }
 }

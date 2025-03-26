@@ -4,20 +4,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
-import com.kodex.guide.ui.utils.FirebaseManager
+import com.kodex.guide.ui.utils.firebase.FireStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class MsViewModel @Inject constructor(
-            private val firebaseManager: FirebaseManager
+            private val firebaseManager: FireStoreManager
 ): ViewModel() {
     val bookListState = mutableStateOf(emptyList<Book>())
     val isFavesListEmptyState = mutableStateOf(false)
+    val selectedBottomItemState = mutableStateOf(BottomMenuItem.Home.title)
 
     fun getAllBooks(){
         firebaseManager.getAllBooks { books ->
             bookListState.value = books
+            isFavesListEmptyState.value = books.isEmpty()
         }
     }
     fun getAllFavesBook(){
@@ -32,6 +34,7 @@ class MsViewModel @Inject constructor(
         }else{
             firebaseManager.getAllBooksFromCategory(category) {books->
                 bookListState.value = books
+                isFavesListEmptyState.value = books.isEmpty()
             }
         }
     }
@@ -43,5 +46,8 @@ class MsViewModel @Inject constructor(
             bookList
         }
         isFavesListEmptyState.value = bookListState.value.isEmpty()
+    }
+    fun onDeleteBook(book: Book){
+        firebaseManager.deleteBook(book)
     }
 }

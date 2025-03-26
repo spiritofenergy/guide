@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.utils
+package com.kodex.guide.ui.utils.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -9,14 +9,14 @@ import com.kodex.guide.ui.addscreen.data.Favorite
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseManager(
+class FireStoreManager(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
 ) {
      fun getAllFavesIds(
         onFaves: (List<String>) -> Unit,
     ) {
-       getOnCollectionReference()
+       getFavesCategoryReference()
             .get()
             .addOnSuccessListener { task ->
                 val idsList = task.toObjects(Favorite::class.java)
@@ -103,7 +103,7 @@ class FirebaseManager(
          favorite: Favorite,
          isFav: Boolean
     ){
-        val favesDocRef = getOnCollectionReference()
+        val favesDocRef = getFavesCategoryReference()
             .document(favorite.key)
         if(isFav){
                favesDocRef.set(favorite)
@@ -125,10 +125,15 @@ class FirebaseManager(
             }
         }
     }
-    private fun getOnCollectionReference(): CollectionReference{
+    private fun getFavesCategoryReference(): CollectionReference{
        return db.collection("guide_users")
             .document(auth.uid ?: "")
             .collection("guide_faves")
+    }
+    fun deleteBook(book: Book){
+        db.collection("guide_posts")
+            .document(book.key)
+            .delete()
     }
 
 
