@@ -1,13 +1,23 @@
 package com.kodex.guide.ui.addscreen.data
 
+import android.location.Location
+import com.kodex.guide.ui.utils.Categories
+import java.time.Instant
+
 data class Book(
     val key: String = "",
     val title: String = "",
+    val searchTitle: String = title.lowercase(),
     val description: String = "",
-    val price: String = "",
-    val category: String = "",
+    val price: Int = 0,
+    val telephone: String = "",
+    val categoryIndex: Int = Categories.FANTASY,
     val imageUrl: String = "",
-    val isFaves: Boolean = false
+    val isFaves: Boolean = false,
+   // val isAuthor: Boolean = false,
+   // val publishDate: String = "",
+  //  val location: String = ""
+
 ){
 
 }

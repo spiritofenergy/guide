@@ -1,12 +1,6 @@
 package com.kodex.guide.ui.addscreen
 
-import android.content.ContentResolver
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.util.Base64
-import android.util.Log
-import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -17,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,160 +22,181 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.addscreen.data.AddBookViewModel
 import com.kodex.guide.ui.addscreen.data.AddScreenObject
-import com.kodex.guide.ui.addscreen.data.Book
-import com.kodex.guide.ui.addscreen.data.IndeterminateCircularIndicator
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
+import com.kodex.guide.ui.mainScreen.MainScreenViewModel
 import com.kodex.guide.ui.theme.ButtonColor
-import kotlin.String
+import com.kodex.guide.ui.utils.ImageUtils
+import com.kodex.guide.ui.utils.firebase.IS_BASE_64
+import com.kodex.guide.ui.utils.toBitmap
 
-@Preview(showBackground = true)
 @Composable
 fun AddBookScreen(
     navData: AddScreenObject = AddScreenObject(),
-    onSaved: () -> Unit = {}
+    onSaved: () -> Unit = {},
+    viewModel: AddBookViewModel = hiltViewModel()
 ) {
-    val cv = LocalContext.current.contentResolver
+    val context = LocalContext.current
 
     val isUpload = remember {
         mutableStateOf(false)
     }
-    var selectedCategory = remember {
-        mutableStateOf(navData.category)
-    }
-    val prise = remember {
-        mutableStateOf(navData.price)
-    }
-    val title = remember {
-        mutableStateOf(navData.title)
-    }
-    val description = remember {
-        mutableStateOf(navData.description)
-}
+    var navImageUrl = remember { mutableStateOf(navData.imageUrl) }
+    val imageBase64 = remember { (mutableStateOf(if (IS_BASE_64) navData.imageUrl else "")) }
+    val firestore = remember { Firebase.firestore }
 
-val selectedImageUri = remember {
-    mutableStateOf<Uri?>(null)
-}
-    val imageBitMap = remember {
-        var bitmap: Bitmap? = null
-        try {
-            val base64Image = Base64.decode(navData.imageUrl, Base64.DEFAULT)
-            bitmap = BitmapFactory.decodeByteArray(
-                base64Image, 0,
-                base64Image.size
-            )
-        }catch (e: IllegalArgumentException){
+    val imageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (IS_BASE_64) {
+            imageBase64.value = uri?.let {
+                ImageUtils.imageToBase64(uri, context.contentResolver)
+            } ?: ""
+        } else {
+            navImageUrl.value = ""
+            viewModel.selectedImageUri.value = uri
         }
-        mutableStateOf(bitmap)
-    }
-    val firestore = remember {
-        Firebase.firestore
     }
 
-val imageLauncher = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.GetContent()
-) { uri ->
-    imageBitMap.value = null
-    selectedImageUri.value = uri
-}
+    LaunchedEffect(Unit) {
+        viewModel.setDefaultData(navData)
+        viewModel.uiState.collect { state ->
+            when (state) {
+                is MainScreenViewModel.MainUiState.Loading -> {
+                    viewModel.showLoadingIndicator.value = true
+                }
 
-Image(
-    painter = painterResource(id = R.drawable.bereg),
-    contentDescription =  "BG",
+                is MainScreenViewModel.MainUiState.Success -> {
+                    onSaved()
+                }
+
+                is MainScreenViewModel.MainUiState.Error -> {
+                    viewModel.showLoadingIndicator.value = false
+                    Toast.makeText(context, "Error: ${state.massage}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    Image(
+        painter = painterResource(id = R.drawable.bereg),
+        contentDescription = "BG",
         modifier = Modifier.fillMaxSize(),
         contentScale = ContentScale.Crop,
-        )
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(46.dp),
+            .padding(start = 40.dp, end = 40.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Image(
             painter = rememberAsyncImagePainter(
-                model = imageBitMap.value
+                // model = imageBitMap.value
+                // model = imageBase64.value.toBitmap()
+
+                model = if (imageBase64.value.isNotEmpty()) {
+                    imageBase64.value.toBitmap()
+                } else {
+                    navImageUrl.value.ifEmpty { viewModel.selectedImageUri.value }
+
+                }
             ),
             contentDescription = "Logo",
-            modifier = Modifier.height(250.dp).padding(bottom = 50.dp)
+            modifier = Modifier
+                .height(450.dp)
+                .width(500.dp),
+         //   verticalArrangement = Arrangement.Center,
+          //  horizontalAlignment = Alignment.CenterHorizontally
 
         )
-        Spacer(modifier = Modifier.height(10.dp))
-        RoundedCornerDropDownMenu(selectedCategory.value) { selectedItem ->
+        RoundedCornerDropDownMenu(viewModel.selectedCategory.intValue) { selectedItemIndex ->
             imageLauncher
-            selectedCategory.value = selectedItem
+            viewModel.selectedCategory.intValue = selectedItemIndex
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         RoundedCornerTextField(
-            text = title.value,
+            text = viewModel.title.value,
             label = "Заголовок: "
         ) {
-            title.value = it
+            viewModel.title.value = it
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         RoundedCornerTextField(
-            text = description.value,
+            text = viewModel.description.value,
             label = "Краткое описание:",
             maxLines = 5,
             singleLine = false
         ) {
-            description.value = it
+            viewModel.description.value = it
 
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         RoundedCornerTextField(
-            text = prise.value,
+            text = viewModel.prise.value,
             label = "Цена :"
         ) {
-            prise.value = it
+            viewModel.prise.value = it
 
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        RoundedCornerTextField(
+            text = viewModel.telephone.value,
+            label = "Телефон:"
+        ) {
+            viewModel.telephone.value = it
+
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         LoginButton(text = "Выбрать фото ") {
             imageLauncher.launch("image/*")
         }
-        LoginButton(text = "Сохранить") {
-            isUpload.value = true
-            saveBookToFireStore(
-                firestore,
-                Book(
-                    key = navData.key,
-                    title = title.value,
-                    description = description.value,
-                    price = prise.value,
-                    category = selectedCategory.value,
-                    imageUrl = if (selectedImageUri.value !== null)
-                        imageToBase64(
-                            selectedImageUri.value!!,
-                            cv
-                        ) else navData.imageUrl
-                ),
-                onSaved = {
-                    onSaved()
-                    Log.d("MyLog", "OnSave")
-                },
-                onError = {
-                }
-            )
+        LoginButton(text = "Сохранить", viewModel.showLoadingIndicator.value) {
+            viewModel.showLoadingIndicator.value = true
+            viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
+            /*   isUpload.value = true
+               saveBookToFireStore(
+                   firestore,
+                   Book(
+                       key = navData.key,
+                       title = title.value,
+                       description = description.value,
+                       price = prise.value,
+                       categoryIndex = selectedCategory.value,
+                       imageUrl = if (selectedImageUri.value !== null)
+                           imageToBase64(
+                               selectedImageUri.value!!,
+                               cv
+                           ) else navData.imageUrl
+                   ),
+                   onSaved = {
+                       onSaved()
+                       Log.d("MyLog", "OnSave")
+                   },
+                   onError = {
+                   }
+               )*/
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Box{
+        Spacer(modifier = Modifier.height(15.dp))
+        Box {
             if (isUpload.value == true)
                 CircularProgressIndicator(
                     modifier = Modifier.height(30.dp),
@@ -189,35 +206,9 @@ Image(
     }
 }
 
-private fun imageToBase64(uri: Uri, contentResolver: ContentResolver): String{
-    val inputStream = contentResolver.openInputStream(uri)
-
-    val bytes = inputStream?.readBytes()
-    return bytes?.let {
-        Base64.encodeToString(it, Base64.DEFAULT)
-    }?: ""
-}
 
 
-private fun saveBookToFireStore(
-    firestore: FirebaseFirestore,
-    book: Book,
-    onSaved: ()-> Unit,
-    onError: ()-> Unit
-){
-    //Куда соханять фото
-    val db = firestore.collection("guide_posts")
-    val key = if(book.key.isEmpty()) db.document().id else book.key
-    db.document(key)
-        .set(
-            book.copy(key = key)
-        ).addOnSuccessListener{
-            onSaved()
-        }
-        .addOnFailureListener{
-            onError()
-        }
-}
+
 
 
 

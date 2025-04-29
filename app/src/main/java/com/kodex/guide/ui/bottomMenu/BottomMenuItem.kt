@@ -5,22 +5,22 @@ import com.kodex.bookmarketcompose.R
 
 sealed class BottomMenuItem(
     val route: String,
-    val title: String,
+    val titleId: Int,
     val iconId: Int
 ) {
     object Home: BottomMenuItem(
         route = "home",
-        title = "Home",
+        titleId = R.string.home,
         iconId = R.drawable.ic_home
     )
     object Faves: BottomMenuItem(
         route = "favorite",
-        title = "Favorite",
+        titleId = R.string.favorite,
         iconId = R.drawable.ic_favorite
     )
     object Settings: BottomMenuItem(
         route = "setting",
-        title = "Setting",
+        titleId = R.string.settings,
         iconId = R.drawable.ic_settings
     )
 }

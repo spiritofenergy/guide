@@ -1,3 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">guía</string>
+    <string name="email_send">Correo de restablecimiento de contraseña enviado</string>
+    <string name="reset_password_dialog">Se ha enviado un enlace para restablecer la contraseña a su correo. Por favor, siga las instrucciones para restablecer la contraseña.</string>
+    <!-- LoginScreen -->
+    <!-- BottomMenu-->
+    <string name="home" translatable="false">Inicio</string>
+    <string name="favorite">Favoritos</string>
+    <string name="settings">Ajustes</string>
+    <!-- DriverMenu-->
+    <string name="all">Todos</string>
+    <!-- -->
+    <string name="empty_list">Lista vacía</string>
+
 </resources>

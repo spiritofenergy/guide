@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">guide</string>
+    <string name="app_name">Taman</string>
+    <string name="email_send">Password reset email send</string>
+    <string name="reset_password_dialog">Reset password link was send to your email.
+        Please follow the instructions to reset password.  </string>
+<!-- LoginScreen -->
+<!-- BottomMenu-->
+    <string name="home" translatable="false">Home</string>
+    <string name="favorite">Favorite</string>
+    <string name="settings">Settings</string>
+<!-- DriverMenu-->
+    <string name="all">All</string>
+<!-- -->
+    <string name="empty_list">Лист пустой</string>
+
 </resources>

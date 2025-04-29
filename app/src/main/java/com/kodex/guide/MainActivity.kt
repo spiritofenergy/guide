@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.ui.res.booleanResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +17,7 @@ import com.kodex.guide.ui.detailScreen.DetailNavObject
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.String
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,7 +29,8 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = LoginScreenObject) {
+                startDestination = LoginScreenObject
+            ) {
 
                 composable<LoginScreenObject> {
                     LoginScreen() { navData ->
@@ -40,39 +41,43 @@ class MainActivity : ComponentActivity() {
                     val navData = navEntry.toRoute<MainScreenDataObject>()
                     MenuScreen(
                         navData = navData,
-                        onBookClick = { bk->
-                            navController.navigate(DetailNavObject(
-                                title = bk.title,
-                                description = bk.description,
-                                price = bk.price,
-                                category = bk.category,
-                                imageUrl = bk.imageUrl
-                            ))
+                        onBookClick = { bk ->
+                            navController.navigate(
+                                DetailNavObject(
+                                    title = bk.title,
+                                    description = bk.description,
+                                    price = bk.price.toString(),
+                                    telephone = bk.telephone,
+                                    categoryIndex = bk.categoryIndex,
+                                    imageUrl = bk.imageUrl
+                                )
+                            )
                         },
-                        onBookDeleteClick = {book->
-
-
-                        },
-                        onBookEdinClick = { book->
+                        onBookEdinClick = { book ->
                             navController.navigate(AddScreenObject(
-                                key = book.key,
-                                title = book.title,
-                                description = book.description,
-                                price = book.price,
-                                category = book.category,
-                                imageUrl = book.imageUrl
-                            ))
-                        }){
+                                    key = book.key,
+                                    title = book.title,
+                                    description = book.description,
+                                    price = book.price.toString(),
+                                    telephone = book.telephone,
+                                    categoryIndex = book.categoryIndex,
+                                    imageUrl = book.imageUrl
+                                )
+                            )
+                        }) {
                         navController.navigate(AddScreenObject())
                     }
                 }
-                composable<AddScreenObject>{ navEntry ->
+                composable<AddScreenObject> { navEntry ->
                     val navData = navEntry.toRoute<AddScreenObject>()
-                    AddBookScreen(navData){
-                        navController.popBackStack()
-                    }
+                    AddBookScreen(
+                        navData,
+                        onSaved = {
+                            navController.popBackStack()
+                        }
+                    )
                 }
-                composable< DetailNavObject>{ navEntry ->
+                composable<DetailNavObject> { navEntry ->
                     val navData = navEntry.toRoute<DetailNavObject>()
                     DetailScreen(navData)
 

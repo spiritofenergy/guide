@@ -1,3 +1,4 @@
+import com.android.tools.r8.internal.ru
 
 plugins {
     alias(libs.plugins.android.application)
@@ -50,7 +51,6 @@ android {
 }
 
 dependencies {
-
 
     implementation(libs.androidx.paging)
     implementation(libs.hilt.navigation.compose)

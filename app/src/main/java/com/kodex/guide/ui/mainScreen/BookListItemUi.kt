@@ -26,74 +26,76 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.ui.utils.toBitmap
 
 
 @Composable
 fun BookListItemUi(
-    showEditButton: Boolean = false,
-    book: Book,
-    onEditClick: (Book)-> Unit = {},
-    onDeleteClick: (Book)-> Unit = {},
-    onFavClick: ()-> Unit = {},
-    onBookClick: ()-> Unit = {}
-    ) {
+    titleIndex: Int,
+    showEditButton: Boolean = true,
+    book: Book = Book(),
+    onEditClick: (Book) -> Unit = {},
+    onDeleteClick: (Book) -> Unit = {},
+    onFavClick: () -> Unit = {},
+    onBookClick: () -> Unit = {},
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable{
+            .clickable {
                 onBookClick()
             }
     ) {
 
-        var bitmap: Bitmap? = null
-        try {
-            val base64Image = Base64.decode(book.imageUrl, Base64.DEFAULT)
-            bitmap = BitmapFactory.decodeByteArray(
-                base64Image,0,
-                base64Image.size
-            )
-        }catch (e:IllegalArgumentException){
 
-        }
-            AsyncImage(
-            model = bitmap?: book.imageUrl,
+        AsyncImage(
+            model = book.imageUrl.toBitmap() ?: book.imageUrl,
             contentDescription = "",
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(250.dp)
-                .clip(RoundedCornerShape(15.dp)),
+                .clip(RoundedCornerShape(10.dp)),
             contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.height(10.dp))
-      Row (modifier = Modifier.fillMaxWidth(),
-              verticalAlignment = Alignment.CenterVertically
-      ){
-          //            verticalAlignment = Alignment.CenterVertically
-          Text(
-              modifier = Modifier.fillMaxWidth().weight(1F),
-              text = book.title,
-              color = Color.Black,
-              fontWeight = FontWeight.Bold,
-              fontSize = 20.sp
-          )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            //            verticalAlignment = Alignment.CenterVertically
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F),
+                text = book.title,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
 
-          Icon(
-              Icons.Default.Star,
-              contentDescription = ""
-          )
-      }
+            Icon(
+                Icons.Default.Star,
+                contentDescription = ""
+            )
+        }
 
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = book.category,
+            text = stringArrayResource(id = R.array.category_arrays)[book.categoryIndex],
             color = Color.Black,
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
@@ -109,29 +111,35 @@ fun BookListItemUi(
         )
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row (
+        Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
+
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                modifier = Modifier.fillMaxWidth().weight(1F),
-                text = book.price,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F),
+                text = book.price.toString(),
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
 
-           if (showEditButton) IconButton(onClick = {
-                    onEditClick(book)
+            if (showEditButton) IconButton(onClick = {
+                onEditClick(book)
+
             }) {
                 Icon(
                     Icons.Default.Edit,
                     contentDescription = ""
                 )
             }
+
+
             if (showEditButton) IconButton(onClick = {
-                    onDeleteClick(book)
+                onDeleteClick(book)
             }) {
                 Icon(
                     Icons.Default.Delete,
@@ -139,15 +147,16 @@ fun BookListItemUi(
                 )
             }
 
+
+
             IconButton(onClick = {
-                   onFavClick()
+                onFavClick()
             }) {
                 Icon(
-                    if(book.isFaves)
-                    {
+                    if (book.isFaves) {
                         Icons.Default.Favorite
-                    }else
-                      Icons.Default.FavoriteBorder,
+                    } else
+                        Icons.Default.FavoriteBorder,
                     contentDescription = ""
                 )
             }

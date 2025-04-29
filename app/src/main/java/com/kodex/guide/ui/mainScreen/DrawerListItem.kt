@@ -18,13 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.kodex.guide.ui.theme.GrayLite
 
 @Composable
-fun DriverListItem (
+fun DrawerListItem  (
     title: String,
     onItemClick:()-> Unit
 ){
 
     Column(
-        Modifier.fillMaxWidth()
+        Modifier
+            .fillMaxWidth()
             .clickable {
                 onItemClick()
             }
