@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -26,21 +27,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.bottomMenu.BottomMenuItem
+import com.kodex.guide.ui.mainScreen.DrawerListItem
+import com.kodex.guide.ui.mainScreen.MainScreenViewModel
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.DarkTransparentBlue
 import com.kodex.guide.ui.theme.GrayLite
+import com.kodex.guide.ui.utils.Categories
 
 
 @Composable
 fun DrawerBody(
-   // onFavesClick: ()-> Unit,
+    viewModel: MainScreenViewModel = hiltViewModel(),
+    // onFavesClick: ()-> Unit,
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (Int) -> Unit = {}
@@ -84,7 +93,22 @@ fun DrawerBody(
              Box(modifier = Modifier.fillMaxWidth()
                  .height(1.dp).background(GrayLite)
              )
-             LazyColumn(Modifier.fillMaxWidth()) {
+
+             DrawerListItem(title = stringResource(id = R.string.all)) {
+                 onCategoryClick(Categories.ALL)
+                 viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
+             }
+
+             LazyColumn (Modifier.fillMaxWidth()){
+                 itemsIndexed(categoriesList){index, title->
+                     DrawerListItem(viewModel,
+                         title) {
+                         onCategoryClick(index)
+                     }
+                 }
+             }
+
+           /*  LazyColumn(Modifier.fillMaxWidth()) {
                  items(categoriesList) { item ->
                      Column(
                          Modifier.fillMaxWidth()
@@ -118,6 +142,10 @@ fun DrawerBody(
                      }
                  }
              }
+             */
+
+
+
             if (isAdminState.value) Button(
                      onClick = {
                      isAdmin {  }

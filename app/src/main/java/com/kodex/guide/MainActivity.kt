@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                                     description = bk.description,
                                     price = bk.price.toString(),
                                     telephone = bk.telephone,
-                                   categoryIndex = bk.categoryIndex,
+                                    categoryIndex = bk.categoryIndex,
                                     imageUrl = bk.imageUrl
                                 )
                             )
