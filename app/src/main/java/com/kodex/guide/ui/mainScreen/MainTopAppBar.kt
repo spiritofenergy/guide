@@ -112,7 +112,7 @@ fun MainTopAppBar(
             TopAppBar(
                 title = {
                     Text( text = when (titleIndex){
-                        Categories.FAVORITES -> stringResource(id = R.string.favorite)
+                        Categories.FAVORITES -> stringResource(id = R.string.faves)
                         Categories.ALL -> stringResource(id = R.string.all)
                         else -> stringArrayResource(id = R.array.category_arrays)[titleIndex]
                     } )

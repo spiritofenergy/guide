@@ -15,7 +15,7 @@ sealed class BottomMenuItem(
     )
     object Faves: BottomMenuItem(
         route = "favorite",
-        titleId = R.string.favorite,
+        titleId = R.string.faves,
         iconId = R.drawable.ic_favorite
     )
     object Settings: BottomMenuItem(

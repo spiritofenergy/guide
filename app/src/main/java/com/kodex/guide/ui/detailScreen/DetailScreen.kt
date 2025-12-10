@@ -16,12 +16,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import com.kodex.bookmarketcompose.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,7 +70,7 @@ fun DetailScreen(
                     Text(text = "Категория:",
                         color = Color.Gray)
                     Text(
-                        text = stringArrayResource(id = R.array.category_arrays)[navObject.categoryIndex],
+                        text = navObject.categoryIndex.toString(),
                         fontWeight = FontWeight.Bold)
                     Text(text = "Автор:",
                         color = Color.Gray)
@@ -88,10 +85,6 @@ fun DetailScreen(
                         color = Color.Gray)
                     Text(text = "4.5",
                         fontWeight = FontWeight.Bold)
-                    Text(text = "Телефон:",
-                        color = Color.Gray)
-                    Text(text = navObject.telephone,
-                        fontWeight = FontWeight.Bold)
 
                 }
             }
@@ -101,15 +94,9 @@ fun DetailScreen(
                 fontSize = 25.sp
             )
             Spacer(modifier = Modifier.fillMaxWidth().padding(10.dp))
-
-            Text(
-                text = stringArrayResource(id = R.array.category_arrays)[navObject.categoryIndex],
-                fontWeight = FontWeight.Bold)
-
-            Spacer(modifier = Modifier.fillMaxWidth().padding(10.dp))
-
             Text(
                 text = navObject.description,
+               // text = "«Властелин колец» является одним из самых крупных проектов в истории кино. Его реализация заняла восемь лет; все три фильма были сняты одновременно в Новой Зеландии, родной стране Питера Джексона. У каждого из фильмов трилогии есть специальная расширенная версия, выпущенная на DVD спустя год после выхода соответствующей театральной версии. Фильмы следуют за основной сюжетной линией книги, но опускают некоторые существенные элементы повествования, включают дополнения и отклонения от исходного материала.",
                 fontSize = 16.sp
             )
         }

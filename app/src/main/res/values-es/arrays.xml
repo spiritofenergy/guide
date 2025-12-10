@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="category_array">
-        <item>Fantasia</item> <!-- 0 -->
-        <item>Drama</item> <!-- 1 -->
-        <item>Bestseller</item> <!-- 2 -->
-    </string-array>
-</resources>

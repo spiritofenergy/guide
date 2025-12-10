@@ -14,10 +14,8 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.data.LoginScreenObject
 import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.detailScreen.DetailNavObject
-import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.String
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,45 +40,33 @@ class MainActivity : ComponentActivity() {
                     MenuScreen(
                         navData = navData,
                         onBookClick = { bk ->
-                            navController.navigate(
-                                DetailNavObject(
+                            navController.navigate(DetailNavObject(
                                     title = bk.title,
                                     description = bk.description,
                                     price = bk.price.toString(),
                                     telephone = bk.telephone,
-                                    categoryIndex = bk.categoryIndex,
+                                   categoryIndex = bk.categoryIndex,
                                     imageUrl = bk.imageUrl
                                 )
                             )
                         },
-                        onBookEdinClick = { book ->
+                        onBookEditClick = { book->
                             navController.navigate(AddScreenObject(
-                                    key = book.key,
-                                    title = book.title,
-                                    description = book.description,
-                                    price = book.price.toString(),
-                                    telephone = book.telephone,
-                                    categoryIndex = book.categoryIndex,
-                                    imageUrl = book.imageUrl
-                                )
+                                key = book.key,
+                                title = book.title,
+                                description = book.description,
+                                price = book.price,
+                                categoryIndex = book.categoryIndex,
+                                imageUrl = book.imageUrl,
                             )
-                        }) {
+                            )
+                        }
+                    ) {
                         navController.navigate(AddScreenObject())
                     }
                 }
-                composable<AddScreenObject> { navEntry ->
-                    val navData = navEntry.toRoute<AddScreenObject>()
-                    AddBookScreen(
-                        navData,
-                        onSaved = {
-                            navController.popBackStack()
-                        }
-                    )
-                }
-                composable<DetailNavObject> { navEntry ->
-                    val navData = navEntry.toRoute<DetailNavObject>()
-                    DetailScreen(navData)
-
+                composable<AddScreenObject>{ navEntry ->
+                    AddBookScreen()
                 }
             }
         }
@@ -88,14 +74,3 @@ class MainActivity : ComponentActivity() {
 }
 
 
-/*
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BookMarketComposeTheme {
-        LoginScreen { navData ->
-            navController.navigate(navData)
-        }
-    }
-}*/

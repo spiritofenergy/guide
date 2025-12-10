@@ -9,7 +9,7 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.kodex.guide.ui.utils.StoreManager
 import com.kodex.guide.ui.utils.firebase.AuthManager
- import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +25,7 @@ object MainModule {
     fun provideFirebasePagingManager(
         db: FirebaseFirestore,
         auth: FirebaseAuth,
+        app: Application
     ): FireStoreManagerPaging{
         return FireStoreManagerPaging(
             db, auth
@@ -42,21 +43,19 @@ object MainModule {
         return Firebase.firestore
     }
 
-
-   @Provides
+    @Provides
     @Singleton
     fun provideAuthManager(
         auth: FirebaseAuth
     ): AuthManager{
         return AuthManager(auth)
-
     }
 
     @Provides
     @Singleton
     fun provideStoreManager(
         app: Application
-    ): StoreManager{
+    ):StoreManager{
         return StoreManager(app)
     }
 }

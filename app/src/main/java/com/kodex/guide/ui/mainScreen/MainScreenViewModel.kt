@@ -3,7 +3,6 @@ package com.kodex.guide.ui.mainScreen
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -27,12 +26,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val fireStoreManagerPaging: FireStoreManagerPaging,
-    private val pager: Flow<PagingData<Book>>
+    private val firebaseManagerPainter: FireStoreManagerPaging,
+    private val pager: Flow<PagingData<Book>>,
 ) : ViewModel() {
     val isEdit = mutableStateOf(false)
+
     val minPriceValue = mutableFloatStateOf(0f)
     val maxPriceValue = mutableFloatStateOf(0f)
+
     val isFilterByTitle = mutableStateOf(true)
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
     val categoryState = mutableIntStateOf(Categories.ALL)
@@ -66,6 +67,11 @@ class MainScreenViewModel @Inject constructor(
         _uiState.emit(state)
     }
 
+
+    fun setPriceFilter(minPrice: Float, maxPrice: Float) {
+        firebaseManagerPainter.minPrice = minPrice.toInt()
+        firebaseManagerPainter.maxPrice = maxPrice.toInt()
+    }
     fun setFilter() {
         val filterData = FilterData(
             minPrise = minPriceValue.floatValue.toInt(),
@@ -75,12 +81,12 @@ class MainScreenViewModel @Inject constructor(
             } else 
                 FirebaseConst.PRICE
         )
-        fireStoreManagerPaging.filterData = filterData
+       // fireStoreManagerPaging.filterData = filterData
     }
 
     fun deleteBook(uiList: List<Book>) {
         if (bookToDelete == null) return
-        fireStoreManagerPaging.deleteBook(
+        firebaseManagerPainter.deleteBook(
             bookToDelete!!,
             onDeleted = {
                 bookListUpdate.value = uiList.filter {
@@ -94,16 +100,16 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun searchBook(searchText: String){
-        fireStoreManagerPaging.searchText = searchText
+        firebaseManagerPainter.searchText = searchText
     }
 
     fun getBooksFromCategory(categoryIndex: Int) {
         categoryState.intValue = categoryIndex
-        fireStoreManagerPaging.categoryIndex = categoryIndex
+        firebaseManagerPainter.category = categoryIndex
 
     }
     fun onFavesClick(book: Book, isFavesState: Int, bookList: List<Book>) {
-        val bookList = fireStoreManagerPaging.changeFavesState(bookList, book)
+            val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
         bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
             deleteBook = true
             bookList.filter { it.isFaves }

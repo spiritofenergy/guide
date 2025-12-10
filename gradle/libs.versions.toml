@@ -1,9 +1,9 @@
 [versions]
-agp = "8.7.3"
-coilCompose = "2.7.0"
-firebaseBom = "33.12.0"
-kotlin = "2.1.10"
-coreKtx = "1.15.0"
+agp = "8.7.2"
+coilCompose = "2.0.0"
+firebaseBom = "33.7.0"
+kotlin = "2.0.0"
+coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -11,24 +11,24 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2025.02.00"
 googleGmsGoogleServices = "4.4.2"
-firebaseAuth = "23.2.0"
+firebaseAuth = "23.1.0"
 
+mobileads = "7.12.1"
 
 navigationCompose = "2.8.8"
 serializationVersion = "2.1.0"
 serializationKotlin = "1.8.0"
+
 firebaseDatabase = "21.0.0"
 firebaseFirestore = "25.1.2"
 firebaseStorage = "21.0.1"
 
-hiltAndroid = "2.54"
+hiltAndroid = "2.55"
 hiltNavigationCompose = "1.2.0"
-kspPlugin = "2.1.10-1.0.30"
-hiltPlugin = "2.55"
+kspPlugin = "2.1.0-1.0.29"
+hiltPlugin = "2.49"
 
-pagingVersion = "3.3.6"
-
-
+pagingVersion = "3.3.0"
 
 
 [libraries]
@@ -58,13 +58,14 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 
-android-hilt = {module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid"}
-android-hilt-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid"}
+android-hilt = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid"}
+android-hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid"}
 
-hilt-navigation-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose"}
-hilt-navigation-compose-compiler = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose"}
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose"}
+hilt-navigation-compose-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose"}
 
-androidx-paging = {group = "androidx.paging", name = "paging-compose", version.ref = "pagingVersion"}
+androidx-paging = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingVersion" }
+mobileads = { module = "com.yandex.android:mobileads", version.ref = "mobileads" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -76,8 +77,7 @@ google-gms-google-services = { id = "com.google.gms.google-services", version.re
 plugin-serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationVersion" }
 compose-compiler = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 
-
-ksp-plugin = {id = "com.google.devtools.ksp", version.ref = "kspPlugin"}
-hilt-plugin = {id = "com.google.dagger.hilt.android", version.ref = "hiltPlugin"}
+ksp-plugin = { id = "com.google.devtools.ksp", version.ref = "kspPlugin" }
+hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hiltPlugin" }
 
 

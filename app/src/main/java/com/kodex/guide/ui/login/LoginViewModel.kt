@@ -1,19 +1,17 @@
 package com.kodex.guide.ui.login
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
 import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.utils.firebase.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.utils.StoreManager
 
 
 @HiltViewModel
-class LViewModel@Inject constructor(
+class LoginViewModel@Inject constructor(
     private val authManager: AuthManager,
     private val storeManager: StoreManager
 ): ViewModel() {

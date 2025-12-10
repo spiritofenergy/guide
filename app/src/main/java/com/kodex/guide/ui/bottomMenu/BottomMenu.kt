@@ -13,15 +13,16 @@ import com.kodex.guide.ui.theme.PurpleGrey80
 fun BottomMenu(
     selectedItem: Int,
     onFavesClick: () -> Unit = {},
-    onHomeClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {}
 ) {
     val items = listOf(
         BottomMenuItem.Home,
         BottomMenuItem.Faves,
         BottomMenuItem.Settings
 
-    )
+      )
 
+   // val selectedItem = remember { mutableStateOf("Home") }
 
     NavigationBar(
         containerColor = PurpleGrey80
@@ -29,32 +30,24 @@ fun BottomMenu(
         items.forEach { item ->
             NavigationBarItem(
                 selected = selectedItem == item.titleId,
+                //selected = selectedItem == item.titleId,
                 onClick = {
-                    when (item.titleId) {
+                    when(item.titleId){
                         BottomMenuItem.Home.titleId -> onHomeClick()
                         BottomMenuItem.Faves.titleId -> onFavesClick()
                     }
                 },
                 icon = {
-                    Icon(
-                        painter = painterResource(id = item.iconId),
-                        contentDescription = null
-                    )
+                    Icon(painter = painterResource(id = item.iconId),
+                        contentDescription = null)
                 },
                 label = {
                     Text(
-                        text = stringResource(id = item.titleId)
+                        text = stringResource(item.titleId)
                     )
-                },
-                /* colors = NavigationDrawerItemDefaults.colors(
-                     selectedIconColor = DarkBlue,
-                     selectedTextColor = DarkBlue,
-                     unselectedIconColor = DarkBlue,
-                     unselectedBadgeColor = DarkBlue
+                }
 
-                 )*/
-
-            )
+                )
 
 
         }

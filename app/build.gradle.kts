@@ -1,16 +1,15 @@
-import com.android.tools.r8.internal.ru
+import org.gradle.api.JavaVersion.VERSION_11
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+  //  alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 
     alias(libs.plugins.compose.compiler)
-    alias((libs.plugins.plugin.serialization))
+    alias(libs.plugins.plugin.serialization)
     alias(libs.plugins.ksp.plugin)
     alias(libs.plugins.hilt.plugin)
-
-
 
 }
 
@@ -38,8 +37,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = VERSION_11
+        targetCompatibility = VERSION_11
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -47,15 +46,15 @@ android {
     buildFeatures {
         compose = true
     }
-
 }
 
 dependencies {
 
     implementation(libs.androidx.paging)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.navigation.compose.compiler)
 
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.espresso.core)
+    ksp(libs.hilt.navigation.compose.compiler)
     implementation(libs.android.hilt)
     ksp(libs.android.hilt.compiler)
 

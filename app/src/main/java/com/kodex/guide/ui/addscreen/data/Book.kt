@@ -1,8 +1,6 @@
 package com.kodex.guide.ui.addscreen.data
 
-import android.location.Location
 import com.kodex.guide.ui.utils.Categories
-import java.time.Instant
 
 data class Book(
     val key: String = "",

@@ -1,16 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Taman</string>
-    <string name="email_send">Password reset email send</string>
-    <string name="reset_password_dialog">Reset password link was send to your email.
-        Please follow the instructions to reset password.  </string>
-<!-- LoginScreen -->
-<!-- BottomMenu-->
-    <string name="home" translatable="false">Home</string>
-    <string name="favorite">Favorite</string>
+    <string name="app_name">guía</string>
+    <string name="email_send">Correo de restablecimiento de contraseña enviado</string>
+    <string name="reset_password_dialog">Se ha enviado un enlace para restablecer la contraseña a su correo. Por favor, siga las instrucciones para restablecer la contraseña.</string>
+    <!-- LoginScreen -->
+    <!-- BottomMenu-->
+    <string name="home">Home</string>
+    <string name="faves">Favorite</string>
     <string name="settings">Settings</string>
-<!-- DriverMenu-->
-    <string name="all">All</string>
-<!-- -->
-    <string name="empty_list">Лист пустой</string>
+    <!-- -->
+    <!-- DriverMenu-->
+    <string name="all">Todos</string>
+    <!-- -->
+    <string name="empty_list">Lista vacía</string>
 
 </resources>

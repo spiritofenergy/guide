@@ -8,7 +8,7 @@ data class AddScreenObject(
     val key: String = "",
     val title: String = "",
     val description: String = "",
-    val price: String = "",
+    val price: Int = 0,
     val telephone: String = "",
     val categoryIndex: Int = Categories.FANTASY,
     val imageUrl: String = ""
