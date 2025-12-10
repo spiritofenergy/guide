@@ -49,14 +49,14 @@ fun BookListItemUi(
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
     onFavClick: () -> Unit = {},
-    onBookClick: () -> Unit = {},
+    onBookClick: (Book) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clickable {
-                onBookClick()
+                onBookClick(book)
             }
     ) {
 
