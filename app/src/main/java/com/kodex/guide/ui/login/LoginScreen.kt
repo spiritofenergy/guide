@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -112,7 +112,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             if (!viewModel.resetPasswordState.value) {
-                LoginButton(text = "Вход") {
+                LoginButton(text = "Вход"
+                ) {
                     viewModel.signIn(
                         onSignInSuccess = { navData ->
                             onNavigationToMainScreen(navData)
@@ -125,7 +126,7 @@ fun LoginScreen(
                     "Восстановить пароль "
                 } else {
                     "Авторизация"
-                }
+                },
             ) {
                 viewModel.signUp(
                     onSignUpSuccess = { navData ->
@@ -133,8 +134,9 @@ fun LoginScreen(
                     }
                 )
             }
+
             Spacer(modifier = Modifier.height(10.dp))
-            if (!viewModel.resetPasswordState.value) {
+
                 Text(
                     modifier = Modifier.clickable {
                         viewModel.errorState.value = ""
@@ -143,7 +145,7 @@ fun LoginScreen(
                     text = "Напомнить пароль",
                     color = Color.White
                 )
-            }
+
         } else {
             Spacer(modifier = Modifier.height(10.dp))
             LoginButton(text = "Вход") {

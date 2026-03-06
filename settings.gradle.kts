@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BookMarketCompose"
+rootProject.name = "Guide"
 include(":app")
  

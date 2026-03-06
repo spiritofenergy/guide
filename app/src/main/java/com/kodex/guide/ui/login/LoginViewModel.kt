@@ -18,7 +18,9 @@ class LoginViewModel@Inject constructor(
     val currentUser = mutableStateOf<FirebaseUser?>(null)
     val errorState = mutableStateOf("")
     val successState = mutableStateOf(false)
-    val emailState = mutableStateOf("nillsimon24@gmail.com")
+    val emailState = mutableStateOf("" +
+           //' "nillsimon24@gmail.com" +
+            "")
     val passwordState = mutableStateOf("test24")
     val resetPasswordState = mutableStateOf(false)
     val showResetPasswordDialog = mutableStateOf(false)
