@@ -23,7 +23,7 @@ class AddBookViewModel @Inject constructor(
     val description = mutableStateOf("")
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
-    val selectedCategory = mutableIntStateOf(Categories.FANTASY)
+    val selectedCategory = mutableIntStateOf(Categories.ALL)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
 
@@ -39,7 +39,7 @@ class AddBookViewModel @Inject constructor(
         description.value = navData.description
         price.value = navData.price.toString()
         telephone.value = navData.telephone
-        selectedCategory.intValue = navData.categoryIndex
+        selectedCategory.value = navData.category
     }
 
     fun uploadBook(
@@ -47,12 +47,12 @@ class AddBookViewModel @Inject constructor(
     ) {
         sendUiState(MainUiState.Loading)
         val book = Book(
+            key = navData.key,
             title = title.value,
             description = description.value,
-            key = navData.key,
             price = price.value.toInt(),
             telephone = telephone.value,
-            categoryIndex = selectedCategory.intValue,
+            category = selectedCategory.value,
             imageUrl = navData.imageUrl
         )
 

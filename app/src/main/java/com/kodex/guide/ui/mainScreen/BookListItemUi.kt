@@ -1,8 +1,5 @@
 package com.kodex.guide.ui.mainScreen
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,18 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.addscreen.data.Book
-import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.toBitmap
 
 
@@ -49,14 +40,14 @@ fun BookListItemUi(
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
     onFavClick: () -> Unit = {},
-    onBookClick: () -> Unit = {},
+    onBookClick: (Book) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clickable {
-                onBookClick()
+                onBookClick(book)
             }
     ) {
 
@@ -95,7 +86,7 @@ fun BookListItemUi(
 
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = stringArrayResource(id = R.array.category_arrays)[book.categoryIndex],
+            text = book.category.toString(),
             color = Color.Black,
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
@@ -157,7 +148,8 @@ fun BookListItemUi(
                         Icons.Default.Favorite
                     } else
                         Icons.Default.FavoriteBorder,
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = if (book.isFaves) Color.Red else Color.Gray
                 )
             }
         }

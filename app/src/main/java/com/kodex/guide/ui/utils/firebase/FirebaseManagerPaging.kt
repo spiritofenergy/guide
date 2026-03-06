@@ -23,7 +23,7 @@ class FireStoreManagerPaging(
     //private val contentResolver: ContentResolver
     // private val storage: FirebaseStorage,
 ) {
-    var category = Categories.ALL
+    var category: Int = Categories.ALL
     var searchText = ""
 
     var minPrice = 0
@@ -70,7 +70,7 @@ class FireStoreManagerPaging(
 
 
     private suspend fun getIdsFavesList(): List<String> {
-        var snapshot = getFavesCategoryReference().get().await()
+        val snapshot = getFavesCategoryReference().get().await()
         val idsList = snapshot.toObjects(Favorite::class.java)
         val keysList = arrayListOf<String>()
 

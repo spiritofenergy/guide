@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,21 +24,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 
 import com.kodex.guide.ui.theme.DarkBlue
-import com.kodex.guide.ui.theme.Purple80
 import com.kodex.guide.ui.theme.PurpleGrey80
 import com.kodex.guide.ui.utils.Categories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopAppBar(
+//@Preview(showBackground = true)
+fun MainTopBar(
+
     titleIndex: Int,
+    viewModel: MainScreenViewModel = hiltViewModel(),
     onSearch: (String) -> Unit,
+    onTab: () -> Unit,
     onFilter: () -> Unit
 ) {
     var targetState by remember { mutableStateOf(false) }
@@ -62,10 +65,12 @@ fun MainTopAppBar(
                         placeholder = {
                             Text(text = "Search...")
                         },
+
                         onQueryChange = { text ->
                             queryText = text
                            // Log.d("MyLog", "Query onQueryChange text: $text")
                         },
+
                         onSearch = {text ->
                             onSearch(text)
                             Log.d("MyLog", "Query onSearch text: $text")
@@ -111,11 +116,12 @@ fun MainTopAppBar(
         } else {
             TopAppBar(
                 title = {
-                    Text( text = when (titleIndex){
+                   /* Text( text = when (titleIndex){
                         Categories.FAVORITES -> stringResource(id = R.string.faves)
                         Categories.ALL -> stringResource(id = R.string.all)
-                        else -> stringArrayResource(id = R.array.category_arrays)[titleIndex]
-                    } )
+                        else -> stringArrayResource(id = R.array.category_arrays)[titleIndex.hashCode()]
+                    }
+                    )*/
                 },
 
                 actions = {
@@ -129,10 +135,24 @@ fun MainTopAppBar(
                     }
 
                     IconButton(onClick = {
+                        onTab()
+                    }) {
+                        if (!viewModel.showTabOneOrTo.value) {
+                        Icon(
+                            painter = painterResource(R.drawable.litle_cards),
+                            contentDescription = "List"
+                        )
+                    }else{ Icon(
+                            painter = painterResource(R.drawable.big_cards),
+                            contentDescription = "List"
+                             )
+                         }
+                    }
+                    IconButton(onClick = {
                         onFilter()
                     }) {
                         Icon(
-                            Icons.AutoMirrored.Filled.List,
+                            painter = painterResource(R.drawable.filter_alt),
                             contentDescription = "Filter"
                         )
                     }

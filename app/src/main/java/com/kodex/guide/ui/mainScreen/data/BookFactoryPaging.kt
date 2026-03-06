@@ -22,7 +22,6 @@ class BookFactoryPaging @Inject constructor(
     : LoadResult<DocumentSnapshot, Book> {
         try {
             val currentPage = params.key
-            Log.d("MyLog", "Current page: $currentPage")
 
             val (snapshot, books) = fireStoreManagerPaging.nextPage(
                 pageSize = params.loadSize.toLong(),

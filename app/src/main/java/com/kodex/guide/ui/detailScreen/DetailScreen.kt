@@ -70,7 +70,7 @@ fun DetailScreen(
                     Text(text = "Категория:",
                         color = Color.Gray)
                     Text(
-                        text = navObject.categoryIndex.toString(),
+                        text = navObject.category.toString(),
                         fontWeight = FontWeight.Bold)
                     Text(text = "Автор:",
                         color = Color.Gray)

@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.mainScreen
 
+import android.util.Log
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.castom.FilterData
@@ -35,8 +39,14 @@ class MainScreenViewModel @Inject constructor(
     val maxPriceValue = mutableFloatStateOf(0f)
 
     val isFilterByTitle = mutableStateOf(true)
+    var showTabOneOrTo = mutableStateOf(false)
+
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
+
+    val isAdminState = mutableStateOf(false)
+
     val categoryState = mutableIntStateOf(Categories.ALL)
+
     var bookToDelete: Book? = null
     private var deleteBook = false
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
@@ -72,16 +82,17 @@ class MainScreenViewModel @Inject constructor(
         firebaseManagerPainter.minPrice = minPrice.toInt()
         firebaseManagerPainter.maxPrice = maxPrice.toInt()
     }
+
     fun setFilter() {
         val filterData = FilterData(
             minPrise = minPriceValue.floatValue.toInt(),
             maxPrise = maxPriceValue.floatValue.toInt(),
             filterType = if (isFilterByTitle.value) {
                 FirebaseConst.TITLE
-            } else 
+            } else
                 FirebaseConst.PRICE
         )
-       // fireStoreManagerPaging.filterData = filterData
+        // fireStoreManagerPaging.filterData = filterData
     }
 
     fun deleteBook(uiList: List<Book>) {
@@ -94,12 +105,13 @@ class MainScreenViewModel @Inject constructor(
                 }
             },
             onFailure = {
-               sendUiState(MainUiState.Error(it))
-               }
+                sendUiState(MainUiState.Error(it))
+            }
         )
     }
 
-    fun searchBook(searchText: String){
+
+    fun searchBook(searchText: String) {
         firebaseManagerPainter.searchText = searchText
     }
 
@@ -108,8 +120,9 @@ class MainScreenViewModel @Inject constructor(
         firebaseManagerPainter.category = categoryIndex
 
     }
+
     fun onFavesClick(book: Book, isFavesState: Int, bookList: List<Book>) {
-            val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
+        val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
         bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
             deleteBook = true
             bookList.filter { it.isFaves }
@@ -123,6 +136,18 @@ class MainScreenViewModel @Inject constructor(
     sealed class MainUiState {
         data object Loading : MainUiState()
         data object Success : MainUiState()
-        data class  Error(val massage: String) : MainUiState()
+        data class Error(val massage: String) : MainUiState()
+    }
+
+    fun isAdmin(onAdmin: (Boolean) -> Unit) {
+        Log.d("MyLog3", "isAdmin: Start")
+        val uid = Firebase.auth.currentUser!!.uid
+        Firebase.firestore.collection("admin")
+            .document(uid)
+            .get()
+            .addOnSuccessListener {
+                onAdmin(it.get("isAdmin") as Boolean)
+                Log.d("MyLog", "isAdmin: ${it.get("isAdmin")}")
+            }
     }
 }

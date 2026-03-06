@@ -3,7 +3,7 @@ import org.gradle.api.JavaVersion.VERSION_11
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-  //  alias(libs.plugins.kotlin.compose)
+  //alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 
     alias(libs.plugins.compose.compiler)
@@ -15,7 +15,7 @@ plugins {
 
 android {
     namespace = "com.kodex.bookmarketcompose"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kodex.bookmarketcompose"
@@ -54,7 +54,9 @@ dependencies {
 
     implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.room.common.jvm)
     ksp(libs.hilt.navigation.compose.compiler)
+
     implementation(libs.android.hilt)
     ksp(libs.android.hilt.compiler)
 
@@ -63,6 +65,8 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+
+    implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

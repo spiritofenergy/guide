@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                                     description = bk.description,
                                     price = bk.price.toString(),
                                     telephone = bk.telephone,
-                                   categoryIndex = bk.categoryIndex,
+                                    category = bk.category,
                                     imageUrl = bk.imageUrl
                                 )
                             )
@@ -56,18 +56,33 @@ class MainActivity : ComponentActivity() {
                                 title = book.title,
                                 description = book.description,
                                 price = book.price,
-                                categoryIndex = book.categoryIndex,
+                                category = book.category,
                                 imageUrl = book.imageUrl,
                             )
                             )
+                        },
+                        onAdminClick = {
+                            navController.navigate(AddScreenObject())
+                        },
+                        onLoginClick = {
+                            navController.navigate(LoginScreenObject)
+                        },
+                        onAddBookClick = {
+                            navController.navigate(AddScreenObject())
                         }
-                    ) {
-                        navController.navigate(AddScreenObject())
-                    }
+                    )
+
                 }
                 composable<AddScreenObject>{ navEntry ->
-                    AddBookScreen()
+                    val navData = navEntry.toRoute<AddScreenObject>()
+                    AddBookScreen(
+                        navData = navData,
+                        onSaved = {
+                            navController.popBackStack()
+                        }
+                    )
                 }
+
             }
         }
     }

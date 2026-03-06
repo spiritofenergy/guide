@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.google.firebase.storage.FirebaseStorage
 import com.kodex.guide.ui.utils.StoreManager
 import com.kodex.guide.ui.utils.firebase.AuthManager
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
