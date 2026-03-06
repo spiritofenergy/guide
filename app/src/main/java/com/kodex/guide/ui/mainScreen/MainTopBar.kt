@@ -116,12 +116,12 @@ fun MainTopBar(
         } else {
             TopAppBar(
                 title = {
-                   /* Text( text = when (titleIndex){
+                    Text( text = when (titleIndex){
                         Categories.FAVORITES -> stringResource(id = R.string.faves)
                         Categories.ALL -> stringResource(id = R.string.all)
-                        else -> stringArrayResource(id = R.array.category_arrays)[titleIndex.hashCode()]
+                        else -> stringArrayResource(id = R.array.category_array_driver_body)[titleIndex.hashCode()]
                     }
-                    )*/
+                    )
                 },
 
                 actions = {

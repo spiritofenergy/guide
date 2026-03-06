@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.utils.toBitmap
+ import com.kodex.bookmarketcompose.R
+
 
 
 @Composable
@@ -50,8 +53,6 @@ fun BookListItemUi(
                 onBookClick(book)
             }
     ) {
-
-
         AsyncImage(
             model = book.imageUrl.toBitmap() ?: book.imageUrl,
             contentDescription = "",
@@ -86,7 +87,7 @@ fun BookListItemUi(
 
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = book.category.toString(),
+            text = stringArrayResource(R.array.category_array_driver_body)[book.category],
             color = Color.Black,
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
@@ -127,8 +128,6 @@ fun BookListItemUi(
                     contentDescription = ""
                 )
             }
-
-
             if (showEditButton) IconButton(onClick = {
                 onDeleteClick(book)
             }) {
@@ -137,9 +136,6 @@ fun BookListItemUi(
                     contentDescription = ""
                 )
             }
-
-
-
             IconButton(onClick = {
                 onFavClick()
             }) {

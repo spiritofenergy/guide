@@ -63,19 +63,13 @@ fun MenuScreen(
     val isAuthorState = remember {mutableStateOf(false)}
     var showFilterDialog by remember {mutableStateOf(false)}
 
-
     val books = viewModel.books.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
-        Log.d("MyLog1", "isAdminState.value = ${viewModel.isAdminState.value}")
-        // viewModel.isAdmin(viewModel.isAdmin")
-        viewModel.isAdmin { isAdmin ->
+         viewModel.isAdmin { isAdmin ->
             viewModel.isAdminState.value = isAdmin
-            Log.d("MyLog2", "isAdminState.value = $isAdmin")
-            // onAdmin(isAdmin)
-        }
+         }
     }
-
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect{uiState->

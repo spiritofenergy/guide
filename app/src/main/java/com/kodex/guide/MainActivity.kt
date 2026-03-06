@@ -14,6 +14,7 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.data.LoginScreenObject
 import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.detailScreen.DetailNavObject
+import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(DetailNavObject(
                                     title = bk.title,
                                     description = bk.description,
-                                    price = bk.price.toString(),
+                                    price = bk.price,
                                     telephone = bk.telephone,
                                     category = bk.category,
                                     imageUrl = bk.imageUrl
@@ -81,6 +82,11 @@ class MainActivity : ComponentActivity() {
                             navController.popBackStack()
                         }
                     )
+                }
+                composable<DetailNavObject> { navEntry ->
+                    val navData = navEntry.toRoute<DetailNavObject>()
+                    DetailScreen(navData)
+
                 }
 
             }
