@@ -119,7 +119,7 @@ fun MainTopBar(
                     Text( text = when (titleIndex){
                         Categories.FAVORITES -> stringResource(id = R.string.faves)
                         Categories.ALL -> stringResource(id = R.string.all)
-                        else -> stringArrayResource(id = R.array.category_array_driver_body)[titleIndex.hashCode()]
+                        else -> stringArrayResource(id = R.array.category_array)[titleIndex.hashCode()]
                     }
                     )
                 },

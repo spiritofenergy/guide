@@ -24,7 +24,7 @@ object PagingModule {
     ): Flow<PagingData<Book>>{
         return Pager(
             config = PagingConfig(
-                pageSize = 15,
+                pageSize = 16,
                 prefetchDistance = 3,
                 initialLoadSize = 30,
             ),

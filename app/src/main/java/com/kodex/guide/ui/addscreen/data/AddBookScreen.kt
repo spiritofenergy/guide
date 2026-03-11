@@ -1,5 +1,9 @@
 package com.kodex.guide.ui.addscreen
 
+import android.content.ContentResolver
+import android.net.Uri
+import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,15 +30,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.addscreen.data.AddBookViewModel
 import com.kodex.guide.ui.addscreen.data.AddScreenObject
+import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel
 import com.kodex.guide.ui.theme.BoxFilter
+import com.kodex.guide.ui.utils.FirebaseConst.POSTS
 import com.kodex.guide.ui.utils.ImageUtils
+import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
 import com.kodex.guide.ui.utils.firebase.IS_BASE_64
 import com.kodex.guide.ui.utils.toBitmap
 
@@ -46,50 +53,19 @@ fun AddBookScreen(
     onSaved: () -> Unit = {},
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
-
+    val cv = LocalContext.current.contentResolver
     val context = LocalContext.current
-
-    var selectedCategory = remember {
-        mutableStateOf(navData.category)
-    }
-    var navImageUrl = remember {
-        mutableStateOf(navData.imageUrl)
-    }
-    val imageBase64 = remember {
-        mutableStateOf(if (IS_BASE_64) navData.imageUrl else "")
-    }
-
+    var selectedCategory = remember { mutableStateOf(navData.category) }
+    var navImageUrl = remember { mutableStateOf(navData.imageUrl) }
+    val imageBase64 = remember { mutableStateOf(if (IS_BASE_64) navData.imageUrl else "") }
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        if (IS_BASE_64) {
-            imageBase64.value = uri?.let {
-                ImageUtils.imageToBase64(uri, context.contentResolver)
-            } ?: ""
-        } else {
-            navImageUrl.value = ""
-            viewModel.selectedImageUri.value = uri
-        }
+        viewModel.selectedImageUri.value = uri
     }
 
     LaunchedEffect(Unit) {
         viewModel.setDefaultData(navData)
-        viewModel.uiState.collect { state ->
-            when (state) {
-                is MainScreenViewModel.MainUiState.Loading -> {
-                    viewModel.showLoadingIndicator.value = true
-                }
-
-                is MainScreenViewModel.MainUiState.Success -> {
-                    onSaved()
-                }
-
-                is MainScreenViewModel.MainUiState.Error -> {
-                    viewModel.showLoadingIndicator.value = false
-                    Toast.makeText(context, "Error: ${state.massage}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
     //фон
     Image(
@@ -129,7 +105,7 @@ fun AddBookScreen(
 
 
         )
-     /*   Text(
+        /*   Text(
             text = "Taman",
             color = Color.White,
             fontSize = 30.sp,
@@ -179,62 +155,124 @@ fun AddBookScreen(
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-            viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
+            //showProgressIndicator.value = true
+                saveBookToFirestore(
+                    firestore = FirebaseFirestore.getInstance(),
+                    Book(
+                        key = navData.key,
+                        title = viewModel.title.value,
+                        description = viewModel.description.value,
+                        price = viewModel.price.value.toInt(),
+                        category = viewModel.selectedCategory.intValue,
+                        imageUrl = if (viewModel.selectedImageUri.value != null) {
+                            imageToBase64(
+                                viewModel.selectedImageUri.value!!,
+                                cv
+                            )
+                        } else {
+                            navData.imageUrl
+                        }
+                    ),
+                    onSaved = {
+                        onSaved(
 
+                        )
+                        Log.d(
+                            "MyLog",
+                            "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"
+                        )
+
+                    },
+                    onError = { error ->
+                        Log.d("MyLog4", "Error: ${error}")
+
+                    }
+                )
+                // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
         }
     }
-}
-    /*
-    val cv = LocalContext.current
-        .contentResolver
+    //viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
 
-    val price = remember {
-        mutableStateOf("")
-    }
-    val title = remember {
-        mutableStateOf("")
-    }
-    val description = remember {
-        mutableStateOf("")
+}
+
+private fun saveBookToFirestore(
+    firestore: FirebaseFirestore,
+    book: Book,
+    onSaved: () -> Unit,
+    onError: (String) -> Unit
+) {
+    val db = firestore.collection(POSTS)
+    val key = book.key.ifEmpty { db.document().id }
+    db.document(key)
+        .set(book.copy(key = key))
+        .addOnSuccessListener { onSaved() }
+        .addOnFailureListener { onError(it.message ?: "Error") }
+}
+
+private fun imageToBase64(
+    uri: Uri,
+    contentResolver: ContentResolver
+): String {
+    val inputStream = contentResolver.openInputStream(uri)
+
+    val bytes = inputStream?.readBytes()
+    return bytes?.let {
+        Base64.encodeToString(it, Base64.DEFAULT)
+    } ?: ""
+}
+
+
+/*
+val cv = LocalContext.current
+    .contentResolver
+
+val price = remember {
+    mutableStateOf("")
+}
+val title = remember {
+    mutableStateOf("")
+}
+val description = remember {
+    mutableStateOf("")
 }
 val selectedImageUri = remember {
-    mutableStateOf<Uri?>(null)
+mutableStateOf<Uri?>(null)
 }
-    val firestore = remember {
-        Firebase.firestore
-    }
-    val storage = remember {
-        Firebase.storage
-    }
+val firestore = remember {
+    Firebase.firestore
+}
+val storage = remember {
+    Firebase.storage
+}
 val imageLauncher = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.GetContent()
+contract = ActivityResultContracts.GetContent()
 ) { uri ->
-    selectedImageUri.value = uri
+selectedImageUri.value = uri
 }
 
 Image(
-    painter = painterResource(id = R.drawable.wey),
-    contentDescription =  "BG",
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop,
+painter = painterResource(id = R.drawable.wey),
+contentDescription =  "BG",
+    modifier = Modifier.fillMaxSize(),
+    contentScale = ContentScale.Crop,
 
-        )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(46.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    )
+Column(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(46.dp),
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally
+) {
 
-              Image(painter = rememberAsyncImagePainter(model = selectedImageUri.value),
-                   contentDescription = "Logo",
-                  modifier = Modifier.height(250.dp).padding(bottom = 50.dp)
+          Image(painter = rememberAsyncImagePainter(model = selectedImageUri.value),
+               contentDescription = "Logo",
+              modifier = Modifier.height(250.dp).padding(bottom = 50.dp)
 
-              )
-        Spacer(modifier = Modifier.height(10.dp))
+          )
+    Spacer(modifier = Modifier.height(10.dp))
 
-     *//*   RoundedCornerDropDownMenu (viewModel.selectedCategory.intValue){ selectedItem ->
+ *//*   RoundedCornerDropDownMenu (viewModel.selectedCategory.intValue){ selectedItem ->
         imageLauncher
         selectedCategory = selectedItem
         }*//*

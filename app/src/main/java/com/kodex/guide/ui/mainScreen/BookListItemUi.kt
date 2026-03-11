@@ -87,7 +87,7 @@ fun BookListItemUi(
 
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = stringArrayResource(R.array.category_array_driver_body)[book.category],
+            text = stringArrayResource(R.array.category_array)[book.category],
             color = Color.Black,
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp

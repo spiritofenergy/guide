@@ -115,9 +115,10 @@ class MainScreenViewModel @Inject constructor(
         firebaseManagerPainter.searchText = searchText
     }
 
-    fun getBooksFromCategory(categoryIndex: Int) {
+    fun getAllBooksFromCategory(categoryIndex: Int) {
         categoryState.intValue = categoryIndex
         firebaseManagerPainter.category = categoryIndex
+        Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
 
     }
 
@@ -140,14 +141,12 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
-        Log.d("MyLog3", "isAdmin: Start")
         val uid = Firebase.auth.currentUser!!.uid
         Firebase.firestore.collection("admin")
             .document(uid)
             .get()
             .addOnSuccessListener {
                 onAdmin(it.get("isAdmin") as Boolean)
-                Log.d("MyLog", "isAdmin: ${it.get("isAdmin")}")
             }
     }
 }
