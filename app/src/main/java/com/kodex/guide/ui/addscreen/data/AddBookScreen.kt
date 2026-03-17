@@ -35,7 +35,6 @@ import com.kodex.guide.ui.addscreen.data.AddBookViewModel
 import com.kodex.guide.ui.addscreen.data.AddScreenObject
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
-import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenuV
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
@@ -48,6 +47,7 @@ import com.kodex.guide.ui.utils.toBitmap
 fun AddBookScreen(
     navData: AddScreenObject = AddScreenObject(),
     onSaved: () -> Unit = {},
+    isDelivery: () -> Unit = {},
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
     val cv = LocalContext.current.contentResolver
@@ -118,13 +118,13 @@ fun AddBookScreen(
             },
         )
 
-        Spacer(modifier = Modifier.height(5.dp))
+  /*      Spacer(modifier = Modifier.height(5.dp))
         RoundedCornerDropDownMenuV(
             viewModel.selectedVillage.intValue,
             onOptionSelected = { selectedItemVillage ->
                 viewModel.selectedVillage.intValue = selectedItemVillage
             },
-        )
+        )*/
 
         Spacer(modifier = Modifier.height(5.dp))
         RoundedCornerTextField(
@@ -151,6 +151,14 @@ fun AddBookScreen(
         ) {
             viewModel.description.value = it
         }
+        RoundedCornerTextField(
+            text = viewModel.village.value,
+            label = "Станица:",
+            singleLine = false,
+            maxLines = 5
+        ) {
+            viewModel.village.value = it
+        }
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -161,21 +169,23 @@ fun AddBookScreen(
             viewModel.price.value = it
         }
 
-        Spacer(modifier = Modifier.height(5.dp))
-
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-            //showProgressIndicator.value = true
+            for (i in 1..10) {
+                //showProgressIndicator.value = true
                 saveBookToFirestore(
                     firestore = FirebaseFirestore.getInstance(),
                     Book(
                         key = navData.key,
-                        title = viewModel.title.value,
+                        title = viewModel.title.value + " ${i}",
                         description = viewModel.description.value,
-                        price = viewModel.price.value.toInt(),
+                        price = i + i+200,
+                        //price = viewModel.price.value.toInt(),
                         categoryIndex = viewModel.selectedCategory.intValue,
+                        village = viewModel.village.value,
+
                         imageUrl = if (viewModel.selectedImageUri.value != null) {
                             imageToBase64(
                                 viewModel.selectedImageUri.value!!,
@@ -200,6 +210,7 @@ fun AddBookScreen(
 
                     }
                 )
+            }
                 // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
         }
     }
@@ -219,6 +230,7 @@ private fun saveBookToFirestore(
         .set(book.copy(key = key))
         .addOnSuccessListener { onSaved() }
         .addOnFailureListener { onError(it.message ?: "Error") }
+    Log.d("MyLog", "saveBookToFirestore: $book")
 }
 
 private fun imageToBase64(
@@ -237,6 +249,5 @@ private fun imageToBase64(
 @Composable
 fun AddBookScreenPreview() {
     AddBookScreen(
-
     )
 }

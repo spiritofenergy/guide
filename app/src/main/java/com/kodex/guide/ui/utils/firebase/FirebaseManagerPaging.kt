@@ -30,7 +30,7 @@ class FireStoreManagerPaging(
     //private val contentResolver: ContentResolver
     // private val storage: FirebaseStorage,
 ) {
-    var category: Int = Categories.ALL
+    var categoryIndex: Int = Categories.ALL
     var searchText = ""
     var minPrice = 0
     var maxPrice = 5000
@@ -45,10 +45,10 @@ class FireStoreManagerPaging(
           //  .orderBy(FirebaseConst.TITLE)
         val keysFavesList = getIdsFavesList()
 
-        query = when (category) {
+        query = when (categoryIndex) {
             ALL -> query
             FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
-            else -> query.whereEqualTo(CATEGORY_INDEX, category)
+            else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
         }
 
        if (searchText.isNotEmpty()){

@@ -10,14 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.FireTruck
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
@@ -31,7 +34,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -68,7 +73,7 @@ fun BookListItemUi(
             // 1. Фоновое изображение
             AsyncImage(
                 model = book.imageUrl.toBitmap(),
-                contentDescription = "",
+                contentDescription = "Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .matchParentSize()
@@ -177,6 +182,7 @@ fun BookListItemUi(
         ) {
 
             Spacer(modifier = Modifier.height(10.dp))
+            if (!showEditButton)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,9 +190,17 @@ fun BookListItemUi(
                 text = book.price.toString() + " p",
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
+                maxLines = 1,
                 fontSize = 18.sp
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Icon(
+                Icons.Default.DeliveryDining,
+                contentDescription = "Location",
+                modifier = Modifier.size(20.dp),
+                tint = Color.Gray
+
+            )
+            Spacer(modifier = Modifier.width(5.dp))
             Icon(
                 Icons.Default.LocationOn,
                 contentDescription = "Location",
@@ -195,12 +209,13 @@ fun BookListItemUi(
 
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+
+            if (!showEditButton)
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1F),
-                text = " " + stringArrayResource(id = R.array.village_array)[book.villageIndex]+ " ",
+
+                    .padding(10.dp),
+                text = book.village,
                 color = Color.Black,
                 fontWeight = FontWeight.Light,
                 fontSize = 16.sp
