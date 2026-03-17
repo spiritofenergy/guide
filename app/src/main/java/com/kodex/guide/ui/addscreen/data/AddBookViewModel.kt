@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel.MainUiState
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.Village
@@ -22,7 +21,7 @@ class AddBookViewModel @Inject constructor(
 ) : ViewModel() {
 
     val title = mutableStateOf("")
-    val location = mutableStateOf("")
+    val village = mutableStateOf("")
     val description = mutableStateOf("")
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
@@ -40,7 +39,7 @@ class AddBookViewModel @Inject constructor(
 
     fun setDefaultData(navData: AddScreenObject) {
         title.value = navData.title
-        location.value = navData.location
+        village.value = navData.village
         description.value = navData.description
         price.value = navData.price.toString()
         telephone.value = navData.telephone

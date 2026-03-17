@@ -1,11 +1,9 @@
 package com.kodex.guide.ui.mainScreen
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -48,7 +46,7 @@ class MainScreenViewModel @Inject constructor(
 
     val isAdminState = mutableStateOf(false)
 
-    val categoryState = mutableIntStateOf(Categories.ALL)
+    val categoryState = mutableIntStateOf(Categories.ANIMALS)
 
     var bookToDelete: Book? = null
     private var deleteBook = false
@@ -120,7 +118,7 @@ class MainScreenViewModel @Inject constructor(
 
     fun getAllBooksFromCategory(categoryIndex: Int) {
         categoryState.intValue = categoryIndex
-        firebaseManagerPainter.category = categoryIndex
+        firebaseManagerPainter.categoryIndex = categoryIndex
         Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
 
     }
