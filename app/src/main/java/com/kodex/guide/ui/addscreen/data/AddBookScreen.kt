@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -38,10 +37,8 @@ import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
-import com.kodex.guide.ui.mainScreen.MainScreenViewModel
 import com.kodex.guide.ui.theme.BoxFilter
 import com.kodex.guide.ui.utils.FirebaseConst.POSTS
-import com.kodex.guide.ui.utils.ImageUtils
 import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
 import com.kodex.guide.ui.utils.firebase.IS_BASE_64
 import com.kodex.guide.ui.utils.toBitmap
@@ -163,7 +160,7 @@ fun AddBookScreen(
                         title = viewModel.title.value,
                         description = viewModel.description.value,
                         price = viewModel.price.value.toInt(),
-                        category = viewModel.selectedCategory.intValue,
+                        categoryIndex = viewModel.selectedCategory.intValue,
                         imageUrl = if (viewModel.selectedImageUri.value != null) {
                             imageToBase64(
                                 viewModel.selectedImageUri.value!!,

@@ -14,9 +14,9 @@ data class Book(
     val description: String = "",
     val price: Int = 0,
     val telephone: String = "",
-    val category: Int = Categories.ALL,
+    val categoryIndex: Int = Categories.ALL,
     val imageUrl: String = "",
-    val isFaves: Boolean = false,
+    val isFavorite: Boolean = false,
    // val isAuthor: Boolean = false,
    // val publishDate: String = "",
   //  val location: String = ""

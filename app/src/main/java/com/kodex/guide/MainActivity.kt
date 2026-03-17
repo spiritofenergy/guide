@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                                     description = bk.description,
                                     price = bk.price,
                                     telephone = bk.telephone,
-                                    category = bk.category,
+                                    category = bk.categoryIndex,
                                     imageUrl = bk.imageUrl
                                 )
                             )
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                                 title = book.title,
                                 description = book.description,
                                 price = book.price,
-                                category = book.category,
+                                category = book.categoryIndex,
                                 imageUrl = book.imageUrl,
                             )
                             )

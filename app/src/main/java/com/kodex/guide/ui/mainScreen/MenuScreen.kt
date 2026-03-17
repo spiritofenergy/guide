@@ -276,7 +276,7 @@ fun MenuScreen(
                                     showDeleteDialog.value = true
                                     viewModel.bookToDelete = bookToDelete
                                 },
-                                onFavClick = {
+                                onFavesClick = {
                                     viewModel.onFavesClick(
                                         book, viewModel.selectedBottomItemState.intValue,
                                         books.itemSnapshotList.items

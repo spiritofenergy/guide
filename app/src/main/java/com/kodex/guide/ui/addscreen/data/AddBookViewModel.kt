@@ -52,7 +52,7 @@ class AddBookViewModel @Inject constructor(
             description = description.value,
             price = price.value.toInt(),
             telephone = telephone.value,
-            category = selectedCategory.value,
+            categoryIndex = selectedCategory.value,
             imageUrl = navData.imageUrl
         )
 

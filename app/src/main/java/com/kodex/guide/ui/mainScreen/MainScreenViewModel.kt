@@ -126,7 +126,7 @@ class MainScreenViewModel @Inject constructor(
         val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
         bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
             deleteBook = true
-            bookList.filter { it.isFaves }
+            bookList.filter { it.isFavorite }
         } else {
             bookList
         }

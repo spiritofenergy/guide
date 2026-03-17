@@ -7,14 +7,38 @@ Base64 Кодирование фото
 FAB с плюсиком
 Дизайн
 Всплывающие уведомления
-Выбор категории Готово
-Срханение паролей
+
+
 Регистрация через GoogleAccount
 через ВК
 
+BottomShit
+Показ корзинки и карандаша автору
+Удаление обьявлений
+Сохранение в базе
+Бургер меню
 
-Ошибка Bk
 
 
-FATAL EXCEPTION: main                                                                               Process: com.kodex.bookmarketcompose, PID: 7896
- AndroidRuntime          com.kodex.bookmarketcompose          E  java.lang.IllegalArgumentException: Navigation destination that matches request NavDeepLinkRequest{ uri=android-app://androidx.navigation/com.kodex.guide.ui.addscreen.data.AddScreenObject?key=G62eBNcT9fkIMeuon72P&title=%D0%A6%D0%B5%D0%BD%D1%82%D1%80%D0
+val id: Int = 0,
+    val key: String = "",
+    val title: String = "",
+    val searchTitle: String = title.lowercase(),
+    val description: String = "",
+    val price: Int = 0,
+    val telephone: String = "",
+    val categoryIndex: Int = Categories.ALL,
+    val imageUrl: String = "",
+    val isFavorite: Boolean = false,
+    val isAuthor: Boolean = false,
+    val publishDate: String = "",
+    val deleteDate: String = "",
+    val location: String = ""
+    val delivery: Boolean = false,
+    val rating: Double = 0.0,
+    val ratingsList: List<Double> = emptyList(),
+    val authorId: String = ""
+
+
+
+

@@ -67,7 +67,7 @@ class FireStoreManagerPaging(
         val books = querySnapshot.toObjects(Book::class.java)
         val updatedBooks = books.map {
             if (keysFavesList.contains(it.key)) {
-                it.copy(isFaves = true)
+                it.copy(isFavorite = true)
             } else {
                 it
             }
@@ -111,9 +111,9 @@ class FireStoreManagerPaging(
             if (bk.key == book.key) {
                 onFaves(
                     Favorite(bk.key),
-                    !bk.isFaves
+                    !bk.isFavorite
                 )
-                bk.copy(isFaves = !bk.isFaves)
+                bk.copy(isFavorite = !bk.isFavorite)
             } else {
                 bk
             }
