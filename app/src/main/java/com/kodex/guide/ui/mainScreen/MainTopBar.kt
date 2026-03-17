@@ -2,12 +2,14 @@ package com.kodex.guide.ui.mainScreen
 
 import android.util.Log
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,10 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
@@ -37,14 +41,14 @@ import com.kodex.guide.ui.utils.Categories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-//@Preview(showBackground = true)
 fun MainTopBar(
 
     titleIndex: Int,
     viewModel: MainScreenViewModel = hiltViewModel(),
     onSearch: (String) -> Unit,
     onTab: () -> Unit,
-    onFilter: () -> Unit
+    onFilter: () -> Unit,
+    onMenu: () -> Unit,
 ) {
     var targetState by remember { mutableStateOf(false) }
     var queryText by remember { mutableStateOf("") }
@@ -116,12 +120,26 @@ fun MainTopBar(
         } else {
             TopAppBar(
                 title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = {
+                            onMenu()
+                        }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Burger"
+                            )
+                        }
+
                     Text( text = when (titleIndex){
                         Categories.FAVORITES -> stringResource(id = R.string.faves)
                         Categories.ALL -> stringResource(id = R.string.all)
-                        else -> stringArrayResource(id = R.array.category_array)[titleIndex.hashCode()]
+                        else -> stringArrayResource(id = R.array.category_array)[titleIndex]
                     }
                     )
+                        }
                 },
 
                 actions = {
@@ -138,15 +156,16 @@ fun MainTopBar(
                         onTab()
                     }) {
                         if (!viewModel.showTabOneOrTo.value) {
-                        Icon(
-                            painter = painterResource(R.drawable.litle_cards),
-                            contentDescription = "List"
-                        )
-                    }else{ Icon(
-                            painter = painterResource(R.drawable.big_cards),
-                            contentDescription = "List"
-                             )
-                         }
+                            Icon(
+                                painter = painterResource(R.drawable.litle_cards),
+                                contentDescription = "List"
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.big_cards),
+                                contentDescription = "List"
+                            )
+                        }
                     }
                     IconButton(onClick = {
                         onFilter()
@@ -156,6 +175,7 @@ fun MainTopBar(
                             contentDescription = "Filter"
                         )
                     }
+
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -166,5 +186,16 @@ fun MainTopBar(
             )
         }
     }
+}
 
+@Preview(showBackground = true)
+@Composable
+fun ShowMainTopBar(){
+    MainTopBar(
+        titleIndex = Categories.ANIMALS,
+        onSearch = {},
+        onTab = {},
+        onMenu = {},
+        onFilter = {}
+    )
 }

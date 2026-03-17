@@ -1,9 +1,11 @@
 package com.kodex.guide.ui.mainScreen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -33,6 +35,7 @@ class MainScreenViewModel @Inject constructor(
     private val firebaseManagerPainter: FireStoreManagerPaging,
     private val pager: Flow<PagingData<Book>>,
 ) : ViewModel() {
+
     val isEdit = mutableStateOf(false)
 
     val minPriceValue = mutableFloatStateOf(0f)

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -54,7 +55,7 @@ fun BookListItemUi(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 4.dp, vertical = 8.dp)
             .clickable {
                 onBookClick(book)
             }
@@ -76,7 +77,7 @@ fun BookListItemUi(
 
             // 2. Категория в левом верхнем углу
             Text(
-                " " + stringArrayResource(id = R.array.category_array)[titleIndex.hashCode()]+ " ",
+                " " + stringArrayResource(id = R.array.category_array)[book.categoryIndex]+ " ",
                // " " + stringArrayResource(R.array.category_array)[book.categoryIndex] + " ",
                 fontSize = 18.sp,
                 color = Color.White,
@@ -161,7 +162,7 @@ fun BookListItemUi(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = book.description,
             color = Color.Gray,
@@ -169,6 +170,7 @@ fun BookListItemUi(
             overflow = TextOverflow.Ellipsis,
             fontSize = 16.sp
         )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -179,10 +181,29 @@ fun BookListItemUi(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1F),
-                text = book.price.toString(),
+                text = book.price.toString() + " p",
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Icon(
+                Icons.Default.LocationOn,
+                contentDescription = "Location",
+                modifier = Modifier.size(16.dp),
+                tint = Color.Gray
+
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F),
+                text = " " + stringArrayResource(id = R.array.village_array)[book.villageIndex]+ " ",
+                color = Color.Black,
+                fontWeight = FontWeight.Light,
+                fontSize = 16.sp
             )
 
             if (showEditButton) IconButton(onClick = {

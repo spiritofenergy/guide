@@ -1,8 +1,6 @@
 package com.kodex.guide.ui.utils
 
 object Categories {
-
-
     const val ANIMALS = 0
     const val PLANTS = 1
     const val WORK = 2
@@ -14,6 +12,4 @@ object Categories {
     const val MISCELLANEOUS = 8
     const val ALL = 9
     const val FAVORITES = 10
-
-
  }
