@@ -14,5 +14,7 @@
     <string name="taman_peninsula">Taman Peninsula</string>
     <!-- -->
     <string name="empty_list">Lista vacía</string>
+    <string name="added_to_favorites">Post added to Favorites</string>
+    <string name="deleted_from_favorites">Post deleted from Favorites</string>
 
 </resources>

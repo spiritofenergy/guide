@@ -15,6 +15,33 @@
         <item>All</item>
     </string-array>
 
+    <string-array name="village_array">
+    <item>Akhtanizovskaya</item>
+    <item>Veselovka</item>
+    <item>Golubitskaya</item>
+    <item>Ilyich</item>
+    <item>Kurchanskaya</item>
+    <item>Kuchugury</item>
+    <item>Peresyp</item>
+    <item>Primorsky</item>
+    <item>Taman</item>
+    <item>Temryuk</item>
+    </string-array>
+
+
+    <string-array name="location_array_ru">
+        <item>Ахтанизовская</item>
+        <item>Веселовка</item>
+        <item>Голубицкая </item>
+        <item>Ильич</item>
+        <item>Курчанская</item>
+        <item>Кучугуры</item>
+        <item>Пересыпь</item>
+        <item>Приморский</item>
+        <item>Тамань</item>
+        <item>Темрюк</item>
+    </string-array>
+
     <string-array name="category_admin">
         <item>Admin panel</item>
         <item>Add</item>

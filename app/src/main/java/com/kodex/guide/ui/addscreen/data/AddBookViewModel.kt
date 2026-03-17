@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel.MainUiState
 import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.ui.utils.Village
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,10 +22,12 @@ class AddBookViewModel @Inject constructor(
 ) : ViewModel() {
 
     val title = mutableStateOf("")
+    val location = mutableStateOf("")
     val description = mutableStateOf("")
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
     val selectedCategory = mutableIntStateOf(Categories.ALL)
+    val selectedVillage = mutableIntStateOf(Village.KURCHANSKAYA)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
 
@@ -36,10 +40,12 @@ class AddBookViewModel @Inject constructor(
 
     fun setDefaultData(navData: AddScreenObject) {
         title.value = navData.title
+        location.value = navData.location
         description.value = navData.description
         price.value = navData.price.toString()
         telephone.value = navData.telephone
-        selectedCategory.value = navData.category
+        selectedCategory.value = navData.categoryIndex
+
     }
 
     fun uploadBook(

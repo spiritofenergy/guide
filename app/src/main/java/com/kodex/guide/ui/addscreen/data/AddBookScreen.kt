@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
@@ -35,6 +35,7 @@ import com.kodex.guide.ui.addscreen.data.AddBookViewModel
 import com.kodex.guide.ui.addscreen.data.AddScreenObject
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
+import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenuV
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
@@ -43,7 +44,6 @@ import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
 import com.kodex.guide.ui.utils.firebase.IS_BASE_64
 import com.kodex.guide.ui.utils.toBitmap
 
-@Preview(showBackground = true)
 @Composable
 fun AddBookScreen(
     navData: AddScreenObject = AddScreenObject(),
@@ -52,7 +52,7 @@ fun AddBookScreen(
 ) {
     val cv = LocalContext.current.contentResolver
     val context = LocalContext.current
-    var selectedCategory = remember { mutableStateOf(navData.category) }
+    var selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
     var navImageUrl = remember { mutableStateOf(navData.imageUrl) }
     val imageBase64 = remember { mutableStateOf(if (IS_BASE_64) navData.imageUrl else "") }
     val imageLauncher = rememberLauncherForActivityResult(
@@ -109,8 +109,8 @@ fun AddBookScreen(
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif
         )*/
-        Spacer(modifier = Modifier.height(40.dp))
 
+        Spacer(modifier = Modifier.height(20.dp))
         RoundedCornerDropDownMenu(
             viewModel.selectedCategory.intValue,
             onOptionSelected = { selectedItemIndex ->
@@ -118,16 +118,31 @@ fun AddBookScreen(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
+        RoundedCornerDropDownMenuV(
+            viewModel.selectedVillage.intValue,
+            onOptionSelected = { selectedItemVillage ->
+                viewModel.selectedVillage.intValue = selectedItemVillage
+            },
+        )
 
+        Spacer(modifier = Modifier.height(5.dp))
         RoundedCornerTextField(
             text = viewModel.title.value,
             label = "Название:"
         ) {
             viewModel.title.value = it
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
+       /* RoundedCornerTextField(
+            text = viewModel.location.value,
+            label = "Location:"
+        ) {
+            viewModel.title.value = it
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+*/
         RoundedCornerTextField(
             text = viewModel.description.value,
             label = "Краткое описание:",
@@ -137,7 +152,7 @@ fun AddBookScreen(
             viewModel.description.value = it
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         RoundedCornerTextField(
             text = viewModel.price.value,
@@ -146,7 +161,7 @@ fun AddBookScreen(
             viewModel.price.value = it
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
@@ -218,225 +233,10 @@ private fun imageToBase64(
     } ?: ""
 }
 
-
-/*
-val cv = LocalContext.current
-    .contentResolver
-
-val price = remember {
-    mutableStateOf("")
-}
-val title = remember {
-    mutableStateOf("")
-}
-val description = remember {
-    mutableStateOf("")
-}
-val selectedImageUri = remember {
-mutableStateOf<Uri?>(null)
-}
-val firestore = remember {
-    Firebase.firestore
-}
-val storage = remember {
-    Firebase.storage
-}
-val imageLauncher = rememberLauncherForActivityResult(
-contract = ActivityResultContracts.GetContent()
-) { uri ->
-selectedImageUri.value = uri
-}
-
-Image(
-painter = painterResource(id = R.drawable.wey),
-contentDescription =  "BG",
-    modifier = Modifier.fillMaxSize(),
-    contentScale = ContentScale.Crop,
+@Preview(showBackground = true)
+@Composable
+fun AddBookScreenPreview() {
+    AddBookScreen(
 
     )
-Column(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(46.dp),
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
-) {
-
-          Image(painter = rememberAsyncImagePainter(model = selectedImageUri.value),
-               contentDescription = "Logo",
-              modifier = Modifier.height(250.dp).padding(bottom = 50.dp)
-
-          )
-    Spacer(modifier = Modifier.height(10.dp))
-
- *//*   RoundedCornerDropDownMenu (viewModel.selectedCategory.intValue){ selectedItem ->
-        imageLauncher
-        selectedCategory = selectedItem
-        }*//*
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        RoundedCornerTextField(
-            text = title.value,
-            label = "Title:"
-        ) {
-            title.value = it
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        RoundedCornerTextField(
-            text = description.value,
-            label = "Description:",
-            maxLines = 5,
-            singleLine = false
-        ){
-            description.value = it
-
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        RoundedCornerTextField(
-            text = price.value,
-            label = "Prise:"
-        ){
-            price.value = it
-
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LoginButton(text = "Select image "){
-            imageLauncher.launch("image/*")
-        }
-        LoginButton(text = "Save ") {
-            safeBookToFireStore(
-                firestore,
-                Book(
-                    title = title.value,
-                    description = description.value,
-                    price = price.value.toInt(),
-                   // categoryIndex = categoryIndex.value,
-                    imageUrl = imageToBase64(
-                        selectedImageUri.value!!,
-                        cv
-                    )
-                ),
-                onSaved = {
-                    onSaved()
-                    Log.d("MyLog", "OnSave")
-                },
-                onError = {
-
-                }
-            )
-           *//* Для сохранения текскта в Storage
-           saveBookImage(
-                selectedImageUri.value!!,
-                storage,
-                firestore,
-                onSaved = {
-                    onSaved()
-                    Log.d("MyLog", "onSaved")
-                },
-                onError = {
-
-                },
-                Book(
-                    title = title.value,
-                    description = description.value,
-                    prise = prise.value,
-                    category = selectedCategory,
-                    key = "key",
-                    imageUrl = ""
-                )
-            )*//*
-
-        }
-    }
 }
-
-private fun imageToBase64(uri: Uri, contentResolver: ContentResolver): String{
-    val inputStream = contentResolver.openInputStream(uri)
-
-    val bytes = inputStream?.readBytes()
-    return bytes?.let {
-        Base64.encodeToString(it, Base64.DEFAULT)
-    }?: ""
-}
-
-private fun saveBookImage(
-    uri: Uri,
-    storage: FirebaseStorage,
-    firestore: FirebaseFirestore,
-    onSaved: ()-> Unit,
-    onError: ()-> Unit,
-    book: Book
-){
-    val timeStamp = System.currentTimeMillis()
-    val storageRef = storage.reference
-      //  .child("book_images")
-        .child("guide_images")
-        .child("images_$timeStamp.jpg")
-    val uploadTask = storageRef.putFile(uri)
-    uploadTask.addOnSuccessListener{
-        storageRef.downloadUrl.addOnSuccessListener{ url ->
-         *//*   safeBookToFireStore(
-                firestore,
-                url.toString(),
-                book,
-                onSaved = {
-                        onSaved()
-                },
-                onError = {
-                        onError()
-                }
-            )*//*
-        }
-    }
-}
-
-private fun safeBookToFireStore(
-    firestore: FirebaseFirestore,
-    book: Book,
-    onSaved: ()-> Unit,
-    onError: ()-> Unit
-){
-    //Куда соханять фото
-    val db = firestore.collection("guide_posts")
-    val key = db.document().id
-    db.document(key)
-        .set(
-            book.copy(key = key)
-        ).addOnSuccessListener{
-            onSaved()
-        }
-        .addOnFailureListener{
-            onError()
-        }
-
-}
-
-  *//*  firestore: FirebaseFirestore,
-    url: String,
-    book: Book,
-    onSaved: ()-> Unit,
-    onError: ()-> Unit
-){
-    //Куда соханять фото
-    val db = firestore.collection("posts")
-    val key = db.document().id
-    db.document(key)
-        .set(
-            book.copy(key = key,
-                imageUrl = url)
-        ).addOnSuccessListener{
-            onSaved()
-        }
-        .addOnFailureListener{
-            onError()
-        }
-
-}*//*
-
-
-*/
