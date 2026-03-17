@@ -84,7 +84,7 @@ fun DrawerBody(
 
              DrawerMenuItem(
                  iconDrawableId = Icons.Default.CrueltyFree,
-                 text = categoryList[9],
+                 text = categoryList[0],
                  onItemClick = {
                      onCategoryClick(Categories.ANIMALS)
                      coroutineScope.launch { drawerState.close() }

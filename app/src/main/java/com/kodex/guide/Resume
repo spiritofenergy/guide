@@ -1,7 +1,6 @@
 Все работает
 Guide база Instagram
 Base64 Кодирование фото
-При редактировании создает новый post Исправлено
 
 Вторую кнопку
 FAB с плюсиком
@@ -16,8 +15,8 @@ BottomShit
 Показ корзинки и карандаша автору
 Удаление обьявлений
 Сохранение в базе
-Бургер меню
 
+Уведомления
 
 
 val id: Int = 0,
@@ -31,13 +30,12 @@ val id: Int = 0,
     val imageUrl: String = "",
     val isFavorite: Boolean = false,
     val isAuthor: Boolean = false,
+    val authorId: String = ""
     val publishDate: String = "",
     val deleteDate: String = "",
-    val location: String = ""
+    val location: String = "",
     val delivery: Boolean = false,
-    val rating: Double = 0.0,
     val ratingsList: List<Double> = emptyList(),
-    val authorId: String = ""
 
 
 
