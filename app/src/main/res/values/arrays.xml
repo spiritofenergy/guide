@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="category_arrays">
-        <item>Fantasy</item> <!-- 0 -->
-        <item>Drama</item> <!-- 1 -->
-        <item>Bestseller</item> <!-- 2 -->
-    </string-array>
 
-    <string-array name="category_array_driver_body">
+
+    <string-array name="category_array">
         <item>Animals</item>
         <item>Plants</item>
         <item>Work</item>
         <item>Services</item>
         <item>Real estate</item>
+        <item>Auto</item>
         <item>Electronics</item>
         <item>Entertainments</item>
         <item>Miscellaneous</item>
+        <item>All</item>
     </string-array>
 
     <string-array name="category_admin">
@@ -25,17 +23,6 @@
         <item>Settings</item>
     </string-array>
 
-    <string-array name="category_array_drop_menu">
-
-        <item>Animals</item>
-        <item>Plants</item>
-        <item>Work</item>
-        <item>Services</item>
-        <item>Real estate</item>
-        <item>Electronics</item>
-        <item>Miscellaneous</item>
-
-    </string-array>
 
     <string-array name="order_by">
         <item>Title</item> <!-- 0 -->

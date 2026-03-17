@@ -15,6 +15,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,30 +58,25 @@ fun MenuScreen(
     onAddBookClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val categoryList = stringArrayResource(id = R.array.category_array_driver_body)
+    val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Open)
     val coroutineScope = rememberCoroutineScope()
-    val showDeleteDialog = remember {mutableStateOf(false) }
-    val isAuthorState = remember {mutableStateOf(false)}
-    var showFilterDialog by remember {mutableStateOf(false)}
-
+    val showDeleteDialog = remember { mutableStateOf(false) }
+    val isAuthorState = remember { mutableStateOf(false) }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
     val books = viewModel.books.collectAsLazyPagingItems()
+    val state = rememberPullToRefreshState()
 
     LaunchedEffect(Unit) {
-        Log.d("MyLog1", "isAdminState.value = ${viewModel.isAdminState.value}")
-        // viewModel.isAdmin(viewModel.isAdmin")
         viewModel.isAdmin { isAdmin ->
             viewModel.isAdminState.value = isAdmin
-            Log.d("MyLog2", "isAdminState.value = $isAdmin")
-            // onAdmin(isAdmin)
         }
     }
 
-
     LaunchedEffect(Unit) {
-        viewModel.uiState.collect{uiState->
-            if (uiState is MainScreenViewModel.MainUiState.Error){
+        viewModel.uiState.collect { uiState ->
+            if (uiState is MainScreenViewModel.MainUiState.Error) {
                 Toast.makeText(context, uiState.massage, Toast.LENGTH_SHORT).show()
             }
         }
@@ -90,131 +87,147 @@ fun MenuScreen(
             Toast.makeText(context, errorMassage, Toast.LENGTH_SHORT).show()
         }
     }
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            modifier = Modifier.fillMaxWidth(),
-            drawerContent = {
-                Column(modifier = Modifier.fillMaxWidth(0.7f)) {
-                    DrawerHeader(navData.email)
-                    DrawerBody(
-                        onAdminClick = onAdminClick,
-                        onAddBookClick = onAddBookClick,
-                        onAdmin = { isAdmin ->
-                            viewModel.isAdminState.value = isAdmin
-                        },
-                        onFavesClick = {
-                            viewModel.onFavesClick(
-                                Book(),
-                                BottomMenuItem.Faves.titleId,
-                                books.itemSnapshotList.items
-                            )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        modifier = Modifier.fillMaxWidth(),
+        drawerContent = {
+            Column(modifier = Modifier.fillMaxWidth(0.7f)) {
+                DrawerHeader(navData.email)
+                DrawerBody(
+                    onAdminClick = onAdminClick,
+                    onAddBookClick = onAddBookClick,
+                    onAdmin = { isAdmin ->
+                        viewModel.isAdminState.value = isAdmin
+                    },
+                    onCategoryClick = { categoryIndex ->
+                        if (categoryIndex == Categories.FAVORITES) {
+                            viewModel.selectedBottomItemState.intValue =
+                                BottomMenuItem.Faves.titleId
+                            Log.d("MyLog", "onCategoryClick FAVORITES")
+                            //savedInstanceState.value = BottomMenuItem.Favorite.titleId
                             coroutineScope.launch { drawerState.close() }
-                        },
-                        onHomeClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.ALL)
+                        } else {
+                            viewModel.getAllBooksFromCategory(categoryIndex)
+                            books.refresh()
+                            viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
+                            Log.d("MyLog", "categoryIndex: $categoryIndex")
                             coroutineScope.launch { drawerState.close() }
+                        }
+                    },
+                    onFavesClick = {
+                        viewModel.onFavesClick(
+                            Book(),
+                            BottomMenuItem.Faves.titleId,
+                            books.itemSnapshotList.items
+                        )
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onHomeClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
+                        coroutineScope.launch { drawerState.close() }
 
-                        },
-                        onAnimalsClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.ANIMALS)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onPlantsClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.PLANTS)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onWorkClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.WORK)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onServicesClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.SERVICES)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onReal_estateClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.REAL_ESTATE)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onEntertainmentsClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.ENTERTAINMENTS)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onMiscellaneousClick = {
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.MISCELLANEOUS)
-                            coroutineScope.launch { drawerState.close() }
-                        },
-                        onLoginClick = {
-                            onLoginClick()
-                            coroutineScope.launch { drawerState.close() }
-                        },
+                    },
+                    onAnimalsClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ANIMALS)
+                         coroutineScope.launch { drawerState.close() }
+                    },
+                    onPlantsClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.PLANTS)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onWorkClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.WORK)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onServicesClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.SERVICES)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onReal_estateClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.REAL_ESTATE)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onEntertainmentsClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ENTERTAINMENTS)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onMiscellaneousClick = {
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.MISCELLANEOUS)
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onLoginClick = {
+                        onLoginClick()
+                        coroutineScope.launch { drawerState.close() }
+                    },
 
+                    )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                MainTopBar(
+                    viewModel.categoryState.intValue,
+                    onSearch = { searchText ->
+                        viewModel.searchBook(searchText)
+                        books.refresh()
+                    },
+                    onFilter = {
+                        showFilterDialog = true
+                    },
+                    onTab = {
+                        viewModel.showTabOneOrTo.value = !viewModel.showTabOneOrTo.value
+                    }
+                )
+            },
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                BottomMenu(
+                    viewModel.selectedBottomItemState.intValue,
+                    onFavesClick = {
+                        viewModel.selectedBottomItemState.intValue =
+                            BottomMenuItem.Faves.titleId
+                        viewModel.onFavesClick(
+                            Book(),
+                            BottomMenuItem.Faves.titleId,
+                            books.itemSnapshotList.items
+                        )
+                        books.refresh()
+                    },
+                    onHomeClick = {
+                        // получаем список с иыентификатором и
+                        viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
+                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
+                        books.refresh()
+                    }
+                )
+            }
+        ) { paddingValues ->
+
+            if (books.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.empty_list),
+                        color = Color.LightGray
                     )
                 }
             }
-        ) {
-            Scaffold(
-                topBar = {
-                    MainTopBar(viewModel.categoryState.intValue,
-                        onSearch = { searchText ->
-                            viewModel.searchBook(searchText)
-                            books.refresh()
-                        },
-                        onFilter = {
-                            showFilterDialog = true
-                        },
-                        onTab = {
-                            viewModel.showTabOneOrTo.value = !viewModel.showTabOneOrTo.value
-                        }
-                    )
+            MyDialog(
+                showDialog = showDeleteDialog.value,
+                onDismiss = {
+                    showDeleteDialog.value = false
                 },
-                modifier = Modifier.fillMaxSize(),
-                bottomBar = {
-                    BottomMenu(
-                        viewModel.selectedBottomItemState.intValue,
-                        onFavesClick = {
-                            viewModel.selectedBottomItemState.intValue =
-                                BottomMenuItem.Faves.titleId
-                            viewModel.onFavesClick(
-                                Book(),
-                                BottomMenuItem.Faves.titleId,
-                                books.itemSnapshotList.items
-                            )
-                            books.refresh()
-                        },
-                        onHomeClick = {
-                            // получаем список с иыентификатором и
-                            viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
-                            viewModel.getBooksFromCategory(categoryIndex = Categories.ALL)
-                            books.refresh()
-                        }
-                    )
+                title = "Внимание!",
+                massage = "Вы действительно хотите удалить это сообщение?",
+                onConfirm = {
+                    showDeleteDialog.value = false
+                    viewModel.deleteBook(books.itemSnapshotList.items)
                 }
-            ) { paddingValues ->
-
-                if (books.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.empty_list),
-                            color = Color.LightGray
-                        )
-                    }
-                }
-                MyDialog(
-                    showDialog = showDeleteDialog.value,
-                    onDismiss = {
-                        showDeleteDialog.value = false
-                    },
-                    title = "Внимание!",
-                    massage = "Вы действительно хотите удалить это сообщение?",
-                    onConfirm = {
-                        showDeleteDialog.value = false
-                        viewModel.deleteBook(books.itemSnapshotList.items)
-                    }
-                )
-                /*  if (books.loadState.refresh is LoadState.Loading) {
+            )
+            /*  if (books.loadState.refresh is LoadState.Loading) {
                           Box(
                               modifier = Modifier.fillMaxSize(),
                               contentAlignment = Alignment.Center
@@ -224,59 +237,71 @@ fun MenuScreen(
                               )
                           }
                       }*/
-                PullToRefreshBox(
-                    isRefreshing = books.loadState.refresh is LoadState.Loading,
-                    onRefresh = {
-                        books.refresh()
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 2 else 1),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(count = books.itemCount) { index ->
-                            val book = books[index]
-                            if (book != null) {
-                                BookListItemUi(
-                                    titleIndex = viewModel.categoryState.intValue,
-                                    viewModel.isAdminState.value,
-                                    book,
-                                    onBookClick = { bk ->
-                                        onBookClick(bk)
-                                    },
-                                    onEditClick = {
-                                        onBookEditClick(it)
-                                    },
-                                    onDeleteClick = { bookToDelete ->
-                                        showDeleteDialog.value = true
-                                        viewModel.bookToDelete = bookToDelete
-                                    },
-                                    onFavClick = {
-                                        viewModel.onFavesClick(book, viewModel.selectedBottomItemState.intValue,
-                                            books.itemSnapshotList.items
-                                        )
+            PullToRefreshBox(
+                isRefreshing = books.loadState.refresh is LoadState.Loading,
+                onRefresh = {
+                    books.refresh()
+                },
+                state = state,
+                modifier = Modifier.padding(),
+                indicator = {
+                    Indicator(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        isRefreshing = books.loadState.refresh is LoadState.Loading,
+                        containerColor = Color.LightGray,
+                        color = Color.White,
+                        state = state
 
-                                    }
-                                )
-                            }
+                    )
+                }
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 2 else 1),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues)
+                ) {
+                    items(count = books.itemCount) { index ->
+                        val book = books[index]
+                        if (book != null) {
+                            BookListItemUi(
+                                titleIndex = viewModel.categoryState.intValue,
+                                viewModel.isAdminState.value,
+                                book,
+                                onBookClick = { bk ->
+                                    onBookClick(bk)
+                                },
+                                onEditClick = {
+                                    onBookEditClick(it)
+                                },
+                                onDeleteClick = { bookToDelete ->
+                                    showDeleteDialog.value = true
+                                    viewModel.bookToDelete = bookToDelete
+                                },
+                                onFavesClick = {
+                                    viewModel.onFavesClick(
+                                        book, viewModel.selectedBottomItemState.intValue,
+                                        books.itemSnapshotList.items
+                                    )
+
+                                }
+                            )
                         }
                     }
                 }
-
-                FilterDialog(
-                    showDialog = showFilterDialog,
-                    onConfirm = {
-                        showFilterDialog = false
-                        //books.refresh()
-                    },
-                    onDismiss = {
-                        showFilterDialog = false
-                    }
-                )
             }
+
+            FilterDialog(
+                showDialog = showFilterDialog,
+                onConfirm = {
+                    showFilterDialog = false
+                    //books.refresh()
+                },
+                onDismiss = {
+                    showFilterDialog = false
+                }
+            )
         }
     }
+}
 
 
 

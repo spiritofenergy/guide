@@ -11,6 +11,13 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.Favorite
 import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.ui.utils.Categories.ALL
+import com.kodex.guide.ui.utils.Categories.FAVORITES
+import com.kodex.guide.ui.utils.firebase.FirebaseConst.CATEGORY_INDEX
+import com.kodex.guide.ui.utils.firebase.FirebaseConst.KEY
+import com.kodex.guide.ui.utils.firebase.FirebaseConst.POSTS
+import com.kodex.guide.ui.utils.firebase.FirebaseConst.SEARCH_TITLE
+import com.kodex.guide.ui.utils.firebase.FirebaseConst.USERS
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
@@ -25,7 +32,6 @@ class FireStoreManagerPaging(
 ) {
     var category: Int = Categories.ALL
     var searchText = ""
-
     var minPrice = 0
     var maxPrice = 5000
     var isTitleFilter = false
@@ -35,24 +41,25 @@ class FireStoreManagerPaging(
         pageSize: Long,
         currentKey: DocumentSnapshot?,
     ): Pair<QuerySnapshot, List<Book>> {
-        var query: Query = db.collection(FirebaseConst.POSTS).limit(pageSize).orderBy(FirebaseConst.TITLE)
+        var query: Query = db.collection(POSTS).limit(pageSize)
+          //  .orderBy(FirebaseConst.TITLE)
         val keysFavesList = getIdsFavesList()
 
         query = when (category) {
-            Categories.ALL -> query
-            Categories.FANTASY -> query.whereIn(FieldPath.of(FirebaseConst.KEY), keysFavesList)
-            else -> query.whereEqualTo(FirebaseConst.CATEGORY_INDEX, category)
+            ALL -> query
+            FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
+            else -> query.whereEqualTo(CATEGORY_INDEX, category)
         }
 
-        if (searchText.isNotEmpty()){
-            query = query.whereGreaterThanOrEqualTo(FirebaseConst.SEARCH_TITLE, searchText.lowercase())
-                .whereLessThan(FirebaseConst.SEARCH_TITLE,"${searchText.lowercase()}\uF7FF") 
+       if (searchText.isNotEmpty()){
+            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
+                .whereLessThan(SEARCH_TITLE,"${searchText.lowercase()}\uF7FF")
         }
 
-        if (!isPriceFilter) {
+       /* if (!isPriceFilter) {
             query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
                 .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
-        }
+        }*/
         if (currentKey != null) {
             query = query.startAfter(currentKey)
         }
@@ -60,7 +67,7 @@ class FireStoreManagerPaging(
         val books = querySnapshot.toObjects(Book::class.java)
         val updatedBooks = books.map {
             if (keysFavesList.contains(it.key)) {
-                it.copy(isFaves = true)
+                it.copy(isFavorite = true)
             } else {
                 it
             }
@@ -81,7 +88,7 @@ class FireStoreManagerPaging(
     }
 
     fun getFavesCategoryReference(): CollectionReference {
-        return db.collection(FirebaseConst.USERS)
+        return db.collection(USERS)
             .document(auth.uid ?: "")
             .collection(FirebaseConst.FAVES)
     }
@@ -104,9 +111,9 @@ class FireStoreManagerPaging(
             if (bk.key == book.key) {
                 onFaves(
                     Favorite(bk.key),
-                    !bk.isFaves
+                    !bk.isFavorite
                 )
-                bk.copy(isFaves = !bk.isFaves)
+                bk.copy(isFavorite = !bk.isFavorite)
             } else {
                 bk
             }
@@ -118,7 +125,7 @@ class FireStoreManagerPaging(
         onDeleted: () -> Unit,
         onFailure: (String) -> Unit,
     ) {
-        db.collection(FirebaseConst.POSTS)
+        db.collection(POSTS)
             .document(book.key)
             .delete()
             .addOnSuccessListener {

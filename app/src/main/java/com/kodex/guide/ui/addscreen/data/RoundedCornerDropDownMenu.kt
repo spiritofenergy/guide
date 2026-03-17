@@ -1,6 +1,7 @@
 package com.kodex.guide.ui.addscreen.data
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.utils.Categories
 
 @Composable
@@ -26,7 +28,7 @@ fun RoundedCornerDropDownMenu(
     onOptionSelected: (Int) -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
-    val categoryList = stringArrayResource(id = R.array.category_array_drop_menu)
+    val categoryList = stringArrayResource(id = R.array.category_array)
    val selectedOption = remember { mutableStateOf(categoryList[Categories.ALL])
     }
   /*   selectedOption.value = categoryList[defCategory]
@@ -40,6 +42,7 @@ fun RoundedCornerDropDownMenu(
                 expanded.value = true
             }
             .padding(20.dp)
+
         /*    .border(
                 width = 2.dp,
                 color = ButtonColor,

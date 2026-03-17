@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class DetailNavObject(
     val title: String = "",
     val description: String = "",
-    val price: String = "",
+    val price: Int = 0,
     val telephone: String = "",
     val category: Int = Categories.ALL,
     val imageUrl: String = ""
