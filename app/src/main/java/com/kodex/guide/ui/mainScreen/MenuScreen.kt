@@ -120,47 +120,7 @@ fun MenuScreen(
                             coroutineScope.launch { drawerState.close() }
                         }
                     },
-                    onFavesClick = {
-                        viewModel.onFavesClick(
-                            Book(),
-                            BottomMenuItem.Faves.titleId,
-                            books.itemSnapshotList.items
-                        )
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onHomeClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
-                        coroutineScope.launch { drawerState.close() }
 
-                    },
-                    onAnimalsClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ANIMALS)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onPlantsClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.PLANTS)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onWorkClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.WORK)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onServicesClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.SERVICES)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onReal_estateClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.REAL_ESTATE)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onEntertainmentsClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.ENTERTAINMENTS)
-                        coroutineScope.launch { drawerState.close() }
-                    },
-                    onMiscellaneousClick = {
-                        viewModel.getAllBooksFromCategory(categoryIndex = Categories.MISCELLANEOUS)
-                        coroutineScope.launch { drawerState.close() }
-                    },
                     onLoginClick = {
                         onLoginClick()
                         coroutineScope.launch { drawerState.close() }
@@ -236,8 +196,8 @@ fun MenuScreen(
                     onDismiss = {
                         showDeleteDialog.value = false
                     },
-                    title = "Внимание!",
-                    massage = "Вы действительно хотите удалить это сообщение?",
+                    title = stringResource(id = R.string.attention),
+                    massage = stringResource(id = R.string.want_to_delete_this_message),
                     onConfirm = {
                         showDeleteDialog.value = false
                         viewModel.deleteBook(books.itemSnapshotList.items)

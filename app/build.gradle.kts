@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.room3.runtime)
     ksp(libs.hilt.navigation.compose.compiler)
 
     implementation(libs.android.hilt)

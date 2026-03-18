@@ -3,7 +3,6 @@ package com.kodex.guide.ui.addscreen.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kodex.guide.ui.utils.Categories
-import com.kodex.guide.ui.utils.Village
 
 @Entity(tableName = "books")
 data class Book(

@@ -101,6 +101,7 @@ class MainScreenViewModel @Inject constructor(
         firebaseManagerPainter.deleteBook(
             bookToDelete!!,
             onDeleted = {
+                deleteBook = true
                 bookListUpdate.value = uiList.filter {
                     it.key != bookToDelete!!.key
                 }

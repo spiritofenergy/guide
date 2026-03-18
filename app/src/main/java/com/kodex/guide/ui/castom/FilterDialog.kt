@@ -1,18 +1,14 @@
 package com.kodex.guide.ui.castom
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
@@ -20,9 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel
+import com.kodex.guide.ui.theme.DrawerColorBlue
 
 @Composable
 @Preview(showBackground = true)
@@ -45,14 +42,20 @@ fun FilterDialog(
                 Button(onClick = {
                     onConfirm()
                     viewModel.setFilter()
-
-                }) {
+                },colors = ButtonDefaults.buttonColors(
+                    containerColor = DrawerColorBlue
+                )) {
                     Text(text = confirmButtonText)
                 }
 
-                Button(onClick = {
-                    onDismiss()
-                }) {
+                Button(
+                    onClick = {
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DrawerColorBlue
+                    )
+                ) {
                     Text(text = "Cansel")
                 }
             },
@@ -82,7 +85,7 @@ fun FilterDialog(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
 
-                        PricePicker2(
+                        PricePickerThumb(
                             priceValue = viewModel.minPriceValue.floatValue,
                             title = "Min",
                             onValueChange = { value ->
@@ -91,7 +94,7 @@ fun FilterDialog(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
 
-                        PricePicker2(
+                        PricePickerThumb(
                             priceValue = viewModel.maxPriceValue.floatValue,
                             title = "Max",
                             onValueChange = { value ->
@@ -105,18 +108,7 @@ fun FilterDialog(
     }
 }
 
-/*Text(text = "From")
-                         PricePicker(
-                             minPriceValue.value,
-                             priceRange
-                         ) { value ->
-                             minPriceValue.intValue = value
-                         }
-
-                         Text(text = "To")
-                         PricePicker(
-                             maxPriceValue.value,
-                             priceRange
-                         ) { value ->
-                             maxPriceValue.intValue = value
-                         }*/
+@Composable
+@Preview(showBackground = true)
+fun ShowFilterDialog() {
+}

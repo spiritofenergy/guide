@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel.MainUiState
 import com.kodex.guide.ui.utils.Categories
-import com.kodex.guide.ui.utils.Village
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+ import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,8 +25,7 @@ class AddBookViewModel @Inject constructor(
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
     val selectedCategory = mutableIntStateOf(Categories.ALL)
-    val selectedVillage = mutableIntStateOf(Village.KURCHANSKAYA)
-    val selectedImageUri = mutableStateOf<Uri?>(null)
+     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
 
     private val _uiState = MutableSharedFlow<MainUiState>()
