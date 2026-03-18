@@ -13,8 +13,13 @@
     <string name="all">All</string>
     <string name="taman_peninsula">Taman Peninsula</string>
     <!-- -->
-    <string name="empty_list">Lista vacía</string>
+    <string name="empty_list">Empty_list</string>
     <string name="added_to_favorites">Post added to Favorites</string>
     <string name="deleted_from_favorites">Post deleted from Favorites</string>
+
+    <!-- MenuScreen -->
+    <string name="attention">Attention</string>
+    <string name="want_to_delete_this_message">Do you really want to delete this message?</string>
+
 
 </resources>

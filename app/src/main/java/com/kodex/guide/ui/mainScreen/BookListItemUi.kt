@@ -183,16 +183,16 @@ fun BookListItemUi(
 
             Spacer(modifier = Modifier.height(10.dp))
             if (!showEditButton)
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1F),
-                text = book.price.toString() + " p",
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                fontSize = 18.sp
-            )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F),
+                    text = book.price.toString() + " p",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    fontSize = 18.sp
+                )
             Icon(
                 Icons.Default.DeliveryDining,
                 contentDescription = "Location",
@@ -208,7 +208,6 @@ fun BookListItemUi(
                 tint = Color.Gray
 
             )
-
 
             if (!showEditButton)
             Text(

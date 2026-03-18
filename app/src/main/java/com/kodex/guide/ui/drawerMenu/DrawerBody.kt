@@ -42,15 +42,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DrawerBody(
     viewModel: MainScreenViewModel = hiltViewModel(),
-    onFavesClick: ()-> Unit,
-    onHomeClick: ()-> Unit,
-    onAnimalsClick: ()-> Unit,
-    onPlantsClick: ()-> Unit,
-    onWorkClick: ()-> Unit,
-    onServicesClick: ()-> Unit,
-    onReal_estateClick: ()-> Unit,
-    onEntertainmentsClick: ()-> Unit,
-    onMiscellaneousClick: ()-> Unit,
+
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
@@ -243,15 +235,6 @@ fun DrawerBody(
 @Composable
 fun Preview(){
     DrawerBody(
-        onFavesClick = {},
-        onHomeClick = {},
-        onAnimalsClick = {},
-        onPlantsClick = {},
-        onWorkClick = {},
-        onServicesClick = {},
-        onReal_estateClick = {},
-        onEntertainmentsClick = {},
-        onMiscellaneousClick = {},
         onAddBookClick = {},
         onLoginClick = {},
         onAdmin = {},

@@ -1,8 +1,7 @@
 package com.kodex.guide.ui.addscreen.data
 
 import com.kodex.guide.ui.utils.Categories
-import com.kodex.guide.ui.utils.Village
-import kotlinx.serialization.Serializable
+ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddScreenObject(

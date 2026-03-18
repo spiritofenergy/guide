@@ -51,7 +51,7 @@ fun DrawerHeader(email: String) {
         )
         Text(
             email,
-            color = Color.Green,
+            color = Color.Black,
             fontSize = 16.sp)
         /*Spacer(modifier = Modifier.height(10.dp))
         Box(
