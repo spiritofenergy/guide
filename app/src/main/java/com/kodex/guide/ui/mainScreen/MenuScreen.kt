@@ -98,7 +98,7 @@ fun MenuScreen(
         drawerContent = {
             Column(modifier = Modifier.fillMaxWidth(if (!isLandscape) 0.7f else 0.3f)) {
                 if (!isLandscape)
-                    DrawerHeader(navData.email)
+                DrawerHeader(navData.email)
                 DrawerBody(
                     onAdminClick = onAdminClick,
                     onAddBookClick = onAddBookClick,
@@ -235,7 +235,7 @@ fun MenuScreen(
                         columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 2 else 1),
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(2.dp)
+
                     ) {
                         items(count = books.itemCount) { index ->
                             val book = books[index]

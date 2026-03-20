@@ -39,12 +39,15 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.utils.toBitmap
  import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.theme.GreenSea
+import com.kodex.guide.ui.theme.Orange
 
 
 @Composable
@@ -197,7 +200,7 @@ fun BookListItemUi(
                 Icons.Default.DeliveryDining,
                 contentDescription = "Location",
                 modifier = Modifier.size(20.dp),
-                tint = Color.Gray
+                tint = GreenSea
 
             )
             Spacer(modifier = Modifier.width(5.dp))
@@ -205,7 +208,7 @@ fun BookListItemUi(
                 Icons.Default.LocationOn,
                 contentDescription = "Location",
                 modifier = Modifier.size(16.dp),
-                tint = Color.Gray
+                tint = Orange
 
             )
 
@@ -239,4 +242,11 @@ fun BookListItemUi(
             }
         }
     }
+}
+@Composable
+@Preview(showBackground = true)
+fun BookListItemUiPreview() {
+    BookListItemUi(
+        titleIndex = 0,
+    )
 }

@@ -173,16 +173,14 @@ fun AddBookScreen(
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-            for (i in 1..10) {
                 //showProgressIndicator.value = true
                 saveBookToFirestore(
                     firestore = FirebaseFirestore.getInstance(),
                     Book(
                         key = navData.key,
-                        title = viewModel.title.value + " ${i}",
+                        title = viewModel.title.value,
                         description = viewModel.description.value,
-                        price = i + i+200,
-                        //price = viewModel.price.value.toInt(),
+                        price = viewModel.price.value.toInt(),
                         categoryIndex = viewModel.selectedCategory.intValue,
                         village = viewModel.village.value,
 
@@ -210,7 +208,7 @@ fun AddBookScreen(
 
                     }
                 )
-            }
+
                 // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
         }
     }

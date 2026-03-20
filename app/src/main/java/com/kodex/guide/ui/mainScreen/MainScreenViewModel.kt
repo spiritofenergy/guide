@@ -46,7 +46,7 @@ class MainScreenViewModel @Inject constructor(
 
     val isAdminState = mutableStateOf(false)
 
-    val categoryState = mutableIntStateOf(Categories.ANIMALS)
+    val categoryState = mutableIntStateOf(Categories.ALL)
 
     var bookToDelete: Book? = null
     private var deleteBook = false
