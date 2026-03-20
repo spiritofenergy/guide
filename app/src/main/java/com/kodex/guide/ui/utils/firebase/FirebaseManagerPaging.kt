@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.utils.firebase
 
+import android.R.attr.rating
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -10,9 +11,12 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.Favorite
+import com.kodex.guide.ui.detailScreen.RatingData
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.Categories.ALL
 import com.kodex.guide.ui.utils.Categories.FAVORITES
+import com.kodex.guide.ui.utils.FirebaseConst.GUIDE_RATING
+import com.kodex.guide.ui.utils.FirebaseConst.RATING
 import com.kodex.guide.ui.utils.firebase.FirebaseConst.CATEGORY_INDEX
 import com.kodex.guide.ui.utils.firebase.FirebaseConst.KEY
 import com.kodex.guide.ui.utils.firebase.FirebaseConst.POSTS
@@ -230,5 +234,25 @@ class FireStoreManagerPaging(
                 }
             )
         }
+    }
+    fun insertRating(ratingData: RatingData, bookId: String){
+        if (auth.uid == null)return
+        db.collection(GUIDE_RATING)
+            .document(bookId)
+            .collection(RATING)
+            .document(auth.uid!!)
+            .set(ratingData.copy(name = auth.currentUser?.email?: "Unknown" ))
+    }
+
+    suspend fun getRating(bookId: String): Pair<Double, List<RatingData>> {
+       val querySnapshot = db.collection(GUIDE_RATING)
+            .document(bookId)
+            .collection(RATING)
+            .get().await()
+        val ratingList = querySnapshot.toObjects(RatingData::class.java)
+        val averageRating = ratingList.map {it.rating}.average()
+        return Pair(averageRating, ratingList)
+
+
     }
 }

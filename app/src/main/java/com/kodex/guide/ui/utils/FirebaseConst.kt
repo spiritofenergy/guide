@@ -13,5 +13,5 @@ object FirebaseConst {
     const val SEARCH_TITLE = "searchTitle"
     const val BOOK_IMAGES = "bookImages"
     const val RATING = "rating"
-    const val BOOK_RATING = "book_rating"
+    const val GUIDE_RATING = "guide_rating"
 }

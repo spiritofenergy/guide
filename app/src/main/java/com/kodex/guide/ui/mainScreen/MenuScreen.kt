@@ -62,7 +62,7 @@ fun MenuScreen(
 ) {
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
-    val drawerState = rememberDrawerState(DrawerValue.Open)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val showDeleteDialog = remember { mutableStateOf(false) }
     val isAuthorState = remember { mutableStateOf(false) }
@@ -232,7 +232,7 @@ fun MenuScreen(
                     }
                 ) {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 2 else 1),
+                        columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
                         modifier = Modifier
                             .fillMaxSize()
 

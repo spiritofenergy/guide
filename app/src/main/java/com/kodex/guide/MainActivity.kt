@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = LoginScreenObject
+                startDestination = MainScreenDataObject()
             ) {
 
                 composable<LoginScreenObject> {
@@ -52,7 +52,6 @@ class MainActivity : ComponentActivity() {
                                     telephone = bk.telephone,
                                     categoryIndex = bk.categoryIndex,
                                     imageUrl = bk.imageUrl,
-
                                 )
                             )
                         },

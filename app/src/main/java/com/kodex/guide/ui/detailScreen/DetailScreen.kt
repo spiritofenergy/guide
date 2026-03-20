@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
@@ -54,14 +57,13 @@ import com.kodex.guide.ui.utils.toFormattedDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
-@Preview(showBackground = true)
 @Composable
 fun DetailScreen(
     ///ratingData: RatingData = RatingData(),
    // navObject: NavRoutes.DetailsNavObject = NavRoutes.DetailsNavObject(),
 
     navObject: DetailNavObject = DetailNavObject(),
-   // viewModel: DetailsScreenViewModel = hiltViewModel()
+    viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
     val context: Context
     val text = "Опция в разработке!"
@@ -83,22 +85,23 @@ fun DetailScreen(
     } catch (e: IllegalArgumentException) {
 
     }
-   /* LaunchedEffect(key1 = Unit) {
-        viewModel.getBookComments(navObject.bookId)
-    }*/
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getAverageRating(navObject.bookId)
+    }
     RateDialog(
       //  ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
             showReteDialog = false
         },
+
         onSubmit = { rating, message ->
             val ratingData = RatingData(
                 name = "",
                 rating = rating,
                 message = message,
-               // lastRating = viewModel.ratingDataState.value?.rating ?: 0
+                lastRating = viewModel.ratingDataState.value?.rating ?: 0
             )
-           // viewModel.insertRating(ratingData, navObject.bookId)
+            viewModel.insertRating(ratingData, navObject.bookId)
             showReteDialog = false
         },
         show = showReteDialog,
@@ -188,6 +191,12 @@ fun DetailScreen(
                         fontSize = 16.sp
 
                     )
+                    Text(
+                        text = viewModel.ratingState.value,
+                        color = Orange,
+                        fontSize = 16.sp
+
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement =  Arrangement.Center
@@ -197,9 +206,10 @@ fun DetailScreen(
                        // if (navObject.ratingsList.isNotEmpty()) {
                             Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
                             Text(
-                               // text = String.format("%.1f",viewModel.commentState.value
-                                text = String.format("%.1f", navObject.ratingsList.average(),                                       // "(${navObject.ratingsList.size})"
-                                ),
+                                text = String.format("%.1f",viewModel.ratingState.value.toDouble()),
+                              //  text = String.format("%.1f",viewModel.commentState.value,
+                               // text = String.format("%.1f", navObject.ratingsList.average(),                                       // "(${navObject.ratingsList.size})"
+
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
@@ -258,23 +268,21 @@ fun DetailScreen(
             }
 
 
-            Spacer(modifier = Modifier.width(50.dp))
-            Text(
+          //  Spacer(modifier = Modifier.width(50.dp))
+        Spacer(modifier = Modifier.fillMaxWidth().padding(10.dp))
+
+        Text(
                 text = navObject.title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 25.sp
             )
-            Text(
+          /*  Text(
                 text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
                 fontWeight = FontWeight.Bold
-            )
+            )*/
 
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp))
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())
+               .weight(1F)) {
                 Text(
                     text = navObject.description, fontSize = 16.sp
                 )
@@ -282,39 +290,56 @@ fun DetailScreen(
 
             Spacer(Modifier.height(10.dp))
 
-                // if (viewModel.commentState.value.isNotEmpty()) {
-                Text(
-                    text = "Коментарии",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+                 if (viewModel.commentState.value.isNotEmpty()) {
+                     Text(
+                         text = "Коментарии",
+                         fontWeight = FontWeight.Bold,
+                         fontSize = 20.sp
+                     )
 
-                Spacer(Modifier.height(10.dp))
-                LazyRow(modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(0.3F)) {
-                   /* items(viewModel.commentState.value) { ratingData ->
-                        CommentListItem(
-                            onClick = { rData->
-                                showCommentDialog = true
-                                ratingDataToShow = rData
-                            },
-                            ratingData = ratingData
-                        )
-                        Spacer(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(2.dp))
-                    }*/
-
-                }
-
-
-
+                     Spacer(Modifier.height(10.dp))
+                     LazyRow(
+                         modifier = Modifier
+                             .fillMaxWidth()
+                             .height(180.dp)
+                         // .weight(0.3F)
+                     ) {
+                         items(viewModel.commentState.value) { ratingData ->
+                            CommentListItem(
+                                 onClick = { rData ->
+                                     showCommentDialog = true
+                                     ratingDataToShow = rData
+                                 },
+                                 ratingData = ratingData
+                             )
+                             Spacer(
+                                 modifier = Modifier
+                                     .fillMaxWidth()
+                                     .padding(2.dp)
+                             )
+                         }
+                     }
+                 }
         Spacer(modifier = Modifier.width(5.dp))
     }
 }
-
-
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+@Preview(showBackground = true)
+ fun ShowDetailScreen() {
+        DetailScreen(
+            navObject = DetailNavObject(
+                bookId = "123",
+                title = "Title",
+                description = "Статья большая с кучей фотографий, а видео на целый час. Лишь терпеливый осилит! :) Всё про приключение на Тропе Голицына в Новом Свете в Крыму. Туда ехать мы вообще не планировали. Однако Бог выгодно сложил обстоятельства в нашу сторону. Таким образом, прибыли из Алушты в Новый свет 1 апреля 2024 года, словно перепрыгнув с одного курорта на другой.\n" +
+                        "\n" +
+                        "Мы супруги: Андрей и Елена. Приехали в Крым зимой - 19 января и рот раскрыли от удивления. Вместо ожидаемых холодных ветров и тумана, получили +15 в январе и даже искупались в море. Вместо планируемого 1 месяца, остались на три. Где помимо ежедневного наслаждения от созерцания моря в панорамном окне гостиничного номера, ходили в походы и делали вылазки в горы. Это одна из необычных вылазок, сейчас всё расскажем!",
+                price = "100",
+                telephone = "123456789",
+                categoryIndex = 0
+             )
+        )
+ }
 
 
 

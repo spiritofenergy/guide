@@ -31,6 +31,7 @@ hiltPlugin = "2.57.2"
 pagingVersion = "3.3.0"
 roomCommonJvm = "2.8.4"
 room3Runtime = "3.0.0-alpha01"
+foundation = "1.10.5"
 
 
 [libraries]
@@ -72,6 +73,7 @@ androidx-paging = { group = "androidx.paging", name = "paging-compose", version.
 mobileads = { module = "com.yandex.android:mobileads", version.ref = "mobileads" }
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3Runtime" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

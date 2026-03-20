@@ -1,6 +1,7 @@
 package com.kodex.guide.ui.detailScreen
 
 import android.R.attr.rating
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kodex.guide.ui.theme.ButtonColor
@@ -35,20 +37,23 @@ import com.kodex.guide.ui.theme.Orange
 @Preview(showBackground = true)
 @Composable
 fun RateDialog(
-  //  ratingData: RatingData = RatingData(),
+    ratingData: RatingData = RatingData(),
     onDismiss: () -> Unit = {},
     onSubmit: (Int, String) -> Unit = {_, _ ->},
     show: Boolean = false
+
 ) {
+    val context = LocalContext.current
     var selectedRate by remember { mutableIntStateOf(0) }
     var messageState by remember { mutableStateOf("") }
-  //  selectedRate = ratingData.rating
-  //  messageState = ratingData.message
+    selectedRate = ratingData.rating
+    messageState = ratingData.message
 
     if (show) {
         AlertDialog(
             onDismissRequest = {
                 onDismiss()
+                Toast.makeText(context, "Спасибо за оценку", Toast.LENGTH_SHORT).show()
             },
             title = {
                 Text(text = "Rate this Book")

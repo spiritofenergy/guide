@@ -21,5 +21,8 @@
     <string name="attention">Attention</string>
     <string name="want_to_delete_this_message">Do you really want to delete this message?</string>
 
-
+    <!--  DerailScreen -->
+    <string name="rate_this_book">Rate this Book</string>
+    <string name="submit">Submit</string>
+    <string name="message">Message</string>
 </resources>
