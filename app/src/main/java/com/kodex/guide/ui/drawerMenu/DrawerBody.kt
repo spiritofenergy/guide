@@ -161,7 +161,7 @@ fun DrawerBody(
                      iconDrawableId = Icons.Default.Security,
                      text = categoryAdmin[0],
                      onItemClick = {
-                        onAddBookClick()
+                         onAdminClick()
                          coroutineScope.launch { drawerState.close() }
                      }
                  )

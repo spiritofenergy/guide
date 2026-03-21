@@ -1,7 +1,5 @@
 package com.kodex.guide.ui.detailScreen
 
-import android.R.attr.rating
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +17,7 @@ class DetailsScreenViewModel @Inject constructor(
     val ratingDataState = mutableStateOf<RatingData?>(RatingData())
 
     fun insertRating(ratingData: RatingData, bookId: String) {
-        fireStoreManager.insertRating(ratingData, bookId)
+        fireStoreManager.insertUserRating(ratingData, bookId)
     }
 
     fun getAverageRating(bookId: String) = viewModelScope.launch {

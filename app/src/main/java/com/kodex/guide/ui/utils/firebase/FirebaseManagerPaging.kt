@@ -1,6 +1,5 @@
 package com.kodex.guide.ui.utils.firebase
 
-import android.R.attr.rating
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -16,6 +15,7 @@ import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.Categories.ALL
 import com.kodex.guide.ui.utils.Categories.FAVORITES
 import com.kodex.guide.ui.utils.FirebaseConst.GUIDE_RATING
+import com.kodex.guide.ui.utils.FirebaseConst.MODERATION_RATING
 import com.kodex.guide.ui.utils.FirebaseConst.RATING
 import com.kodex.guide.ui.utils.firebase.FirebaseConst.CATEGORY_INDEX
 import com.kodex.guide.ui.utils.firebase.FirebaseConst.KEY
@@ -46,7 +46,7 @@ class FireStoreManagerPaging(
         currentKey: DocumentSnapshot?,
     ): Pair<QuerySnapshot, List<Book>> {
         var query: Query = db.collection(POSTS).limit(pageSize)
-          //  .orderBy(FirebaseConst.TITLE)
+        //  .orderBy(FirebaseConst.TITLE)
         val keysFavesList = getIdsFavesList()
 
         query = when (categoryIndex) {
@@ -55,12 +55,12 @@ class FireStoreManagerPaging(
             else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
         }
 
-       if (searchText.isNotEmpty()){
+        if (searchText.isNotEmpty()) {
             query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
-                .whereLessThan(SEARCH_TITLE,"${searchText.lowercase()}\uF7FF")
+                .whereLessThan(SEARCH_TITLE, "${searchText.lowercase()}\uF7FF")
         }
 
-       /* if (!isPriceFilter) {
+        /* if (!isPriceFilter) {
             query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
                 .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
         }*/
@@ -235,32 +235,81 @@ class FireStoreManagerPaging(
             )
         }
     }
-    fun insertRating(ratingData: RatingData, bookId: String){
-        if (auth.uid == null)return
+
+    fun insertUserRating(ratingData: RatingData, bookId: String) {
+        if (auth.uid == null) return
+        db.collection(MODERATION_RATING)
+            .document(auth.uid!!)
+            .set(ratingData.copy(
+                name = auth.currentUser?.displayName ?: "Unknown",
+                uid = auth.uid!!,
+                bookId = bookId
+                ))
+    }
+
+    suspend fun  insertModerationRating(ratingData: RatingData) {
+        if (auth.uid == null) return
         db.collection(GUIDE_RATING)
-            .document(bookId)
+            .document(ratingData.bookId)
             .collection(RATING)
-            .document(auth.uid!!)
-            .set(ratingData.copy(name = auth.currentUser?.email?: "Unknown" ))
+            .document(ratingData.uid)
+            .set(ratingData)
+
+        val book: Book = db.collection(POSTS)
+            .document(ratingData.bookId)
+            .get().await().toObject(Book::class.java) ?: return
+        val ratingsList = book.ratingsList.toMutableList()
+        if (ratingData.lastRating == 0) {
+            // ratingsList.add(ratingData.rating)
+
+            /*  }else {
+            val index = ratingsList.indexOf(ratingData.lastRating)
+            ratingsList[index] = ratingData.rating
+        }*/
+            db.collection(POSTS)
+                .document(ratingData.bookId)
+                .update("ratingsList", ratingsList)
+        }
+    }
+        suspend fun getRating(bookId: String): Pair<Double, List<RatingData>> {
+            val querySnapshot = db.collection(GUIDE_RATING)
+                .document(bookId)
+                .collection(RATING)
+                .get().await()
+            val ratingList = querySnapshot.toObjects(RatingData::class.java)
+            val averageRating = ratingList.map { it.rating }.average()
+            return Pair(averageRating, ratingList)
+        }
+
+        suspend fun getUserRating(bookId: String): RatingData? {
+            if (auth.uid == null) return null
+            val querySnapshot = db.collection(GUIDE_RATING)
+                .document(bookId)
+                .collection(RATING)
+                .document(auth.uid!!)
+                .get().await()
+            return querySnapshot.toObject(RatingData::class.java)
+        }
+
+        suspend fun getCommentsToModerate(): List<RatingData> {
+            val querySnapshot = db.collection(MODERATION_RATING)
+                .get().await()
+            val commentsList = querySnapshot.toObjects(RatingData::class.java)
+            return commentsList
+        }
+
+        suspend fun deleteComment(uid: String) {
+            db.collection(MODERATION_RATING)
+                .document(uid)
+                .delete().await()
+        }
+
+        suspend fun getBookComments(bookId: String): List<RatingData> {
+            val querySnapshot = db.collection(GUIDE_RATING)
+                .document(bookId)
+                .collection(RATING)
+                .get().await()
+            return querySnapshot.toObjects(RatingData::class.java)
+        }
     }
 
-    suspend fun getRating(bookId: String): Pair<Double, List<RatingData>> {
-       val querySnapshot = db.collection(GUIDE_RATING)
-            .document(bookId)
-            .collection(RATING)
-            .get().await()
-        val ratingList = querySnapshot.toObjects(RatingData::class.java)
-        val averageRating = ratingList.map {it.rating}.average()
-        return Pair(averageRating, ratingList)
-    }
-
-    suspend fun getUserRating(bookId: String): RatingData? {
-        if (auth.uid == null) return null
-        val querySnapshot = db.collection(GUIDE_RATING)
-            .document(bookId)
-            .collection(RATING)
-            .document(auth.uid!!)
-            .get().await()
-        return querySnapshot.toObject(RatingData::class.java)
-    }
-}

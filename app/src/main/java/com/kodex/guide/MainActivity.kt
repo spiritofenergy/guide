@@ -12,6 +12,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kodex.guide.ui.addscreen.AddBookScreen
 import com.kodex.guide.ui.addscreen.data.AddScreenObject
+import com.kodex.guide.ui.adminPanel.AdminPanelNavObject
+import com.kodex.guide.ui.adminPanel.AdminPanelScreen
+import com.kodex.guide.ui.adminPanel.ModerationNavObject
+import com.kodex.guide.ui.adminPanel.ModerationScreen
 import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.data.LoginScreenObject
 import com.kodex.guide.ui.data.MainScreenDataObject
@@ -63,11 +67,11 @@ class MainActivity : ComponentActivity() {
                                 price = book.price,
                                 categoryIndex = book.categoryIndex,
                                 imageUrl = book.imageUrl,
-                            )
+                                )
                             )
                         },
                         onAdminClick = {
-                            navController.navigate(AddScreenObject())
+                            navController.navigate(AdminPanelNavObject)
                         },
                         onLoginClick = {
                             navController.navigate(LoginScreenObject)
@@ -90,9 +94,21 @@ class MainActivity : ComponentActivity() {
                 composable<DetailNavObject> { navEntry ->
                     val navData = navEntry.toRoute<DetailNavObject>()
                     DetailScreen(navData)
-
                 }
 
+                composable<AdminPanelNavObject> {
+                    AdminPanelScreen (
+                        onAddBookClick = {
+                            navController.navigate(AddScreenObject())
+                        },
+                        onModerationClick = {
+                            navController.navigate(ModerationNavObject)
+                        }
+                    )
+                }
+                composable<ModerationNavObject> {
+                    ModerationScreen()
+                }
             }
         }
     }

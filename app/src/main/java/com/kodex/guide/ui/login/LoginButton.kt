@@ -13,13 +13,14 @@ import com.kodex.guide.ui.theme.ButtonColor
 
 @Composable
 fun LoginButton(
+    modifier: Modifier = Modifier,
     text: String,
     showLoadIndicator: Boolean = false,
     onClick: () -> Unit
 ) {
     Button(onClick = {
         onClick()},
-        modifier = Modifier.fillMaxWidth(0.5f),
+        modifier = modifier.fillMaxWidth(0.5f),
         colors = ButtonDefaults.buttonColors(
             containerColor = ButtonColor
         )
