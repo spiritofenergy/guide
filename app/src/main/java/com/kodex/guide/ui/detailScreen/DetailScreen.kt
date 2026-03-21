@@ -89,7 +89,7 @@ fun DetailScreen(
         viewModel.getAverageRating(navObject.bookId)
     }
     RateDialog(
-      //  ratingData = viewModel.ratingDataState.value ?: RatingData(),
+        ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
             showReteDialog = false
         },
@@ -106,10 +106,20 @@ fun DetailScreen(
         },
         show = showReteDialog,
         )
-   /* CommentDialog(
+    CommentDialog(
         showDialog = showCommentDialog,
         onDismiss = {
             showCommentDialog = false
+        },
+        ratingData = ratingDataToShow,
+        onConfirm = {
+            showCommentDialog = false
+        }
+    )
+  /*  CommentListItem(
+        onClick = { rData ->
+            showCommentDialog = true
+            ratingDataToShow = rData
         },
         ratingData = ratingDataToShow
     )*/
@@ -236,7 +246,7 @@ fun DetailScreen(
                         .fillMaxWidth()
                         .weight(1F),
                     onClick = {
-                      //  viewModel.getUserRating(bookId = navObject.bookId)
+                        viewModel.getUserRating(bookId = navObject.bookId)
                         showReteDialog = true
 
                     },
@@ -301,8 +311,8 @@ fun DetailScreen(
                      LazyRow(
                          modifier = Modifier
                              .fillMaxWidth()
-                             .height(180.dp)
-                         // .weight(0.3F)
+                             //.height(130.dp)
+                          .weight(0.3F)
                      ) {
                          items(viewModel.commentState.value) { ratingData ->
                             CommentListItem(

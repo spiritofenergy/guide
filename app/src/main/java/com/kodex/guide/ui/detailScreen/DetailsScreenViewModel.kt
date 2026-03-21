@@ -22,17 +22,13 @@ class DetailsScreenViewModel @Inject constructor(
         fireStoreManager.insertRating(ratingData, bookId)
     }
 
-    /*
-        fun getBookComments(bookId: String) = viewModelScope.launch{
-            commentState.value = fireStoreManager.getBookComments(bookId)
-
-         }
-    */
     fun getAverageRating(bookId: String) = viewModelScope.launch {
         val ratingPair = fireStoreManager.getRating(bookId)
         ratingState.value = ratingPair.first.toString()
         commentState.value = ratingPair.second
-
+    }
+    fun getUserRating(bookId: String) = viewModelScope.launch {
+        ratingDataState.value = fireStoreManager.getUserRating(bookId)
 
     }
 

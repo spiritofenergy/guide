@@ -252,7 +252,15 @@ class FireStoreManagerPaging(
         val ratingList = querySnapshot.toObjects(RatingData::class.java)
         val averageRating = ratingList.map {it.rating}.average()
         return Pair(averageRating, ratingList)
+    }
 
-
+    suspend fun getUserRating(bookId: String): RatingData? {
+        if (auth.uid == null) return null
+        val querySnapshot = db.collection(GUIDE_RATING)
+            .document(bookId)
+            .collection(RATING)
+            .document(auth.uid!!)
+            .get().await()
+        return querySnapshot.toObject(RatingData::class.java)
     }
 }
