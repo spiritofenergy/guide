@@ -11,17 +11,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kodex.guide.ui.addscreen.AddBookScreen
-import com.kodex.guide.ui.addscreen.data.AddScreenObject
-import com.kodex.guide.ui.adminPanel.AdminPanelNavObject
-import com.kodex.guide.ui.adminPanel.AdminPanelScreen
-import com.kodex.guide.ui.adminPanel.ModerationNavObject
+ import com.kodex.guide.ui.adminPanel.AdminPanelScreen
 import com.kodex.guide.ui.adminPanel.ModerationScreen
 import com.kodex.guide.ui.mainScreen.MenuScreen
-import com.kodex.guide.ui.data.LoginScreenObject
-import com.kodex.guide.ui.data.MainScreenDataObject
-import com.kodex.guide.ui.detailScreen.DetailNavObject
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
+import com.kodex.guide.ui.data.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,20 +30,21 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = MainScreenDataObject()
+                startDestination = NavRoutes.MainScreenDataObject()
             ) {
 
-                composable<LoginScreenObject> {
+                composable<NavRoutes.LoginScreenObject> {
                     LoginScreen() { navData ->
                         navController.navigate(navData)
                     }
                 }
-                composable<MainScreenDataObject> { navEntry ->
-                    val navData = navEntry.toRoute<MainScreenDataObject>()
+                composable<NavRoutes.MainScreenDataObject> { navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.MainScreenDataObject>()
                     MenuScreen(
                         navData = navData,
                         onBookClick = { bk ->
-                            navController.navigate(DetailNavObject(
+                            navController.navigate(
+                                NavRoutes.DetailNavObject(
                                     bookId = bk.key,
                                     title = bk.title,
                                     description = bk.description,
@@ -61,7 +57,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onBookEditClick = { book->
-                            navController.navigate(AddScreenObject(
+                            navController.navigate(NavRoutes.AddScreenObject(
                                 key = book.key,
                                 title = book.title,
                                 description = book.description,
@@ -72,19 +68,19 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onAdminClick = {
-                            navController.navigate(AdminPanelNavObject)
+                            navController.navigate(NavRoutes.AdminPanelNavObject)
                         },
                         onLoginClick = {
-                            navController.navigate(LoginScreenObject)
+                            navController.navigate(NavRoutes.LoginScreenObject)
                         },
                         onAddBookClick = {
-                            navController.navigate(AddScreenObject())
+                            navController.navigate(NavRoutes.AddScreenObject())
                         }
                     )
 
                 }
-                composable<AddScreenObject>{ navEntry ->
-                    val navData = navEntry.toRoute<AddScreenObject>()
+                composable<NavRoutes.AddScreenObject>{ navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.AddScreenObject>()
                     AddBookScreen(
                         navData = navData,
                         onSaved = {
@@ -92,22 +88,22 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-                composable<DetailNavObject> { navEntry ->
-                    val navData = navEntry.toRoute<DetailNavObject>()
+                composable<NavRoutes.DetailNavObject> { navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.DetailNavObject>()
                     DetailScreen(navData)
                 }
 
-                composable<AdminPanelNavObject> {
+                composable<NavRoutes.AdminPanelNavObject> {
                     AdminPanelScreen (
                         onAddBookClick = {
-                            navController.navigate(AddScreenObject())
+                            navController.navigate(NavRoutes.AddScreenObject())
                         },
                         onModerationClick = {
-                            navController.navigate(ModerationNavObject)
+                            navController.navigate(NavRoutes.ModerationNavObject)
                         }
                     )
                 }
-                composable<ModerationNavObject> {
+                composable<NavRoutes.ModerationNavObject> {
                     ModerationScreen()
                 }
             }

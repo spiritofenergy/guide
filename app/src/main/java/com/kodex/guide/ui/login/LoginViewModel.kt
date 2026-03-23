@@ -3,7 +3,7 @@ package com.kodex.guide.ui.login
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
-import com.kodex.guide.ui.data.MainScreenDataObject
+import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.utils.firebase.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,12 +21,12 @@ class LoginViewModel@Inject constructor(
     val emailState = mutableStateOf("" +
            //' "nillsimon24@gmail.com" +
             "")
-    val passwordState = mutableStateOf("test24")
+    val passwordState = mutableStateOf("test2401")
     val resetPasswordState = mutableStateOf(false)
     val showResetPasswordDialog = mutableStateOf(false)
 
     fun signIn(
-        onSignInSuccess: (MainScreenDataObject)-> Unit,
+        onSignInSuccess: (NavRoutes.MainScreenDataObject)-> Unit,
     ){
         errorState.value = ""
         authManager.signIn(
@@ -47,7 +47,7 @@ class LoginViewModel@Inject constructor(
         storeManager.saveString(StoreManager.EMAIL_KEY, emailState.value)
     }
     fun signUp(
-        onSignUpSuccess: (MainScreenDataObject)-> Unit,
+        onSignUpSuccess: (NavRoutes.MainScreenDataObject)-> Unit,
     ){
         errorState.value = ""
         if (resetPasswordState.value){

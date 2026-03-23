@@ -32,9 +32,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.addscreen.data.AddBookViewModel
-import com.kodex.guide.ui.addscreen.data.AddScreenObject
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
+import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
@@ -45,7 +45,7 @@ import com.kodex.guide.ui.utils.toBitmap
 
 @Composable
 fun AddBookScreen(
-    navData: AddScreenObject = AddScreenObject(),
+    navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
     onSaved: () -> Unit = {},
     isDelivery: () -> Unit = {},
     viewModel: AddBookViewModel = hiltViewModel()
