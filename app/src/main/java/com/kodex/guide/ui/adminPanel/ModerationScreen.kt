@@ -42,7 +42,7 @@ fun ModerationScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp)
+                .padding(top = 40.dp)
         ) {
             items(viewModel.commentState.value) { comment ->
                 AdminCommentListItem(

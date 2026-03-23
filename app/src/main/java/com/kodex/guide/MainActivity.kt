@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
                                     telephone = bk.telephone,
                                     categoryIndex = bk.categoryIndex,
                                     imageUrl = bk.imageUrl,
+                                    ratingsList = bk.ratingsList,
                                 )
                             )
                         },

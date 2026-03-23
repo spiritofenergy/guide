@@ -97,8 +97,9 @@ fun MenuScreen(
         modifier = Modifier.fillMaxWidth(),
         drawerContent = {
             Column(modifier = Modifier.fillMaxWidth(if (!isLandscape) 0.7f else 0.3f)) {
-                if (!isLandscape)
-                DrawerHeader(navData.email)
+                if (!isLandscape) {
+                    DrawerHeader(navData.email)
+                }
                 DrawerBody(
                     onAdminClick = onAdminClick,
                     onAddBookClick = onAddBookClick,

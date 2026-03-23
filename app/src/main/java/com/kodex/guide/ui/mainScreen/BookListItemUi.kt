@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.mainScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun BookListItemUi(
     titleIndex: Int,
@@ -140,17 +142,23 @@ fun BookListItemUi(
                     .padding(horizontal = 10.dp, vertical = 15.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // if (book.ratingsList.isNotEmpty()) {
+                 if (book.ratingsList.isNotEmpty()) {
                 Text(
-                    text = "0.0",
-                    // String.format("%.1f", book.ratingsList.average()),
-                   // color = Color.White,
-                   // fontWeight = FontWeight.Bold,
-                   // fontSize = 18.sp
+                    text = String.format("%.1f", book.ratingsList.average()),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
                 )
-                //  } else {
-                //Text(text = "0.0")
-           // }
+                  } else {
+                Text(text = "0.0")
+            }
+                Spacer(modifier = Modifier.width(5.dp))
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Star",
+                    tint = Orange
+                )
         }
     }
 
@@ -212,17 +220,17 @@ fun BookListItemUi(
 
             )
 
-            if (!showEditButton)
-            Text(
-                modifier = Modifier
+            if (!showEditButton) {
+                Text(
+                    modifier = Modifier
 
-                    .padding(10.dp),
-                text = book.village,
-                color = Color.Black,
-                fontWeight = FontWeight.Light,
-                fontSize = 16.sp
-            )
-
+                        .padding(10.dp),
+                    text = book.village,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 16.sp
+                )
+            }
             if (showEditButton) IconButton(onClick = {
                 onEditClick(book)
 

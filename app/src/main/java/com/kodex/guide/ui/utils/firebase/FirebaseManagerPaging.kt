@@ -260,18 +260,17 @@ class FireStoreManagerPaging(
             .get().await().toObject(Book::class.java) ?: return
         val ratingsList = book.ratingsList.toMutableList()
         if (ratingData.lastRating == 0) {
-            // ratingsList.add(ratingData.rating)
-
-            /*  }else {
+             ratingsList.add(ratingData.rating)
+              }else {
             val index = ratingsList.indexOf(ratingData.lastRating)
             ratingsList[index] = ratingData.rating
-        }*/
+        }
             db.collection(POSTS)
                 .document(ratingData.bookId)
                 .update("ratingsList", ratingsList)
         }
-    }
-        suspend fun getRating(bookId: String): Pair<Double, List<RatingData>> {
+
+         suspend fun getRating(bookId: String): Pair<Double, List<RatingData>> {
             val querySnapshot = db.collection(GUIDE_RATING)
                 .document(bookId)
                 .collection(RATING)
@@ -280,7 +279,18 @@ class FireStoreManagerPaging(
             val averageRating = ratingList.map { it.rating }.average()
             return Pair(averageRating, ratingList)
         }
-
+    suspend fun deleteComment(uid: String) {
+        db.collection(MODERATION_RATING)
+            .document(uid)
+            .delete().await()
+    }
+    suspend fun getBookComments(bookId: String): List<RatingData> {
+        val querySnapshot = db.collection(GUIDE_RATING)
+            .document(bookId)
+            .collection(RATING)
+            .get().await()
+        return querySnapshot.toObjects(RatingData::class.java)
+    }
         suspend fun getUserRating(bookId: String): RatingData? {
             if (auth.uid == null) return null
             val querySnapshot = db.collection(GUIDE_RATING)
@@ -296,20 +306,6 @@ class FireStoreManagerPaging(
                 .get().await()
             val commentsList = querySnapshot.toObjects(RatingData::class.java)
             return commentsList
-        }
-
-        suspend fun deleteComment(uid: String) {
-            db.collection(MODERATION_RATING)
-                .document(uid)
-                .delete().await()
-        }
-
-        suspend fun getBookComments(bookId: String): List<RatingData> {
-            val querySnapshot = db.collection(GUIDE_RATING)
-                .document(bookId)
-                .collection(RATING)
-                .get().await()
-            return querySnapshot.toObjects(RatingData::class.java)
         }
     }
 

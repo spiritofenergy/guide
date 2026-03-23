@@ -53,15 +53,15 @@ import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.ui.utils.toFormattedDate
+import kotlin.toString
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
 @Composable
-fun DetailScreen(
-    ///ratingData: RatingData = RatingData(),
-   // navObject: NavRoutes.DetailsNavObject = NavRoutes.DetailsNavObject(),
 
+
+fun DetailScreen(
     navObject: DetailNavObject = DetailNavObject(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
@@ -85,15 +85,16 @@ fun DetailScreen(
     } catch (e: IllegalArgumentException) {
 
     }
+
     LaunchedEffect(key1 = Unit) {
-        viewModel.getAverageRating(navObject.bookId)
+        viewModel.getBookComments(navObject.bookId)
     }
+
     RateDialog(
         ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
             showReteDialog = false
         },
-
         onSubmit = { rating, message ->
             val ratingData = RatingData(
                 name = "",
@@ -105,7 +106,8 @@ fun DetailScreen(
             showReteDialog = false
         },
         show = showReteDialog,
-        )
+    )
+
     CommentDialog(
         showDialog = showCommentDialog,
         onDismiss = {
@@ -116,21 +118,15 @@ fun DetailScreen(
             showCommentDialog = false
         }
     )
-  /*  CommentListItem(
-        onClick = { rData ->
-            showCommentDialog = true
-            ratingDataToShow = rData
-        },
-        ratingData = ratingDataToShow
-    )*/
+    // Information
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.fillMaxWidth()
-            .padding(top = 25.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(top = 25.dp))
+        {
             Row(modifier = Modifier.fillMaxWidth()) {
                 AsyncImage(
                     model = bitmap,
@@ -177,6 +173,312 @@ fun DetailScreen(
                         Text(
                             text = "Admin",
                             fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp)
+                    }
+
+                    Text(
+                        text = "Дата:",
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = navObject.timestamp.toFormattedDate().toString(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        text = "Оценка",
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement =  Arrangement.Center
+                    ) {
+                        if (navObject.ratingsList.isNotEmpty()) {
+                            Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
+                            Text(
+                                text = String.format("%.1f", navObject.ratingsList.average()),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                            Text(
+                                text =  "(${navObject.ratingsList.size})",
+                                fontWeight = FontWeight.Light,
+                                fontSize = 18.sp
+                            )
+                        } else {
+                            Text(text = "Нет оценок")
+                        }
+
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Icon(
+                            modifier = Modifier.size(18.dp),
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star",
+                            tint = Orange
+
+                        )
+                    }
+                }
+            }
+            //Button
+            Spacer(modifier = Modifier.width(26.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F),
+                    onClick = {
+                        viewModel.getUserRating(bookId = navObject.bookId)
+                        showReteDialog = true
+
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Orange
+                    )
+                )
+                {
+                    Text(text = "Оценка")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F),
+
+                    onClick = {
+
+                    }, colors = ButtonDefaults.buttonColors(
+                        containerColor = ButtonColor
+                    )
+                )
+                {
+                    Text(text = "${navObject.price} Купить сейчас")
+
+
+                    //Toast.makeText(context, "Опция в разрабоке")
+                }
+            }
+
+            //Title
+            Spacer(modifier = Modifier.width(50.dp))
+            Text(
+                text = navObject.title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 25.sp
+            )
+            Text(
+                text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp))
+         /*   Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())) {
+                Text(
+                    text = navObject.description, fontSize = 16.sp,
+                )
+            }*/
+
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+                .weight(1F)
+            ) {
+                Text(
+                    text = navObject.description, fontSize = 16.sp
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            //Comments
+            if (viewModel.commentState.value.isNotEmpty()) {
+                Text(
+                    text = "Коментарии",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+
+                Spacer(Modifier.height(10.dp))
+                LazyRow(modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.3F)) {
+                    items(viewModel.commentState.value) { ratingData ->
+                        CommentListItem(
+                            onClick = { rData->
+                                showCommentDialog = true
+                                ratingDataToShow = rData
+                            },
+                            ratingData = ratingData
+                        )
+                        Spacer(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp)
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.width(5.dp))
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+fun DetailScreen1(
+    navObject: DetailNavObject = DetailNavObject(),
+    viewModel: DetailsScreenViewModel = hiltViewModel()
+) {
+    val context: Context
+    val text = "Опция в разработке!"
+    val duration = Toast.LENGTH_SHORT
+
+
+    //val context = application.
+    var showReteDialog by remember { mutableStateOf(false) }
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+
+    var bitmap: Bitmap? = null
+    try {
+        val base64Image = Base64.decode(navObject.imageUrl, Base64.DEFAULT)
+        bitmap = BitmapFactory.decodeByteArray(
+            base64Image, 0,
+            base64Image.size
+        )
+    } catch (e: IllegalArgumentException) {
+
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getBookComments(navObject.bookId)
+    }
+    // Dialogs
+    RateDialog(
+        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+        onDismiss = {
+            showReteDialog = false
+        },
+        onSubmit = { rating, message ->
+            val ratingData = RatingData(
+                name = "",
+                rating = rating,
+                message = message,
+                lastRating = viewModel.ratingDataState.value?.rating ?: 0
+            )
+            viewModel.insertRating(ratingData, navObject.bookId)
+            showReteDialog = false
+        },
+        show = showReteDialog,
+    )
+
+    CommentDialog(
+        showDialog = showCommentDialog,
+        onDismiss = {
+            showCommentDialog = false
+        },
+        ratingData = ratingDataToShow,
+        onConfirm = {
+            showCommentDialog = false
+        }
+    )
+   // Information
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(top = 25.dp)
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(
+                    model = bitmap,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .fillMaxWidth(0.7F)
+                        .padding(top = 10.dp, bottom = 20.dp)
+                        .height(190.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.LightGray),
+                    contentScale = ContentScale.FillHeight
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(190.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Категория:",
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Text(
+                        text = "Автор:",
+                        color = Color.Gray,
+                        fontSize = 16.sp
+
+                    )
+                    if (navObject.author.isNotEmpty()) {
+                        Text(
+                            text = navObject.author,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    } else {
+                        Text(
+                            text = "Admin",
+                            fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
 
                         )
@@ -201,30 +503,21 @@ fun DetailScreen(
                         fontSize = 16.sp
 
                     )
-                    Text(
-                        text = viewModel.ratingState.value,
-                        color = Orange,
-                        fontSize = 16.sp
-
-                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement =  Arrangement.Center
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        // text = viewModel.ratingState.value,
-                       // if (viewModel.commentState.value.isNotEmpty()) {
-                       // if (navObject.ratingsList.isNotEmpty()) {
-                            Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
-                            Text(
-                                text = String.format("%.1f",viewModel.ratingState.value.toDouble()),
-                              //  text = String.format("%.1f",viewModel.commentState.value,
-                               // text = String.format("%.1f", navObject.ratingsList.average(),                                       // "(${navObject.ratingsList.size})"
-
+                        Text(
+                            text = if (navObject.ratingsList.isEmpty()) {
+                                 "0.0"
+                                }else {
+                                String.format("%.1f", navObject.ratingsList.average())
+                            },
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
-                      //  } else {
-                            Text(text = "Нет оценок")
+
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(5.dp))
@@ -238,6 +531,7 @@ fun DetailScreen(
                     }
                 }
             }
+    //Button
             Spacer(modifier = Modifier.width(26.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
 
@@ -278,21 +572,25 @@ fun DetailScreen(
             }
 
 
-          //  Spacer(modifier = Modifier.width(50.dp))
-        Spacer(modifier = Modifier.fillMaxWidth().padding(10.dp))
+            //  Spacer(modifier = Modifier.width(50.dp))
+            Spacer(modifier = Modifier.fillMaxWidth().padding(10.dp))
 
-        Text(
+            Text(
                 text = navObject.title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 25.sp
             )
-          /*  Text(
+            */
+/*  Text(
                 text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
                 fontWeight = FontWeight.Bold
-            )*/
+            )*//*
 
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())
-               .weight(1F)) {
+
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+                    //.weight(1F)
+            ) {
                 Text(
                     text = navObject.description, fontSize = 16.sp
                 )
@@ -300,39 +598,44 @@ fun DetailScreen(
 
             Spacer(Modifier.height(10.dp))
 
-                 if (viewModel.commentState.value.isNotEmpty()) {
-                     Text(
-                         text = "Коментарии",
-                         fontWeight = FontWeight.Bold,
-                         fontSize = 20.sp
-                     )
+            if (viewModel.commentState.value.isNotEmpty()) {
+                Text(
+                    text = "Коментарии",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
 
-                     Spacer(Modifier.height(10.dp))
-                     LazyRow(
-                         modifier = Modifier
-                             .fillMaxWidth()
-                             //.height(130.dp)
-                          .weight(0.3F)
-                     ) {
-                         items(viewModel.commentState.value) { ratingData ->
-                            CommentListItem(
-                                 onClick = { rData ->
-                                     showCommentDialog = true
-                                     ratingDataToShow = rData
-                                 },
-                                 ratingData = ratingData
-                             )
-                             Spacer(
-                                 modifier = Modifier
-                                     .fillMaxWidth()
-                                     .padding(2.dp)
-                             )
-                         }
-                     }
-                 }
-        Spacer(modifier = Modifier.width(5.dp))
-    }
-}
+                Spacer(Modifier.height(10.dp))
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        //.height(130.dp)
+                        //.weight(0.3F)
+                ) {
+                    items(viewModel.commentState.value) { ratingData ->
+                        CommentListItem(
+                            onClick = { rData ->
+                                showCommentDialog = true
+                                ratingDataToShow = rData
+                            },
+                            ratingData = ratingData
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp)
+                        )
+                    }
+
+                }
+            }
+                 Spacer(modifier = Modifier.width(5.dp))
+        }
+
+
+*/
+
+ /*
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @Preview(showBackground = true)
@@ -349,7 +652,7 @@ fun DetailScreen(
                 categoryIndex = 0
              )
         )
- }
+ }*/
 
 
 
