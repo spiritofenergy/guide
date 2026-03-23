@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.ui.commentsScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -49,6 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.detailScreen.CommentDialog
+import com.kodex.guide.ui.detailScreen.CommentListItem
+import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.ui.detailScreen.RateDialog
+import com.kodex.guide.ui.detailScreen.RatingData
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.ui.data.NavRoutes
@@ -58,9 +63,7 @@ import com.kodex.guide.ui.utils.toFormattedDate
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
 @Composable
-
-
-fun DetailScreen(
+fun CommentsScreen(
     navObject: NavRoutes.DetailNavObject = NavRoutes.DetailNavObject(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
@@ -309,7 +312,7 @@ fun DetailScreen(
                     .weight(0.3F)) {
                     items(viewModel.commentState.value) { ratingData ->
                         CommentListItem(
-                            onClick = { rData->
+                            onClick = { rData ->
                                 showCommentDialog = true
                                 ratingDataToShow = rData
                             },

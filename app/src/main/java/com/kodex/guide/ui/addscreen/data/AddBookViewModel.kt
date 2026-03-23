@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel.MainUiState
 import com.kodex.guide.ui.utils.Categories
  import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
@@ -35,18 +36,18 @@ class AddBookViewModel @Inject constructor(
         _uiState.emit(state)
     }
 
-    fun setDefaultData(navData: AddScreenObject) {
+    fun setDefaultData(navData: NavRoutes.AddScreenObject) {
         title.value = navData.title
         village.value = navData.village
         description.value = navData.description
         price.value = navData.price.toString()
         telephone.value = navData.telephone
-        selectedCategory.value = navData.categoryIndex
+        selectedCategory.intValue = navData.categoryIndex
 
     }
 
     fun uploadBook(
-        navData: AddScreenObject
+        navData: NavRoutes.AddScreenObject
     ) {
         sendUiState(MainUiState.Loading)
         val book = Book(
@@ -55,7 +56,7 @@ class AddBookViewModel @Inject constructor(
             description = description.value,
             price = price.value.toInt(),
             telephone = telephone.value,
-            categoryIndex = selectedCategory.value,
+            categoryIndex = selectedCategory.intValue,
             imageUrl = navData.imageUrl
         )
 

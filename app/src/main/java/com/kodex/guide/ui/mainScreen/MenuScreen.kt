@@ -42,10 +42,10 @@ import com.kodex.guide.ui.bottomMenu.BottomMenu
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.castom.FilterDialog
 import com.kodex.guide.ui.castom.MyDialog
-import com.kodex.guide.ui.data.MainScreenDataObject
 import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.utils.Categories
 import kotlinx.coroutines.launch
 
@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MenuScreen(
     viewModel: MainScreenViewModel = hiltViewModel(),
-    navData: MainScreenDataObject,
+    navData: NavRoutes.MainScreenDataObject,
     onBookEditClick: (Book) -> Unit,
     onBookClick: (Book) -> Unit,
     onAdminClick: () -> Unit,

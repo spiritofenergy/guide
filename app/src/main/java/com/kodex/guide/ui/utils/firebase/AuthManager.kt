@@ -2,7 +2,7 @@ package com.kodex.guide.ui.utils.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.kodex.guide.ui.data.MainScreenDataObject
+import com.kodex.guide.ui.data.NavRoutes
 import javax.inject.Singleton
 
 @Singleton
@@ -12,7 +12,7 @@ class AuthManager(
     fun signUp(
         email: String,
         password: String,
-        onSignUpSuccess: (MainScreenDataObject) -> Unit,
+        onSignUpSuccess: (NavRoutes.MainScreenDataObject) -> Unit,
         onSignUpFailure: (String) -> Unit,
     ) {
         if (email.isBlank() || password.isBlank()) {
@@ -22,7 +22,7 @@ class AuthManager(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) onSignUpSuccess(
-                    MainScreenDataObject(
+                    NavRoutes.MainScreenDataObject(
                         task.result.user?.uid!!,
                         task.result.user?.email!!
                     )
@@ -36,7 +36,7 @@ class AuthManager(
     fun signIn(
         email: String,
         password: String,
-        onSignInSuccess: (MainScreenDataObject) -> Unit,
+        onSignInSuccess: (NavRoutes.MainScreenDataObject) -> Unit,
         onSignInFailure: (String) -> Unit,
     ) {
         if (email.isBlank() || password.isBlank()) {
@@ -47,7 +47,7 @@ class AuthManager(
             .addOnCompleteListener { task ->
                 if (task.isSuccessful)
                     onSignInSuccess(
-                        MainScreenDataObject(
+                        NavRoutes.MainScreenDataObject(
                             task.result.user?.uid!!,
                             task.result.user?.email!!
 
