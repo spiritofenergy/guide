@@ -241,7 +241,7 @@ class FireStoreManagerPaging(
         db.collection(MODERATION_RATING)
             .document(auth.uid!!)
             .set(ratingData.copy(
-                name = auth.currentUser?.displayName ?: "Unknown",
+                name = auth.currentUser?.email ?: "Unknown",
                 uid = auth.uid!!,
                 bookId = bookId
                 ))

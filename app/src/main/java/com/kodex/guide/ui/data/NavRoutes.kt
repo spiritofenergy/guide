@@ -33,8 +33,15 @@ class NavRoutes {
         val timestamp: Long = System.currentTimeMillis(),
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
-
     )
+    fun DetailNavObject.toCommentsNavData(): CommentsNavData {
+        return CommentsNavData(
+            bookId = bookId,
+            title = title,
+            ratingsList = ratingsList
+        )
+    }
+
 
     @Serializable
     data class AddScreenObject(
@@ -55,4 +62,13 @@ class NavRoutes {
         val delivery: Boolean = false,
         val ratingsList: List<Double> = emptyList(),
     )
+
+    @Serializable
+    data class CommentsNavData (
+        val bookId: String = "",
+        val title: String = "",
+        val ratingsList: List<Int> = emptyList(),
+
+        )
+
 }

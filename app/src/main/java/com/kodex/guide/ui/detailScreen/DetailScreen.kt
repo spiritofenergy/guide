@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
 import com.kodex.guide.ui.utils.toFormattedDate
 
 
@@ -61,6 +63,7 @@ import com.kodex.guide.ui.utils.toFormattedDate
 
 
 fun DetailScreen(
+    onCommentsClick: (CommentsNavData) -> Unit = {},
     navObject: NavRoutes.DetailNavObject = NavRoutes.DetailNavObject(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
@@ -191,7 +194,15 @@ fun DetailScreen(
                         fontSize = 16.sp
                     )
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().clickable{
+                            onCommentsClick(
+                                 CommentsNavData(
+                                     bookId = navObject.bookId,
+                                     title = navObject.title,
+                                     ratingsList = navObject.ratingsList
+                                 )
+                            )
+                        },
                         horizontalArrangement =  Arrangement.Center
                     ) {
                         if (navObject.ratingsList.isNotEmpty()) {
@@ -248,6 +259,8 @@ fun DetailScreen(
                         .weight(1F),
 
                     onClick = {
+
+
 
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = ButtonColor
@@ -325,6 +338,8 @@ fun DetailScreen(
         }
         Spacer(modifier = Modifier.width(5.dp))
     }
+
+
 }
 
 
