@@ -21,6 +21,20 @@ class NavRoutes {
     @Serializable
     object LoginScreenObject
     @Serializable
+    data class ParallaxNavObject(
+        val bookId: String = "",
+        val title: String = "",
+        val description: String = "",
+        val price: String = "",
+        val telephone: String = "",
+        val categoryIndex: Int = Categories.ALL,
+        val imageUrl: String = "",
+        val author: String = "",
+        val timestamp: Long = System.currentTimeMillis(),
+        val isFaves: Boolean = false,
+        val ratingsList: List<Int> = emptyList()
+    )
+    @Serializable
     data class DetailNavObject(
         val bookId: String = "",
         val title: String = "",

@@ -279,6 +279,7 @@ class FireStoreManagerPaging(
             val averageRating = ratingList.map { it.rating }.average()
             return Pair(averageRating, ratingList)
         }
+
     suspend fun deleteComment(uid: String) {
         db.collection(MODERATION_RATING)
             .document(uid)

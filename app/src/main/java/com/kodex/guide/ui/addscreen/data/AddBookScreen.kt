@@ -42,6 +42,7 @@ import com.kodex.guide.ui.utils.FirebaseConst.POSTS
 import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
 import com.kodex.guide.ui.utils.firebase.IS_BASE_64
 import com.kodex.guide.ui.utils.toBitmap
+import kotlin.toString
 
 @Composable
 fun AddBookScreen(
@@ -165,8 +166,11 @@ fun AddBookScreen(
         RoundedCornerTextField(
             text = viewModel.price.value,
             label = "Цена:"
-        ) {
-            viewModel.price.value = it
+        ) { userInput ->
+            // Преобразуем всё, что ввел пользователь, в String и оставляем только цифры
+            val stringValue = userInput.toString()
+            val onlyDigits = stringValue.filter { it.isDigit() }
+            viewModel.price.value = onlyDigits
         }
 
         LoginButton(text = "Выбрать фото") {

@@ -66,8 +66,12 @@ fun ModerationScreen(
         }
     }
 }
+
+
+
 @Composable
 @Preview(showBackground = true)
-fun ShowModerationScreen(){
+fun ShowModerationCommentListItem(){
+    ModerationScreen()
 
 }

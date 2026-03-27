@@ -67,13 +67,10 @@ fun DetailScreen(
     navObject: NavRoutes.DetailNavObject = NavRoutes.DetailNavObject(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
-    val context: Context
-    val text = "Опция в разработке!"
-    val duration = Toast.LENGTH_SHORT
 
 
     //val context = application.
-    var showReteDialog by remember { mutableStateOf(false) }
+    var showRateDialog by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
 
@@ -95,7 +92,7 @@ fun DetailScreen(
     RateDialog(
         ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
-            showReteDialog = false
+            showRateDialog = false
         },
         onSubmit = { rating, message ->
             val ratingData = RatingData(
@@ -105,9 +102,9 @@ fun DetailScreen(
                 lastRating = viewModel.ratingDataState.value?.rating ?: 0
             )
             viewModel.insertRating(ratingData, navObject.bookId)
-            showReteDialog = false
+            showRateDialog = false
         },
-        show = showReteDialog,
+        show = showRateDialog,
     )
 
     CommentDialog(
@@ -242,7 +239,7 @@ fun DetailScreen(
                         .weight(1F),
                     onClick = {
                         viewModel.getUserRating(bookId = navObject.bookId)
-                        showReteDialog = true
+                        showRateDialog = true
 
                     },
                     colors = ButtonDefaults.buttonColors(

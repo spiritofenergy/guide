@@ -95,7 +95,8 @@ class MainActivity : ComponentActivity() {
                         onCommentsClick = { commentsNavData ->
                             navController.navigate(commentsNavData)
                     },
-                        navObject = navData)
+                        navObject = navData
+                    )
                 }
 
                 composable<NavRoutes.AdminPanelNavObject> {

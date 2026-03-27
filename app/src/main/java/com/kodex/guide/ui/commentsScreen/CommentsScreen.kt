@@ -135,13 +135,6 @@ fun CommentsScreen(
     }
 
 
-private fun CommentsNavData.toCommentsNavData(): CommentsNavData {
-    return CommentsNavData(
-        bookId = bookId,
-        title = title,
-        ratingsList = ratingsList
-    )
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
