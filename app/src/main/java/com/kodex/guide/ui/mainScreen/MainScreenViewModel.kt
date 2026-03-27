@@ -45,6 +45,7 @@ class MainScreenViewModel @Inject constructor(
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
 
     val isAdminState = mutableStateOf(false)
+    var isRegisterState = mutableStateOf(false)
 
     val categoryState = mutableIntStateOf(Categories.ALL)
 
@@ -151,4 +152,21 @@ class MainScreenViewModel @Inject constructor(
                 onAdmin(it.get("isAdmin") as Boolean)
             }
     }
+
+    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
+        val uid = Firebase.auth.currentUser!!.uid
+        Firebase.firestore.collection("guide_users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener {
+                onRegister(it.get("isRegistered") as Boolean)
+            }
+
+    }
+/*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
+        val uid = Firebase.auth.currentUser!!.uid
+        Firebase.firestore.collection("guide_users")
+            .document(uid)
+     isRegisterState = true
+    }*/
 }

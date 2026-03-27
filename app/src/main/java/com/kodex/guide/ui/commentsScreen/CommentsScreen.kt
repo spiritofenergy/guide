@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,8 +48,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.detailScreen.CommentDialog
 import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
@@ -56,7 +59,7 @@ import com.kodex.guide.ui.detailScreen.RateDialog
 import com.kodex.guide.ui.detailScreen.RatingData
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
 import com.kodex.guide.ui.utils.toFormattedDate
 
 
@@ -64,62 +67,14 @@ import com.kodex.guide.ui.utils.toFormattedDate
 @SuppressLint("DefaultLocale")
 @Composable
 fun CommentsScreen(
-    navObject: NavRoutes.DetailNavObject = NavRoutes.DetailNavObject(),
+    onCommentsClick: (CommentsNavData) -> Unit = {},
+    navObject: CommentsNavData = CommentsNavData(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
-    val context: Context
-    val text = "Опция в разработке!"
-    val duration = Toast.LENGTH_SHORT
-
-
-    //val context = application.
-    var showReteDialog by remember { mutableStateOf(false) }
-    var showCommentDialog by remember { mutableStateOf(false) }
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
-
-    var bitmap: Bitmap? = null
-    try {
-        val base64Image = Base64.decode(navObject.imageUrl, Base64.DEFAULT)
-        bitmap = BitmapFactory.decodeByteArray(
-            base64Image, 0,
-            base64Image.size
-        )
-    } catch (e: IllegalArgumentException) {
-
-    }
-
     LaunchedEffect(key1 = Unit) {
         viewModel.getBookComments(navObject.bookId)
     }
-
-    RateDialog(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
-        onDismiss = {
-            showReteDialog = false
-        },
-        onSubmit = { rating, message ->
-            val ratingData = RatingData(
-                name = "",
-                rating = rating,
-                message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0
-            )
-            viewModel.insertRating(ratingData, navObject.bookId)
-            showReteDialog = false
-        },
-        show = showReteDialog,
-    )
-
-    CommentDialog(
-        showDialog = showCommentDialog,
-        onDismiss = {
-            showCommentDialog = false
-        },
-        ratingData = ratingDataToShow,
-        onConfirm = {
-            showCommentDialog = false
-        }
-    )
     // Information
     Column(
         modifier = Modifier
@@ -127,197 +82,47 @@ fun CommentsScreen(
             .padding(8.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(top = 25.dp))
+        Column(modifier = Modifier.fillMaxWidth().padding(top = 25.dp),
+            horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                AsyncImage(
-                    model = bitmap,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .fillMaxWidth(0.7F)
-                        .padding(top = 10.dp, bottom = 20.dp)
-                        .height(190.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.LightGray),
-                    contentScale = ContentScale.FillHeight
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(190.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                if (navObject.ratingsList.isNotEmpty()) {
+                    Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
                     Text(
-                        text = "Категория:",
-                        color = Color.Gray,
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                    Text(
-                        text = "Автор:",
-                        color = Color.Gray,
-                        fontSize = 16.sp
-
-                    )
-                    if (navObject.author.isNotEmpty()){
-                        Text(
-                            text = navObject.author,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    }else{
-                        Text(
-                            text = "Admin",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp)
-                    }
-
-                    Text(
-                        text = "Дата:",
-                        color = Color.Gray,
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = navObject.timestamp.toFormattedDate().toString(),
+                        text = String.format("%.1f", navObject.ratingsList.average()),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
                     Text(
-                        text = "Оценка",
-                        color = Color.Gray,
-                        fontSize = 16.sp
+                        text =  "(${navObject.ratingsList.size})",
+                        fontWeight = FontWeight.Light,
+                        fontSize = 18.sp
                     )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement =  Arrangement.Center
-                    ) {
-                        if (navObject.ratingsList.isNotEmpty()) {
-                            Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
-                            Text(
-                                text = String.format("%.1f", navObject.ratingsList.average()),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                            Text(
-                                text =  "(${navObject.ratingsList.size})",
-                                fontWeight = FontWeight.Light,
-                                fontSize = 18.sp
-                            )
-                        } else {
-                            Text(text = "Нет оценок")
-                        }
-
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Icon(
-                            modifier = Modifier.size(18.dp),
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Star",
-                            tint = Orange
-
-                        )
-                    }
+                } else {
+                    Text(text = "Нет оценок")
                 }
-            }
-            //Button
-            Spacer(modifier = Modifier.width(26.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
 
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1F),
-                    onClick = {
-                        viewModel.getUserRating(bookId = navObject.bookId)
-                        showReteDialog = true
-
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Orange
-                    )
-                )
-                {
-                    Text(text = "Оценка")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1F),
-
-                    onClick = {
-
-                    }, colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonColor
-                    )
-                )
-                {
-                    Text(text = "${navObject.price} Купить сейчас")
-
-
-                    //Toast.makeText(context, "Опция в разрабоке")
-                }
-            }
-
-            //Title
-            Spacer(modifier = Modifier.width(50.dp))
-            Text(
-                text = navObject.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp
-            )
-            Text(
-                text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp))
-         /*   Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())) {
-                Text(
-                    text = navObject.description, fontSize = 16.sp,
-                )
-            }*/
-
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-                .weight(1F)
-            ) {
-                Text(
-                    text = navObject.description, fontSize = 16.sp
+                Spacer(modifier = Modifier.width(5.dp))
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Star",
+                    tint = Orange
                 )
             }
-
             Spacer(Modifier.height(10.dp))
 
             //Comments
             if (viewModel.commentState.value.isNotEmpty()) {
-                Text(
-                    text = "Коментарии",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-
                 Spacer(Modifier.height(10.dp))
                 LazyRow(modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(0.3F)) {
+                    .fillMaxSize()) {
                     items(viewModel.commentState.value) { ratingData ->
-                        CommentListItem(
-                            onClick = { rData ->
-                                showCommentDialog = true
-                                ratingDataToShow = rData
+                            CommentListItem(onClick = {
+
+
                             },
-                            ratingData = ratingData
-                        )
+                                ratingData = ratingData
+                            )
                         Spacer(modifier = Modifier
                             .fillMaxWidth()
                             .padding(2.dp)
@@ -328,6 +133,14 @@ fun CommentsScreen(
         }
         Spacer(modifier = Modifier.width(5.dp))
     }
+
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+@Preview(showBackground = true)
+fun CommentsScreenPreview() {
+    CommentsScreen( )
 }
 
 

@@ -73,11 +73,18 @@ fun MenuScreen(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     LaunchedEffect(Unit) {
         viewModel.isAdmin { isAdmin ->
             viewModel.isAdminState.value = isAdmin
         }
     }
+/*
+    LaunchedEffect(Unit) {
+        viewModel.isUserRegistered { isRegister ->
+            viewModel.isRegisterState.value = isRegister
+        }
+    }*/
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->

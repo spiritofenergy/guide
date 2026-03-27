@@ -13,6 +13,7 @@ import androidx.navigation.toRoute
 import com.kodex.guide.ui.addscreen.AddBookScreen
  import com.kodex.guide.ui.adminPanel.AdminPanelScreen
 import com.kodex.guide.ui.adminPanel.ModerationScreen
+import com.kodex.guide.ui.commentsScreen.CommentsScreen
 import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = NavRoutes.MainScreenDataObject()
+                startDestination = NavRoutes.LoginScreenObject
             ) {
 
                 composable<NavRoutes.LoginScreenObject> {
@@ -90,7 +91,12 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<NavRoutes.DetailNavObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.DetailNavObject>()
-                    DetailScreen(navData)
+                    DetailScreen(
+                        onCommentsClick = { commentsNavData ->
+                            navController.navigate(commentsNavData)
+                    },
+                        navObject = navData
+                    )
                 }
 
                 composable<NavRoutes.AdminPanelNavObject> {
@@ -105,6 +111,11 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<NavRoutes.ModerationNavObject> {
                     ModerationScreen()
+                }
+                composable<NavRoutes.CommentsNavData> {navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()
+                    CommentsScreen(
+                        navObject = navData)
                 }
             }
         }

@@ -42,6 +42,7 @@ import com.kodex.guide.ui.utils.FirebaseConst.POSTS
 import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
 import com.kodex.guide.ui.utils.firebase.IS_BASE_64
 import com.kodex.guide.ui.utils.toBitmap
+import kotlin.toString
 
 @Composable
 fun AddBookScreen(
@@ -165,22 +166,26 @@ fun AddBookScreen(
         RoundedCornerTextField(
             text = viewModel.price.value,
             label = "Цена:"
-        ) {
-            viewModel.price.value = it
+        ) { userInput ->
+            // Преобразуем всё, что ввел пользователь, в String и оставляем только цифры
+            val stringValue = userInput.toString()
+            val onlyDigits = stringValue.filter { it.isDigit() }
+            viewModel.price.value = onlyDigits
         }
 
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-                //showProgressIndicator.value = true
+            //showProgressIndicator.value = true
+            for (n in 1..9) {
                 saveBookToFirestore(
                     firestore = FirebaseFirestore.getInstance(),
                     Book(
                         key = navData.key,
-                        title = viewModel.title.value,
+                        title = viewModel.title.value + n,
                         description = viewModel.description.value,
-                        price = viewModel.price.value.toInt(),
+                        price = viewModel.price.value.toInt()+( n+2),
                         categoryIndex = viewModel.selectedCategory.intValue,
                         village = viewModel.village.value,
 
@@ -210,6 +215,7 @@ fun AddBookScreen(
                 )
 
                 // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
+            }
         }
     }
     //viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))

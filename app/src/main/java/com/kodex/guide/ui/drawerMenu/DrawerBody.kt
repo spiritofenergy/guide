@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.ElectricalServices
 import androidx.compose.material.icons.filled.Input
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MiscellaneousServices
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
@@ -54,10 +56,6 @@ fun DrawerBody(
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val categoryAdmin = stringArrayResource(id = R.array.category_admin)
-
-
-
-
 
     Box(modifier = Modifier.fillMaxSize()
         .background(ButtonColorBlue)) {
@@ -173,57 +171,23 @@ fun DrawerBody(
                      coroutineScope.launch { drawerState.close() }
                  }
              )
+
              DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Input,
-                 text = categoryAdmin[2],
+                 iconDrawableId = if (viewModel.isAdminState.value) Icons.Default.Login else Icons.Default.Logout,
+                 text = if (viewModel.isAdminState.value) categoryAdmin[2] else categoryAdmin[3],
                  onItemClick = {
                      onLoginClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )
-           /*  DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Map,
-                 text = categoryAdmin[3],
-                 onItemClick = {
-                    /// onAddBookClick()
-                     coroutineScope.launch { driverState.close() }
-                 }
-             )*/
              DrawerMenuItem(
                  iconDrawableId = Icons.Default.Settings,
-                 text = categoryAdmin[4],
+                 text = categoryAdmin[5],
                  onItemClick = {
                     // onMapClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )
-
-            /*if (viewModel.isAdminState.value) Button(
-                     onClick = {
-                     viewModel.isAdmin {  }
-                     onAdminClick()
-               },
-                     modifier = Modifier.fillMaxWidth()
-                         .padding(5.dp),
-                     colors = ButtonDefaults.buttonColors(
-                         containerColor = DarkTransparentBlue
-                     )
-                 ) {
-                     Text(text = "Admin panel")
-                 }*/
-                 /*Button(
-                     onClick = {
-                     viewModel.isAdmin {  }
-                     onAdminClick()
-               },
-                     modifier = Modifier.fillMaxWidth()
-                         .padding(5.dp),
-                     colors = ButtonDefaults.buttonColors(
-                         containerColor = DarkTransparentBlue
-                     )
-                 ) {
-                     Text(text = "Добавить")
-                 }*/
          }
     }
 }
