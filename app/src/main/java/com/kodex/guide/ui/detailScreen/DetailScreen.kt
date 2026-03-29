@@ -202,7 +202,7 @@ fun DetailScreen(
                         },
                         horizontalArrangement =  Arrangement.Center
                     ) {
-                        if (navObject.ratingsList.isNotEmpty()) {
+                        if (viewModel.commentState.value.isNotEmpty()) {
                             Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
                             Text(
                                 text = String.format("%.1f", navObject.ratingsList.average()),
