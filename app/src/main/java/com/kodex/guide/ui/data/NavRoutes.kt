@@ -48,6 +48,48 @@ class NavRoutes {
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
     )
+    @Serializable
+    data class PlaceNavObject(
+        val bookId: String = "",
+        val title: String = "Уютный уголок",
+        val description: String = "Уютная кофейня в центре города. Мы предлагаем свежую выпечку, авторский кофе и приятную атмосферу для работы и встреч с друзьями. У нас есть бесплатный Wi-Fi, розетки и вежливый персонал.",
+        val price: Int = 0,
+        val categoryIndex: Int = Categories.ALL,
+        val imageUrl: String = "",
+      /*  val imageUrl: List<String> = listOf(
+            "https://picsum.photos/id/20/800/600",
+            "https://picsum.photos/id/30/800/600",
+            "https://picsum.photos/id/40/800/600",
+            "https://picsum.photos/id/50/800/600"
+        ),*/
+        val author: String = "",
+        val address: String = "ул. Центральная, 15, Москва",
+        val isOpen: Boolean = true,
+        val rating: Float = 4.8f,
+        val workTime: String = "09:00 - 22:00",
+        val contact: String = "info@cozyplace.ru",
+        val telephone: String = "+7 (999) 123-45-67",
+        val site: String = "https://cozyplace.ru",
+        val timestamp: Long = System.currentTimeMillis(),
+        val isFaves: Boolean = false,
+        val ratingsList: List<Int> = emptyList()
+/*
+* id = "1",
+            rating = 4.8f,
+            address = "ул. Центральная, 15, Москва",
+            isOpen = true,
+            workTime = "09:00 - 22:00",
+            contact = "info@cozyplace.ru",
+            telephone = "+7 (999) 123-45-67",
+            site = "https://cozyplace.ru",
+            images = listOf(
+                "https://picsum.photos/id/20/800/600",
+                "https://picsum.photos/id/30/800/600",
+                "https://picsum.photos/id/40/800/600",
+                "https://picsum.photos/id/50/800/600"
+            ),
+            isFavorite = false*/
+    )
     fun DetailNavObject.toCommentsNavData(): CommentsNavData {
         return CommentsNavData(
             bookId = bookId,

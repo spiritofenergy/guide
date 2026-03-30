@@ -18,6 +18,7 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,7 +44,25 @@ class MainActivity : ComponentActivity() {
                     val navData = navEntry.toRoute<NavRoutes.MainScreenDataObject>()
                     MenuScreen(
                         navData = navData,
-                        onBookClick = { bk ->
+
+                        onBookClick = { place ->
+                            navController.navigate(NavRoutes.PlaceNavObject(
+                                bookId = place.key,
+                                title = place.title,
+                                description = place.description,
+                                price = place.price,
+                                categoryIndex = place.categoryIndex,
+                                imageUrl = place.imageUrl,
+                                telephone = place.telephone,
+                                ratingsList = place.ratingsList,
+
+
+
+                                 )
+                            )
+                        },
+
+                      /*  onBookClick = { bk ->
                             navController.navigate(
                                 NavRoutes.DetailNavObject(
                                     bookId = bk.key,
@@ -56,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                     ratingsList = bk.ratingsList,
                                 )
                             )
-                        },
+                        },*/
                         onBookEditClick = { book->
                             navController.navigate(NavRoutes.AddScreenObject(
                                 key = book.key,
@@ -96,6 +115,17 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(commentsNavData)
                     },
                         navObject = navData
+                    )
+                }
+
+                composable<NavRoutes.PlaceNavObject> { navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.PlaceNavObject>()
+                    PlaceScreen(
+                        onCommentsClick = { commentsNavData ->
+                            navController.navigate(commentsNavData)
+                    },
+                        navObject = navData,
+                        navController = navController
                     )
                 }
 
