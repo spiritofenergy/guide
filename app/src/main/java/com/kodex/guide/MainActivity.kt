@@ -18,6 +18,8 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
+import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,7 +33,10 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = NavRoutes.LoginScreenObject
+                startDestination = NavRoutes.MainScreenDataObject(
+                    uid = "",
+                    email = "example@gmail.com"
+                )
             ) {
 
                 composable<NavRoutes.LoginScreenObject> {
@@ -43,7 +48,25 @@ class MainActivity : ComponentActivity() {
                     val navData = navEntry.toRoute<NavRoutes.MainScreenDataObject>()
                     MenuScreen(
                         navData = navData,
-                        onBookClick = { bk ->
+
+                        onBookClick = { place ->
+                            navController.navigate(NavRoutes.ParallaxNavObject(
+                                bookId = place.key,
+                                title = place.title,
+                                description = place.description,
+                                price = place.price,
+                                categoryIndex = place.categoryIndex,
+                                imageUrl = place.imageUrl,
+                                telephone = place.telephone,
+                                ratingsList = place.ratingsList,
+
+
+
+                                 )
+                            )
+                        },
+
+                      /*  onBookClick = { bk ->
                             navController.navigate(
                                 NavRoutes.DetailNavObject(
                                     bookId = bk.key,
@@ -56,7 +79,7 @@ class MainActivity : ComponentActivity() {
                                     ratingsList = bk.ratingsList,
                                 )
                             )
-                        },
+                        },*/
                         onBookEditClick = { book->
                             navController.navigate(NavRoutes.AddScreenObject(
                                 key = book.key,
@@ -69,7 +92,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onAdminClick = {
-                            navController.navigate(NavRoutes.AdminPanelNavObject)
+                            navController.navigate(NavRoutes.ModerationNavObject)
                         },
                         onLoginClick = {
                             navController.navigate(NavRoutes.LoginScreenObject)
@@ -99,6 +122,17 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                composable<NavRoutes.PlaceNavObject> { navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.PlaceNavObject>()
+                    PlaceScreen(
+                        onCommentsClick = { commentsNavData ->
+                            navController.navigate(commentsNavData)
+                    },
+                        navObject = navData,
+                        navController = navController
+                    )
+                }
+
                 composable<NavRoutes.AdminPanelNavObject> {
                     AdminPanelScreen (
                         onAddBookClick = {
@@ -111,6 +145,16 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<NavRoutes.ModerationNavObject> {
                     ModerationScreen()
+                }
+
+                composable<NavRoutes.ParallaxNavObject>{navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
+                    ParallaxScreen(
+                        navObject = navData,
+                        onBackPressed = { navController.popBackStack() },
+                        onCallTaxi = { _, _ -> /* Позвонить */ },
+                        onNavigateToReviews = {}
+                    )
                 }
                 composable<NavRoutes.CommentsNavData> {navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()
