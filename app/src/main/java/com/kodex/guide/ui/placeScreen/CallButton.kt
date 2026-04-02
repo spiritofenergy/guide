@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.kodex.guide.ui.theme.DrawerColorBlue
 
 
 @Composable
@@ -35,7 +36,7 @@ fun CallButton(telephone: String) {
                 .fillMaxWidth()
                 .padding(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = DrawerColorBlue
             )
         ) {
             Icon(

@@ -18,6 +18,7 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
 import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,7 +33,10 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = NavRoutes.LoginScreenObject
+                startDestination = NavRoutes.MainScreenDataObject(
+                    uid = "",
+                    email = "example@gmail.com"
+                )
             ) {
 
                 composable<NavRoutes.LoginScreenObject> {
@@ -46,7 +50,7 @@ class MainActivity : ComponentActivity() {
                         navData = navData,
 
                         onBookClick = { place ->
-                            navController.navigate(NavRoutes.PlaceNavObject(
+                            navController.navigate(NavRoutes.ParallaxNavObject(
                                 bookId = place.key,
                                 title = place.title,
                                 description = place.description,
@@ -88,7 +92,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onAdminClick = {
-                            navController.navigate(NavRoutes.AdminPanelNavObject)
+                            navController.navigate(NavRoutes.ModerationNavObject)
                         },
                         onLoginClick = {
                             navController.navigate(NavRoutes.LoginScreenObject)
@@ -141,6 +145,16 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<NavRoutes.ModerationNavObject> {
                     ModerationScreen()
+                }
+
+                composable<NavRoutes.ParallaxNavObject>{navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
+                    ParallaxScreen(
+                        navObject = navData,
+                        onBackPressed = { navController.popBackStack() },
+                        onCallTaxi = { _, _ -> /* Позвонить */ },
+                        onNavigateToReviews = {}
+                    )
                 }
                 composable<NavRoutes.CommentsNavData> {navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()

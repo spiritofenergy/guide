@@ -2,16 +2,20 @@ package com.kodex.guide.ui.placeScreen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Base64
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -49,9 +53,12 @@ import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
+import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.ui.detailScreen.RatingData
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceScreen(
@@ -63,6 +70,10 @@ fun PlaceScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var showRateDialog by remember { mutableStateOf(false) }
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+
 
     var bitmap: Bitmap? = null
     try {
@@ -105,38 +116,35 @@ fun PlaceScreen(
     }*/
 
     // Моковые отзывы
-    val reviews = remember {
+  /*  val ratingData = remember {
         listOf(
-            Review(
-                id = "1",
-                userName = "Анна Смирнова",
-                userAvatar = null,
-                rating = 5.0f,
-                text = "Отличное место! Очень вкусный кофе и приятная атмосфера. Обязательно вернусь сюда снова!",
-                date = "2 дня назад",
-                likes = 12
+            RatingData(
+                id = 1,
+                name = "Анна Смирнова",
+                rating = 5,
+                message = "Отличное место! Очень вкусный кофе и приятная атмосфера. Обязательно вернусь сюда снова!",
+                timestamp = 2,
+               // likes = 12
             ),
-            Review(
-                id = "2",
-                userName = "Михаил Петров",
-                userAvatar = null,
-                rating = 4.5f,
-                text = "Хорошее место для работы. Быстрый Wi-Fi, много розеток. Кофе вкусный, но цены немного высоковаты.",
-                date = "5 дней назад",
-                likes = 8
+            RatingData(
+                id = 2,
+                name = "Михаил Петров",
+                rating = 3,
+                message = "Хорошее место для работы. Быстрый Wi-Fi, много розеток. Кофе вкусный, но цены немного высоковаты.",
+                timestamp = 26,
+                //likes = 8
             ),
-            Review(
-                id = "3",
-                userName = "Елена Иванова",
-                userAvatar = null,
-                rating = 5.0f,
-                text = "Лучшая кофейня в районе! Обслуживание на высоте, десерты просто великолепны!",
-                date = "1 неделю назад",
-                likes = 24
+            RatingData(
+                id = 3,
+                name = "Елена Иванова",
+                rating = 5,
+                message = "Лучшая кофейня в районе! Обслуживание на высоте, десерты просто великолепны!",
+                timestamp = 1,
+               // likes = 24
             )
         )
     }
-
+*/
     Scaffold(
         topBar = {
             TopAppBar(
@@ -197,8 +205,10 @@ fun PlaceScreen(
             item {
                 TitleAndRatingSection(
                     title = navObject.title,
-                    rating = (navObject.ratingsList.average()).toString(),
+                    rating = if (navObject.ratingsList.isEmpty()) "0.0" else navObject.ratingsList.average().toString(),
                     price = navObject.price,
+                    ratingSize ="(${ navObject.ratingsList.size})"
+
                 )
             }
 
@@ -225,6 +235,7 @@ fun PlaceScreen(
             }
 
             // 6. Вкладки с отзывами
+// 6. Вкладки с отзывами
             item {
                 Column(
                     modifier = Modifier
@@ -240,7 +251,49 @@ fun PlaceScreen(
                         Tab(
                             selected = selectedTabIndex == 0,
                             onClick = { selectedTabIndex = 0 },
-                            text = { Text("Отзывы (${reviews.size})") }
+                            text = { Text("Отзывы (${viewModel.commentState.value.size})") }
+                        )
+                        Tab(
+                            selected = selectedTabIndex == 1,
+                            onClick = { selectedTabIndex = 1 },
+                            text = { Text("Информация") }
+                        )
+                    }
+
+                    // Контент вкладок - используем Column вместо LazyColumn
+                    when (selectedTabIndex) {
+                        0 -> Column(modifier = Modifier.fillMaxWidth()) {
+                            viewModel.commentState.value.forEach { ratingData ->
+                                CommentListItem(
+                                    onClick = { rData ->
+                                        showCommentDialog = true
+                                        ratingDataToShow = rData
+                                    },
+                                    ratingData = ratingData
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+                        1 -> AdditionalInfoSection()
+                    }
+                }
+            }
+            /*item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    // Табы
+                    TabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Tab(
+                            selected = selectedTabIndex == 0,
+                            onClick = { selectedTabIndex = 0 },
+                            text = { Text("Отзывы (${navObject.ratingsList.size})") }
                         )
                         Tab(
                             selected = selectedTabIndex == 1,
@@ -251,26 +304,57 @@ fun PlaceScreen(
 
                     // Контент вкладок
                     when (selectedTabIndex) {
-                        0 -> ReviewsSection(reviews = reviews)
+                        0 -> ReviewsSection()
                         1 -> AdditionalInfoSection()
                     }
                 }
-            }
+            }*/
 
             // 7. Кнопка "Написать отзыв"
             item {
-                WriteReviewButton()
+                WriteReviewButton(
+
+                )
             }
         }
     }
-}
+    }
+/*}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ReviewsSection(
+    ratingData: List<Int>
+) {
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
 
-
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(ratingData) { ratingData ->
+            CommentListItem(
+                onClick = { rData ->
+                    showCommentDialog = true
+                    ratingDataToShow = rData
+                },
+                ratingData = ratingData()
+            )
+        }
+       *//* ratingData.forEach { review ->
+            ReviewCard(ratingData = review)
+        }*//*
+    }
+}*/
+/*
 @Composable
 @Preview(showBackground = true, device = "id:pixel_6")
 fun ShowPlaceScreen() {
     PlaceScreen(
         navController = NavController(LocalContext.current),
-        placeId = "1"
+        placeId = "1",
+        navObject = NavRoutes.PlaceNavObject.toString()
     )
-}
+}*/

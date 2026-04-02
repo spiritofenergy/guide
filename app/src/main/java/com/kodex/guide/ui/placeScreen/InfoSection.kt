@@ -95,6 +95,7 @@ fun InfoSection(
                                 .clip(CircleShape)
                                 .background(if (isOpen) GreenSea else Color.Red)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = if (isOpen) "Открыто" else "Закрыто",
                             fontSize = 14.sp,

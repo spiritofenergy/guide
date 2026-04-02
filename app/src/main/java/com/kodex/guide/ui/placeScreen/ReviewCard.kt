@@ -1,5 +1,7 @@
 package com.kodex.guide.ui.placeScreen
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,12 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.ui.utils.toFormattedDate
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReviewCard(review: Review) {
+fun ReviewCard(ratingData: RatingData) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(1.dp),
@@ -59,7 +65,7 @@ fun ReviewCard(review: Review) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = review.userName.first().toString(),
+                            text = ratingData.name.first().toString(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -67,12 +73,12 @@ fun ReviewCard(review: Review) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = review.userName,
+                            text = ratingData.name,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
                         )
                         Text(
-                            text = review.date,
+                            text = ratingData.timestamp.toFormattedDate(),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
@@ -89,7 +95,7 @@ fun ReviewCard(review: Review) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${review.rating}",
+                        text = "${ratingData.rating}",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -99,7 +105,7 @@ fun ReviewCard(review: Review) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = review.text,
+                text = ratingData.message,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
             )
@@ -123,12 +129,28 @@ fun ReviewCard(review: Review) {
                         modifier = Modifier.size(16.dp)
                     )
                 }
-                Text(
-                    text = "${review.likes}",
+             /*   Text(
+                    text = "${ratingData.likes}",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+                )*/
             }
         }
     }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+@Preview(showBackground = true)
+fun ShowReviewCard(){
+    ReviewCard(
+        ratingData = RatingData(
+            id = 1,
+            name = "Анна Смирнова",
+            rating = 5,
+            message = "Отличное место! Очень вкусный кофе и приятная атмосфера. Обязательно вернусь сюда снова!",
+            timestamp = 2,
+           // likes = 12,
+            bookId = "1"
+        )
+    )
 }

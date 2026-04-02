@@ -26,15 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.ui.theme.Orange
 
 
 @Composable
 fun TitleAndRatingSection(
-    navObject: NavRoutes.PlaceNavObject = NavRoutes.PlaceNavObject(),
+
     title: String,
     rating: String,
+    ratingSize: String,
     price: Int) {
     Card(
         modifier = Modifier
@@ -77,14 +80,20 @@ fun TitleAndRatingSection(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text =  String.format("%.1f", navObject.ratingsList.average()),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
+
+
+
+                    Text(
+                        text = rating,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 Spacer(modifier = Modifier.width(8.dp))
+
+
+
                 Text(
-                    text = "(${navObject.ratingsList.size} отзывов)",
+                    text = ratingSize,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -97,7 +106,8 @@ fun TitleAndRatingSection(
 fun ShowTitleAndRatingSection() {
     TitleAndRatingSection(
         title = "Кофейня «Уютный уголок»",
-       // rating = "4,8",
-        price = 123
+        rating = "4,8",
+        price = 123,
+        ratingSize = "(12)"
     )
 }

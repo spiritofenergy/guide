@@ -1,18 +1,30 @@
 package com.kodex.guide.ui.parallaxScreen
 
+import com.kodex.guide.ui.utils.Categories
+
+
 data class ParallaxData (
-    val id: String,
-    val name: String,
+    val bookId: String = "",
+    val title: String = "",
     val address: String,
     val rating: Double,
     val reviewsCount: Int,
-    val priceLevel: String,
-    val photos: List<String>,
+    val price: Int = 0,
+    val imageUrl: String = "",
     val isOpenNow: Boolean,
     val openingHours: String,
-    val phone: String,
+    val telephone: String,
     val website: String,
     val amenities: List<String>,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+
+    val description: String = "",
+    val categoryIndex: Int = Categories.ALL,
+    val author: String = "",
+    val timestamp: Long = System.currentTimeMillis(),
+    val isFaves: Boolean = false,
+    val ratingsList: List<Int> = emptyList()
+
+
 )

@@ -1,10 +1,16 @@
 package com.kodex.guide.ui.parallaxScreen
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,12 +20,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.TaxiAlert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,37 +31,96 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.detailScreen.CommentListItem
+import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.ui.dialods.DialogComments
+import com.kodex.guide.ui.dialods.DialogRating
+import com.kodex.guide.ui.theme.ButtonColorBlue
+import com.kodex.guide.ui.theme.Orange
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainContent(
-    place: ParallaxData,
-    onCallTaxi: () -> Unit,
-    onNavigateToReviews: () -> Unit
+    navObject: NavRoutes.ParallaxNavObject,
+    onNavigateToReviews: () -> Unit,
+    viewModel: DetailsScreenViewModel = viewModel()
 ) {
+    var showRateDialog by remember { mutableStateOf(false) }
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+    val context = LocalContext.current
+    val telephone = "+79197716667"
+
+    DialogRating(
+        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+        onDismiss = { showRateDialog = false },
+        onSubmit = { rating, message ->
+            val ratingData = RatingData(
+                name = "",
+                rating = rating,
+                message = message,
+                lastRating = viewModel.ratingDataState.value?.rating ?: 0
+            )
+            viewModel.insertRating(ratingData, navObject.bookId)
+            showRateDialog = false
+        },
+        show = showRateDialog
+    )
+
+    DialogComments(
+        showDialog = showCommentDialog,
+        onDismiss = { showCommentDialog = false },
+        ratingData = ratingDataToShow,
+        onConfirm = { showCommentDialog = false }
+    )
+
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Название
-        Text(
-            text = place.name,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        // Название и цена
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = navObject.title,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = "${navObject.price} р",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Рейтинг и цена
+        // Рейтинг
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -75,33 +138,29 @@ fun MainContent(
                         Icons.Filled.Star,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Orange
                     )
                     Spacer(modifier = Modifier.width(4.dp))
+
+                    val averageRating = if (navObject.ratingsList.isNotEmpty()) {
+                        navObject.ratingsList.average()
+                    } else 0.0
+
                     Text(
-                        text = String.format("%.1f", place.rating),
+                        text = String.format("%.1f", averageRating),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        fontSize = 18.sp
                     )
                     Text(
-                        text = " (${place.reviewsCount})",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        text = "(${navObject.ratingsList.size})",
+                        fontWeight = FontWeight.Light,
+                        fontSize = 18.sp
                     )
                 }
             }
 
-            if (place.priceLevel.isNotEmpty()) {
-                Text(
-                    text = place.priceLevel,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
             // Статус работы
-            StatusChip(isOpen = place.isOpenNow)
+            StatusChip(isOpen = navObject.isOpenNow)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -119,7 +178,7 @@ fun MainContent(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = place.address,
+                text = navObject.address,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
@@ -128,153 +187,154 @@ fun MainContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Часы работы
+        // Часы работы и телефон
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.Schedule,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = place.openingHours,
-                    fontSize = 14.sp,
-                    color = if (place.isOpenNow)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.error
+            // Часы работы
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(
+                    Icons.Default.Schedule,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (!place.isOpenNow) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
                     Text(
-                        text = "Закрыто",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Medium
+                        text = navObject.openingHours,
+                        fontSize = 14.sp,
+                        color = if (navObject.isOpenNow)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.error
                     )
+                    if (!navObject.isOpenNow) {
+                        Text(
+                            text = "Закрыто",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
+            }
+
+            // Телефон
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = Uri.parse("tel:$telephone")
+                    }
+                    context.startActivity(intent)
+                }
+            ) {
+                Icon(
+                    Icons.Default.Call,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = telephone,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Кнопка "Вызвать такси"
-        Button(
-            onClick = onCallTaxi,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Icon(
-                Icons.Default.TaxiAlert,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Вызвать такси",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Удобства
-        if (place.amenities.isNotEmpty()) {
-            Text(
-                text = "Удобства",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Кнопки
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                onClick = {
+                    viewModel.getUserRating(bookId = navObject.bookId)
+                    showRateDialog = true
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Orange)
             ) {
-                items(place.amenities) { amenity ->
-                    /* AssistChip(
-                         onClick = { *//* Фильтр по удобству *//* },
-                        label = { Text(amenity, fontSize = 12.sp) },
-                        leading = {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = Orange
-                            )
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    )*/
-                }
+                Text(text = "Оценка")
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                onClick = {
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = Uri.parse("tel:$telephone")
+                    }
+                    context.startActivity(intent)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = ButtonColorBlue)
+            ) {
+                Text(text = "Позвонить")
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Описание
+        Text(
+            text = navObject.description,
+            fontSize = 16.sp
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Контактная информация
-        if (place.phone.isNotEmpty() || place.website.isNotEmpty()) {
-            Text(
-                text = "Контакты",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+        // Заголовок отзывов
+        Text(
+            text = stringResource(R.string.comments),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-            if (place.phone.isNotEmpty()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { /* Позвонить */ }
-                        .padding(vertical = 8.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Phone,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+        // Отзывы в виде горизонтального списка
+        if (viewModel.commentState.value.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp) // Фиксированная высота для LazyRow
+            ) {
+                items(viewModel.commentState.value) { ratingData ->
+                    CommentListItem(
+                        onClick = { rData ->
+                            showCommentDialog = true
+                            ratingDataToShow = rData
+                        },
+                        ratingData = ratingData
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = place.phone,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
             }
-
-            if (place.website.isNotEmpty()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { /* Открыть сайт */ }
-                        .padding(vertical = 8.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Language,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = place.website,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+        } else {
+            // Показываем сообщение, если нет отзывов
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Нет отзывов. Будьте первым!",
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    fontSize = 14.sp
+                )
             }
         }
     }

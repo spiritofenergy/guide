@@ -25,4 +25,10 @@
     <string name="rate_this_book">Rate this Book</string>
     <string name="submit">Submit</string>
     <string name="message">Message</string>
+    <string name="yes">Yes</string>
+    <string name="ok">OK</string>
+    <string name="cansel">Cansel</string>
+    <string name="comments">Comments</string>
+
+
 </resources>
