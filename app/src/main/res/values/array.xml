@@ -15,32 +15,8 @@
         <item>All</item>
     </string-array>
 
-    <string-array name="village_array">
-    <item>Akhtanizovskaya</item>
-    <item>Veselovka</item>
-    <item>Golubitskaya</item>
-    <item>Ilyich</item>
-    <item>Kurchanskaya</item>
-    <item>Kuchugury</item>
-    <item>Peresyp</item>
-    <item>Primorsky</item>
-    <item>Taman</item>
-    <item>Temryuk</item>
-    </string-array>
 
 
-    <string-array name="location_array_ru">
-        <item>Ахтанизовская</item>
-        <item>Веселовка</item>
-        <item>Голубицкая </item>
-        <item>Ильич</item>
-        <item>Курчанская</item>
-        <item>Кучугуры</item>
-        <item>Пересыпь</item>
-        <item>Приморский</item>
-        <item>Тамань</item>
-        <item>Темрюк</item>
-    </string-array>
 
     <string-array name="category_admin">
         <item>Admin panel</item>
@@ -56,4 +32,45 @@
         <item>Title</item> <!-- 0 -->
         <item>Prise</item> <!-- 1 -->
      </string-array>
+
+    <string-array name="personal_data_array">
+        <item>Name or Nick name</item>
+        <item>phone number</item>
+
+    </string-array>
+    <string-array name="address_array">
+        <item>City</item>
+        <item>Street</item>
+        <item>Flat</item>
+        <item>Postal code</item>
+    </string-array>
+
+    <string-array name="password_array">
+    <item>Email</item>
+    </string-array>
+
+    <string-array name="delete_account_array">
+    <item>Email</item>
+    <item>Password</item>
+    </string-array>
+
+    <string-array name="image_format_array">
+    <item>WEBP_LOSSY</item>
+    <item>WEBP_LOSSLESS</item>
+    <item>JPEG</item>
+    <item>PNG</item>
+    </string-array>
+
+    <string-array name="image_quality_array">
+    <item>LOW</item>
+    <item>NORMAL</item>
+    <item>HIGH</item>
+    </string-array>
+
+    <string-array name="image_size_array">
+    <item>100</item>
+    <item>200</item>
+    <item>300</item>
+    <item>600</item>
+    </string-array>
 </resources>

@@ -19,7 +19,9 @@ class NavRoutes {
     object ModerationNavObject
 
     @Serializable
-    object LoginScreenObject
+    object LoginNavObject
+    @Serializable
+    object SettingsNavObject
     @Serializable
     data class ParallaxNavObject(
         val bookId: String = "",
@@ -62,12 +64,6 @@ class NavRoutes {
         val price: Int = 0,
         val categoryIndex: Int = Categories.ALL,
         val imageUrl: String = "",
-      /*  val imageUrl: List<String> = listOf(
-            "https://picsum.photos/id/20/800/600",
-            "https://picsum.photos/id/30/800/600",
-            "https://picsum.photos/id/40/800/600",
-            "https://picsum.photos/id/50/800/600"
-        ),*/
         val author: String = "",
         val address: String = "ул. Центральная, 15, Москва",
         val isOpen: Boolean = true,
@@ -78,22 +74,7 @@ class NavRoutes {
         val timestamp: Long = System.currentTimeMillis(),
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
-/*
-* id = "1",
-            rating = 4.8f,
-            address = "ул. Центральная, 15, Москва",
-            isOpen = true,
-            workTime = "09:00 - 22:00",
-            contact = "info@cozyplace.ru",
-            telephone = "+7 (999) 123-45-67",
-            site = "https://cozyplace.ru",
-            images = listOf(
-                "https://picsum.photos/id/20/800/600",
-                "https://picsum.photos/id/30/800/600",
-                "https://picsum.photos/id/40/800/600",
-                "https://picsum.photos/id/50/800/600"
-            ),
-            isFavorite = false*/
+
     )
     fun DetailNavObject.toCommentsNavData(): CommentsNavData {
         return CommentsNavData(

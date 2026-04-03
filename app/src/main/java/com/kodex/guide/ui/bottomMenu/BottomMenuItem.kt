@@ -1,5 +1,8 @@
 package com.kodex.guide.ui.bottomMenu
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.ui.input.key.Key.Companion.Bookmark
 import com.kodex.bookmarketcompose.R
 
 
@@ -16,7 +19,7 @@ sealed class BottomMenuItem(
     object Faves: BottomMenuItem(
         route = "favorite",
         titleId = R.string.faves,
-        iconId = R.drawable.ic_favorite
+        iconId = R.drawable.bookmark
     )
     object Settings: BottomMenuItem(
         route = "setting",

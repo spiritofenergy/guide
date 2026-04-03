@@ -24,20 +24,12 @@ import com.kodex.guide.ui.utils.Categories
 
 @Composable
 fun RoundedCornerDropDownMenu(
-    defCategory: Int,
-   // defVillage: Int,
+    option: List<String>,
+    selectedOption: String,
     onOptionSelected: (Int) -> Unit,
  ) {
     val expanded = remember { mutableStateOf(false) }
 
-    val categoryList = stringArrayResource(id = R.array.category_array)
-    val selectedOption = remember { mutableStateOf(categoryList[defCategory]) }
-     selectedOption.value = categoryList[defCategory]
-
- /*   val villageList = stringArrayResource(id = R.array.village_array)
-    val selectedVillage = remember { mutableStateOf(villageList[defVillage]) }
-    selectedVillage.value = villageList[defVillage]
-*/
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,24 +40,17 @@ fun RoundedCornerDropDownMenu(
             }
             .padding(20.dp)
 
-        /*    .border(
-                width = 2.dp,
-                color = ButtonColor,
-                shape = RoundedCornerShape(20.dp)*/
-
-
     ) {
-        Text(text = selectedOption.value)
+        Text(text = selectedOption)
 
         DropdownMenu(expanded = expanded.value,
             onDismissRequest = {
                 expanded.value = false
             }) {
-            categoryList.forEachIndexed { index, title ->
+            option.forEachIndexed { index, title ->
                 DropdownMenuItem(text = {
                         Text(text = title)
                     }, onClick = {
-                        selectedOption.value = title
                         expanded.value = false
                         onOptionSelected(index)
                     })
