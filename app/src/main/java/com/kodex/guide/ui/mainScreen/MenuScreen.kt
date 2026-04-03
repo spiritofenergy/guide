@@ -33,15 +33,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenu
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
-import com.kodex.guide.ui.castom.FilterDialog
-import com.kodex.guide.ui.castom.MyDialog
+import com.kodex.guide.ui.dialods.FilterDialog
+import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
@@ -59,6 +58,7 @@ fun MenuScreen(
     onAdminClick: () -> Unit,
     onLoginClick: () -> Unit,
     onAddBookClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
@@ -79,12 +79,12 @@ fun MenuScreen(
             viewModel.isAdminState.value = isAdmin
         }
     }
-/*
-    LaunchedEffect(Unit) {
-        viewModel.isUserRegistered { isRegister ->
-            viewModel.isRegisterState.value = isRegister
-        }
-    }*/
+    /*
+        LaunchedEffect(Unit) {
+            viewModel.isUserRegistered { isRegister ->
+                viewModel.isRegisterState.value = isRegister
+            }
+        }*/
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
@@ -134,6 +134,11 @@ fun MenuScreen(
                         coroutineScope.launch { drawerState.close() }
                     },
 
+                    onSettingsClick = {
+                        onSettingsClick()
+                        coroutineScope.launch { drawerState.close() }
+                    },
+
                     )
             }
         }
@@ -178,6 +183,12 @@ fun MenuScreen(
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
                             books.refresh()
+                        },
+                        onSettingsClick = {
+                            onSettingsClick()
+                            viewModel.selectedBottomItemState.intValue =
+                                BottomMenuItem.Settings.titleId
+
                         }
                     )
             }
@@ -204,12 +215,12 @@ fun MenuScreen(
                     onDismiss = {
                         showDeleteDialog.value = false
                     },
-                    title = stringResource(id = R.string.attention),
-                    massage = stringResource(id = R.string.want_to_delete_this_message),
                     onConfirm = {
                         showDeleteDialog.value = false
                         viewModel.deleteBook(books.itemSnapshotList.items)
-                    }
+                    },
+                    title = stringResource(id = R.string.attention),
+                    message = stringResource(id = R.string.want_to_delete_this_message),
                 )
                 /*  if (books.loadState.refresh is LoadState.Loading) {
                           Box(

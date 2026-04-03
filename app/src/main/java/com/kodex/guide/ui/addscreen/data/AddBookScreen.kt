@@ -53,8 +53,9 @@ fun AddBookScreen(
 ) {
     val cv = LocalContext.current.contentResolver
     val context = LocalContext.current
-    var selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
-    var navImageUrl = remember { mutableStateOf(navData.imageUrl) }
+    val categories = remember { context.resources.getStringArray(R.array.category_array) }
+    val selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
+    val navImageUrl = remember { mutableStateOf(navData.imageUrl) }
     val imageBase64 = remember { mutableStateOf(if (IS_BASE_64) navData.imageUrl else "") }
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -113,7 +114,8 @@ fun AddBookScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
         RoundedCornerDropDownMenu(
-            viewModel.selectedCategory.intValue,
+            categories.toList(),
+            categories[viewModel.selectedCategory.intValue],
             onOptionSelected = { selectedItemIndex ->
                 viewModel.selectedCategory.intValue = selectedItemIndex
             },
@@ -178,14 +180,13 @@ fun AddBookScreen(
         }
         LoginButton(text = "Сохранить ") {
             //showProgressIndicator.value = true
-            for (n in 1..9) {
                 saveBookToFirestore(
                     firestore = FirebaseFirestore.getInstance(),
                     Book(
                         key = navData.key,
-                        title = viewModel.title.value + n,
+                        title = viewModel.title.value,
                         description = viewModel.description.value,
-                        price = viewModel.price.value.toInt()+( n+2),
+                        price = viewModel.price.value.toInt(),
                         categoryIndex = viewModel.selectedCategory.intValue,
                         village = viewModel.village.value,
 
@@ -215,7 +216,7 @@ fun AddBookScreen(
                 )
 
                 // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
-            }
+
         }
     }
     //viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))

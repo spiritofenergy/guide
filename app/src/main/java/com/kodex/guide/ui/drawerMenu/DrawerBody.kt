@@ -47,6 +47,7 @@ fun DrawerBody(
 
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (Int) -> Unit = {}
@@ -184,7 +185,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Settings,
                  text = categoryAdmin[5],
                  onItemClick = {
-                    // onMapClick()
+                     onSettingsClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )

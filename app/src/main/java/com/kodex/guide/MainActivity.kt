@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.kodex.guide.ui.settingsScreen.SettingsScreen
 import com.kodex.guide.ui.addscreen.AddBookScreen
  import com.kodex.guide.ui.adminPanel.AdminPanelScreen
 import com.kodex.guide.ui.adminPanel.ModerationScreen
@@ -33,13 +34,14 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = NavRoutes.MainScreenDataObject(
-                    uid = "",
-                    email = "example@gmail.com"
-                )
+               startDestination = NavRoutes.LoginNavObject
+              /*  startDestination = NavRoutes.MainScreenDataObject(
+                    uid = "uid",
+                    email = "email"
+                )*/
             ) {
 
-                composable<NavRoutes.LoginScreenObject> {
+                composable<NavRoutes.LoginNavObject> {
                     LoginScreen() { navData ->
                         navController.navigate(navData)
                     }
@@ -50,23 +52,23 @@ class MainActivity : ComponentActivity() {
                         navData = navData,
 
                         onBookClick = { place ->
-                            navController.navigate(NavRoutes.ParallaxNavObject(
-                                bookId = place.key,
-                                title = place.title,
-                                description = place.description,
-                                price = place.price,
-                                categoryIndex = place.categoryIndex,
-                                imageUrl = place.imageUrl,
-                                telephone = place.telephone,
-                                ratingsList = place.ratingsList,
+                            navController.navigate(
+                                NavRoutes.ParallaxNavObject(
+                                    bookId = place.key,
+                                    title = place.title,
+                                    description = place.description,
+                                    price = place.price,
+                                    categoryIndex = place.categoryIndex,
+                                    imageUrl = place.imageUrl,
+                                    telephone = place.telephone,
+                                    ratingsList = place.ratingsList,
 
 
-
-                                 )
+                                    )
                             )
                         },
 
-                      /*  onBookClick = { bk ->
+                        /*  onBookClick = { bk ->
                             navController.navigate(
                                 NavRoutes.DetailNavObject(
                                     bookId = bk.key,
@@ -80,14 +82,15 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                         },*/
-                        onBookEditClick = { book->
-                            navController.navigate(NavRoutes.AddScreenObject(
-                                key = book.key,
-                                title = book.title,
-                                description = book.description,
-                                price = book.price,
-                                categoryIndex = book.categoryIndex,
-                                imageUrl = book.imageUrl,
+                        onBookEditClick = { book ->
+                            navController.navigate(
+                                NavRoutes.AddScreenObject(
+                                    key = book.key,
+                                    title = book.title,
+                                    description = book.description,
+                                    price = book.price,
+                                    categoryIndex = book.categoryIndex,
+                                    imageUrl = book.imageUrl,
                                 )
                             )
                         },
@@ -95,15 +98,17 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(NavRoutes.ModerationNavObject)
                         },
                         onLoginClick = {
-                            navController.navigate(NavRoutes.LoginScreenObject)
+                            navController.navigate(NavRoutes.LoginNavObject)
+                        },
+                        onSettingsClick = {
+                            navController.navigate(NavRoutes.SettingsNavObject)
                         },
                         onAddBookClick = {
                             navController.navigate(NavRoutes.AddScreenObject())
                         }
                     )
-
                 }
-                composable<NavRoutes.AddScreenObject>{ navEntry ->
+                composable<NavRoutes.AddScreenObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.AddScreenObject>()
                     AddBookScreen(
                         navData = navData,
@@ -117,7 +122,7 @@ class MainActivity : ComponentActivity() {
                     DetailScreen(
                         onCommentsClick = { commentsNavData ->
                             navController.navigate(commentsNavData)
-                    },
+                        },
                         navObject = navData
                     )
                 }
@@ -127,14 +132,14 @@ class MainActivity : ComponentActivity() {
                     PlaceScreen(
                         onCommentsClick = { commentsNavData ->
                             navController.navigate(commentsNavData)
-                    },
+                        },
                         navObject = navData,
                         navController = navController
                     )
                 }
 
                 composable<NavRoutes.AdminPanelNavObject> {
-                    AdminPanelScreen (
+                    AdminPanelScreen(
                         onAddBookClick = {
                             navController.navigate(NavRoutes.AddScreenObject())
                         },
@@ -146,6 +151,20 @@ class MainActivity : ComponentActivity() {
                 composable<NavRoutes.ModerationNavObject> {
                     ModerationScreen()
                 }
+                composable<NavRoutes.SettingsNavObject> { navEntry ->
+                    SettingsScreen(
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        onCloseAccountClick = {
+                            navController.popBackStack(
+                                NavRoutes.LoginNavObject,
+                                inclusive = false
+                            )
+                        }
+                    )
+                }
+
 
                 composable<NavRoutes.ParallaxNavObject>{navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()

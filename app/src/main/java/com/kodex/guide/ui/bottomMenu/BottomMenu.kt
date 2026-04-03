@@ -13,16 +13,17 @@ import com.kodex.guide.ui.theme.PurpleGrey80
 fun BottomMenu(
     selectedItem: Int,
     onFavesClick: () -> Unit = {},
-    onHomeClick: () -> Unit = {}
+    onHomeClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val items = listOf(
         BottomMenuItem.Home,
         BottomMenuItem.Faves,
         BottomMenuItem.Settings
 
-      )
+    )
 
-   // val selectedItem = remember { mutableStateOf("Home") }
+    // val selectedItem = remember { mutableStateOf("Home") }
 
     NavigationBar(
         containerColor = PurpleGrey80
@@ -32,26 +33,24 @@ fun BottomMenu(
                 selected = selectedItem == item.titleId,
                 //selected = selectedItem == item.titleId,
                 onClick = {
-                    when(item.titleId){
+                    when (item.titleId) {
                         BottomMenuItem.Home.titleId -> onHomeClick()
                         BottomMenuItem.Faves.titleId -> onFavesClick()
+                        BottomMenuItem.Settings.titleId -> onSettingsClick()
                     }
                 },
                 icon = {
-                    Icon(painter = painterResource(id = item.iconId),
-                        contentDescription = null)
+                    Icon(
+                        painter = painterResource(id = item.iconId),
+                        contentDescription = null
+                    )
                 },
                 label = {
                     Text(
                         text = stringResource(item.titleId)
                     )
                 }
-
-                )
-
-
+            )
         }
-
-
     }
 }

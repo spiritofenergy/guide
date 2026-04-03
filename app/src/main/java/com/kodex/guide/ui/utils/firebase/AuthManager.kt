@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.utils.firebase
 
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.kodex.guide.ui.data.NavRoutes
@@ -78,6 +79,24 @@ class AuthManager(
             }
     }
 
+    fun deleteAccount(
+        email: String,
+        password: String,
+        onDeleteSuccess: () -> Unit,
+        onDeleteFailure: (String) -> Unit,
+    ) {
+    val credential = EmailAuthProvider.getCredential(email, password)
+        auth.currentUser?.reauthenticate(credential)?.addOnSuccessListener {
+            auth.currentUser?.delete()?.addOnSuccessListener {
+                onDeleteSuccess()
+            }?.addOnFailureListener { result ->
+                onDeleteFailure(result.message ?: "Delete Account Error")
+            }
+        }?.addOnFailureListener { task->
+            onDeleteFailure(task.message ?: "Re-Authenticate Account Error")
+        }
+    }
+
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
@@ -85,20 +104,4 @@ class AuthManager(
     fun signOut() {
         auth.signOut()
     }
-    /*@Provides
-    @Singleton
-    fun provideFirebaseManager(
-        auth: FirebaseAuth,
-        db: FirebaseFirestore
-    ): FireStoreManager{
-        return FireStoreManager(auth, db)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthManager(
-        auth: FirebaseAuth,
-    ): AuthManager{
-        return AuthManager(auth)
-    }*/
 }

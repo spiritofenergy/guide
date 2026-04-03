@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.castom
+package com.kodex.guide.ui.dialods
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -8,9 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.google.android.play.core.integrity.m
-import com.kodex.guide.ui.theme.BoxFilterColor
-import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.DrawerColorBlue
 
 @Composable
@@ -19,8 +16,9 @@ fun MyDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     title: String = "Reset Password",
-    massage: String = "",
+    message: String = "",
     confirmButtonText: String = "Ok",
+
 ) {
     if (showDialog) {
         AlertDialog(
@@ -59,7 +57,7 @@ fun MyDialog(
             },
             text = {
                 Text(
-                    text = massage,
+                    text = message,
                     color = Color.Black,
                     fontSize = 16.sp
                 )
