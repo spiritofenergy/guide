@@ -14,6 +14,12 @@ object FirebaseConst {
     const val RATING = "rating"
     const val RATING_DATA = "rating_data"
     const val MODERATION = "moderation"
+    const val USER_DATA = "user_data"
+    const val PERSONAL_DATA = "personal_data"
+    const val ADDRESS_DATA = "address_data"
+    const val DATA = "data"
+    const val USER_SETTINGS = "user_settings"
+
 
 
 

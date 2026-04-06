@@ -38,19 +38,13 @@ class MainScreenViewModel @Inject constructor(
 
     val minPriceValue = mutableFloatStateOf(0f)
     val maxPriceValue = mutableFloatStateOf(0f)
-
     val isFilterByTitle = mutableStateOf(true)
     var showTabOneOrTo = mutableStateOf(false)
-
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
-
     val isAdminState = mutableStateOf(false)
     var isRegisterState = mutableStateOf(false)
-
     val categoryState = mutableIntStateOf(Categories.ALL)
-
     var bookToDelete: Book? = null
-    private var deleteBook = false
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
     val books: Flow<PagingData<Book>> = pager.cachedIn(viewModelScope)
         .combine(bookListUpdate) { pagingData, booksList ->
@@ -61,8 +55,7 @@ class MainScreenViewModel @Inject constructor(
                 }
                 updateBook ?: book
             }
-            if (deleteBook) {
-                deleteBook = false
+            if (bookListUpdate.value.isNotEmpty()) {
                 pgData.filter { pgData ->
                     booksList.find {
                         it.key == pgData.key
@@ -79,6 +72,9 @@ class MainScreenViewModel @Inject constructor(
         _uiState.emit(state)
     }
 
+    fun clearTempBookList(){
+        bookListUpdate.value = emptyList()
+    }
 
     fun setPriceFilter(minPrice: Float, maxPrice: Float) {
         firebaseManagerPainter.minPrice = minPrice.toInt()
@@ -94,7 +90,7 @@ class MainScreenViewModel @Inject constructor(
             } else
                 FirebaseConst.PRICE
         )
-        // fireStoreManagerPaging.filterData = filterData
+       // fireStoreManagerPaging.filterData = filterData
     }
 
     fun deleteBook(uiList: List<Book>) {
@@ -102,7 +98,6 @@ class MainScreenViewModel @Inject constructor(
         firebaseManagerPainter.deleteBook(
             bookToDelete!!,
             onDeleted = {
-                deleteBook = true
                 bookListUpdate.value = uiList.filter {
                     it.key != bookToDelete!!.key
                 }
@@ -128,7 +123,6 @@ class MainScreenViewModel @Inject constructor(
     fun onFavesClick(book: Book, isFavesState: Int, bookList: List<Book>) {
         val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
         bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
-            deleteBook = true
             bookList.filter { it.isFavorite }
         } else {
             bookList

@@ -20,6 +20,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,10 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenu
@@ -73,6 +78,20 @@ fun MenuScreen(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshBooks(books, viewModel)
+            }
+        }
+        lifecycleOwner.lifecycle.removeObserver(observer)
+          onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.isAdmin { isAdmin ->
@@ -122,7 +141,7 @@ fun MenuScreen(
                             coroutineScope.launch { drawerState.close() }
                         } else {
                             viewModel.getAllBooksFromCategory(categoryIndex)
-                            books.refresh()
+                            refreshBooks(books, viewModel)
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             Log.d("MyLog", "categoryIndex: $categoryIndex")
                             coroutineScope.launch { drawerState.close() }
@@ -150,7 +169,7 @@ fun MenuScreen(
                         viewModel.categoryState.intValue,
                         onSearch = { searchText ->
                             viewModel.searchBook(searchText)
-                            books.refresh()
+                            refreshBooks(books, viewModel)
                         },
                         onFilter = {
                             showFilterDialog = true
@@ -182,7 +201,7 @@ fun MenuScreen(
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
-                            books.refresh()
+                            refreshBooks(books, viewModel)
                         },
                         onSettingsClick = {
                             onSettingsClick()
@@ -235,8 +254,7 @@ fun MenuScreen(
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
                     onRefresh = {
-                        books.refresh()
-                    },
+                        refreshBooks(books, viewModel)                    },
                     state = state,
                     modifier = Modifier.padding(),
                     indicator = {
@@ -302,7 +320,7 @@ fun MenuScreen(
                     showDialog = showFilterDialog,
                     onConfirm = {
                         showFilterDialog = false
-                        //books.refresh()
+                        refreshBooks(books, viewModel)
                     },
                     onDismiss = {
                         showFilterDialog = false
@@ -313,6 +331,10 @@ fun MenuScreen(
     }
 }
 
+private fun refreshBooks(books: LazyPagingItems<Book>, viewModel: MainScreenViewModel){
+    viewModel.clearTempBookList()
+    books.refresh()
+}
 
 /*
  private fun getAllBooks (

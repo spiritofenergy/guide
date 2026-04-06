@@ -27,7 +27,7 @@ fun AccountDialog(
     ) {
     if (dialogData.showDialog) {
         val fieldLabelList = remember {
-            mutableStateListOf(*Array(dialogData.fieldLabel.size) { "" })
+            mutableStateListOf(*dialogData.fieldValues.toTypedArray())
         }
 
         AlertDialog(

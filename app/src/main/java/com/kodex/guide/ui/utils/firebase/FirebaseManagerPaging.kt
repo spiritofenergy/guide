@@ -11,9 +11,11 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.addscreen.data.Favorite
 import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.ui.settingsScreen.data.AddressData
+import com.kodex.guide.ui.settingsScreen.data.PersonalData
+import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.Categories.ALL
-import com.kodex.guide.ui.utils.Categories.FAVORITES
 import com.kodex.guide.ui.utils.FirebaseConst
 import com.kodex.guide.ui.utils.FirebaseConst.RATING_DATA
 import com.kodex.guide.ui.utils.FirebaseConst.MODERATION
@@ -23,8 +25,11 @@ import com.kodex.guide.ui.utils.FirebaseConst.KEY
 import com.kodex.guide.ui.utils.FirebaseConst.POSTS
 import com.kodex.guide.ui.utils.FirebaseConst.SEARCH_TITLE
 import com.kodex.guide.ui.utils.FirebaseConst.USERS
-import com.kodex.guide.ui.utils.FirebaseConst.FAVORITES
-import com.kodex.guide.ui.utils.Categories.FAVORITES
+import com.kodex.guide.ui.utils.FirebaseConst.ADDRESS_DATA
+import com.kodex.guide.ui.utils.FirebaseConst.DATA
+import com.kodex.guide.ui.utils.FirebaseConst.PERSONAL_DATA
+import com.kodex.guide.ui.utils.FirebaseConst.USER_DATA
+import com.kodex.guide.ui.utils.FirebaseConst.USER_SETTINGS
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
@@ -299,5 +304,60 @@ class FireStoreManagerPaging(
                 .get().await()
             return querySnapshot.toObject(RatingData::class.java)
         }
+
+    fun insertPersonalData( personalData: PersonalData) {
+        if (auth.uid == null) return
+        db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(PERSONAL_DATA)
+            .document(DATA)
+            .set(personalData)
+         }
+
+    fun insertAddressData(addressData: AddressData) {
+        if (auth.uid == null) return
+        db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(ADDRESS_DATA)
+            .document(DATA)
+            .set(addressData)
+         }
+
+    fun insertUserSettingsData(userSettingsData: UserSettingsData) {
+        if (auth.uid == null) return
+        db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(USER_SETTINGS)
+            .document(DATA)
+            .set(userSettingsData)
+         }
+
+    suspend fun getSettings(
+        onSettingsLoaded: (PersonalData, AddressData, UserSettingsData) -> Unit,
+    ){
+        if (auth.uid == null) return
+       val querySnapshotPersonal = db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(PERSONAL_DATA)
+            .document(DATA)
+            .get().await()
+        val personalData = querySnapshotPersonal.toObject(PersonalData::class.java) ?: PersonalData()
+
+       val querySnapshotAddress = db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(ADDRESS_DATA)
+            .document(DATA)
+            .get().await()
+        val addressData = querySnapshotAddress.toObject(AddressData::class.java) ?: AddressData()
+
+       val querySnapshotSettings = db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(USER_SETTINGS)
+            .document(DATA)
+            .get().await()
+        val userSettingsData = querySnapshotSettings.toObject(UserSettingsData::class.java) ?: UserSettingsData()
+
+        onSettingsLoaded(personalData, addressData, userSettingsData)
+    }
     }
 
