@@ -33,6 +33,8 @@
     <!-- SettingsScreen -->
     <string name="you_account_was_deleted">You account was deleted</string>
     <string name="deleted_account_massage">Are you sure you want to delete your account?</string>
+    <string name="delete">Delete</string>
+    <string name="the_fields_on_may_be_empty">The fields on may be empty</string>
 
 
 </resources>

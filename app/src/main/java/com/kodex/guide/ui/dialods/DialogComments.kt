@@ -36,16 +36,6 @@ import com.kodex.guide.ui.theme.ButtonColorBlue
                     onDismiss()
                 },
                 confirmButton ={
-                    Button(modifier = Modifier,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ButtonColorBlue
-                        ),
-                        onClick = {
-                            onDismiss()
-                        }) {
-                        Text(text = confirmButtonText)
-                    }
-
                     Button(onClick = {
                         onConfirm()
                     }, colors = ButtonDefaults.buttonColors(

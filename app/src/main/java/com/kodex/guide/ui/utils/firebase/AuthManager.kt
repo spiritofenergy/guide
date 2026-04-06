@@ -89,8 +89,8 @@ class AuthManager(
         auth.currentUser?.reauthenticate(credential)?.addOnSuccessListener {
             auth.currentUser?.delete()?.addOnSuccessListener {
                 onDeleteSuccess()
-            }?.addOnFailureListener { result ->
-                onDeleteFailure(result.message ?: "Delete Account Error")
+            }?.addOnFailureListener { task ->
+                onDeleteFailure(task.message ?: "Delete Account Error")
             }
         }?.addOnFailureListener { task->
             onDeleteFailure(task.message ?: "Re-Authenticate Account Error")
