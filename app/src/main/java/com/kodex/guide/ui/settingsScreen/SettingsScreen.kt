@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.settingsScreen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import com.kodex.guide.ui.settingsScreen.data.AddressData
 import com.kodex.guide.ui.settingsScreen.data.PersonalData
 import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import java.nio.file.Files.size
 
 
 @Composable
@@ -51,11 +53,13 @@ fun SettingsScreen(
     val dropDownMenuSelectedOptions = remember { mutableStateListOf(0, 0, 0) }
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.getSettings(onSettingsLoaded = { settingsData ->
             dropDownMenuSelectedOptions[0] = settingsData.imageFormat
             dropDownMenuSelectedOptions[1] = settingsData.quality
             dropDownMenuSelectedOptions[2] = settingsData.size
+
              }
         )
     }
@@ -221,7 +225,14 @@ fun SettingsScreen(
                                                     viewModel.oldAddressData.postCode
                                                 )
                                             }
-
+                                            DialogType.PASSWORD -> {
+                                                // Для пароля - два пустых поля (email и пароль)
+                                                listOf("", "")
+                                            }
+                                            DialogType.DELETE_ACCOUNT -> {
+                                                // Для удаления аккаунта - два пустых поля (email и пароль)
+                                                listOf("", "")
+                                            }
                                             else -> {
                                                 emptyList()
                                             }
@@ -271,6 +282,8 @@ fun SettingsScreen(
                    size = dropDownMenuSelectedOptions[2]
                )
                 viewModel.saveSettings()
+                Log.d("MyLog", "saveSettings(): ")
+
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = ButtonColorBlue

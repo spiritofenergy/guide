@@ -16,10 +16,11 @@ import com.google.firebase.firestore.firestore
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.castom.FilterData
+import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.FirebaseConst
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
- import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,8 +31,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val firebaseManagerPainter: FireStoreManagerPaging,
+    private val fireStoreManagerPaging: FireStoreManagerPaging,
     private val pager: Flow<PagingData<Book>>,
+    private val globalSettings: GlobalSettings,
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -72,13 +74,23 @@ class MainScreenViewModel @Inject constructor(
         _uiState.emit(state)
     }
 
-    fun clearTempBookList(){
+    fun getSettings() = viewModelScope.launch {
+        fireStoreManagerPaging.getSettings(
+            onSettingsLoaded = { pData, aData, sData ->
+                globalSettings.personalData = pData
+                globalSettings.addressData = aData
+                globalSettings.userSettingsData = sData
+            }
+        )
+    }
+
+    fun clearTempBookList() {
         bookListUpdate.value = emptyList()
     }
 
     fun setPriceFilter(minPrice: Float, maxPrice: Float) {
-        firebaseManagerPainter.minPrice = minPrice.toInt()
-        firebaseManagerPainter.maxPrice = maxPrice.toInt()
+        fireStoreManagerPaging.minPrice = minPrice.toInt()
+        fireStoreManagerPaging.maxPrice = maxPrice.toInt()
     }
 
     fun setFilter() {
@@ -90,12 +102,12 @@ class MainScreenViewModel @Inject constructor(
             } else
                 FirebaseConst.PRICE
         )
-       // fireStoreManagerPaging.filterData = filterData
+        // fireStoreManagerPaging.filterData = filterData
     }
 
     fun deleteBook(uiList: List<Book>) {
         if (bookToDelete == null) return
-        firebaseManagerPainter.deleteBook(
+        fireStoreManagerPaging.deleteBook(
             bookToDelete!!,
             onDeleted = {
                 bookListUpdate.value = uiList.filter {
@@ -110,18 +122,18 @@ class MainScreenViewModel @Inject constructor(
 
 
     fun searchBook(searchText: String) {
-        firebaseManagerPainter.searchText = searchText
+        fireStoreManagerPaging.searchText = searchText
     }
 
     fun getAllBooksFromCategory(categoryIndex: Int) {
         categoryState.intValue = categoryIndex
-        firebaseManagerPainter.categoryIndex = categoryIndex
+        fireStoreManagerPaging.categoryIndex = categoryIndex
         Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
 
     }
 
     fun onFavesClick(book: Book, isFavesState: Int, bookList: List<Book>) {
-        val bookList = firebaseManagerPainter.changeFavesState(bookList, book)
+        val bookList = fireStoreManagerPaging.changeFavesState(bookList, book)
         bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
             bookList.filter { it.isFavorite }
         } else {
@@ -157,10 +169,10 @@ class MainScreenViewModel @Inject constructor(
             }
 
     }
-/*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
-        val uid = Firebase.auth.currentUser!!.uid
-        Firebase.firestore.collection("guide_users")
-            .document(uid)
-     isRegisterState = true
-    }*/
+    /*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
+            val uid = Firebase.auth.currentUser!!.uid
+            Firebase.firestore.collection("guide_users")
+                .document(uid)
+         isRegisterState = true
+        }*/
 }

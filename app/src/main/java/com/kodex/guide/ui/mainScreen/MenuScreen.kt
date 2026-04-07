@@ -85,6 +85,10 @@ fun MenuScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 refreshBooks(books, viewModel)
+               Log.d("MyLog", "refreshBooks" )
+                viewModel.getSettings()
+                Log.d("MyLog", "getSettings MenuScreen" )
+
             }
         }
         lifecycleOwner.lifecycle.removeObserver(observer)
