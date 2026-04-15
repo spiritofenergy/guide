@@ -20,6 +20,9 @@ class NavRoutes {
 
     @Serializable
     object LoginNavObject
+
+    @Serializable
+    object SingUpNavObject
     @Serializable
     object SettingsNavObject
     @Serializable

@@ -19,6 +19,7 @@ import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
 import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,10 +43,21 @@ class MainActivity : ComponentActivity() {
             ) {
 
                 composable<NavRoutes.LoginNavObject> {
-                    LoginScreen() { navData ->
-                        navController.navigate(navData)
-                    }
+                    LoginScreen(
+                        onNavigationToMainScreen = { navData ->
+                            navController.navigate(navData)
+                        },
+                        onNavigationToSignUpScreen = { navData ->
+                            navController.navigate(navData)
+                        }
+                    )
                 }
+                            composable<NavRoutes.SingUpNavObject> {
+                                SignUpScreen() { navData ->
+                                    navController.navigate(navData)
+                                }
+                            }
+
                 composable<NavRoutes.MainScreenDataObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.MainScreenDataObject>()
                     MenuScreen(
