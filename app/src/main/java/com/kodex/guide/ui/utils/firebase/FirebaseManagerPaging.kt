@@ -306,13 +306,15 @@ class FireStoreManagerPaging(
             return querySnapshot.toObject(RatingData::class.java)
         }
 
-    fun insertPersonalData( personalData: PersonalData) {
+    fun insertPersonalData( personalData: PersonalData, onDataSaved: () -> Unit = {}) {
         if (auth.uid == null) return
         db.collection(USER_DATA)
             .document(auth.uid!!)
             .collection(PERSONAL_DATA)
             .document(DATA)
-            .set(personalData)
+            .set(personalData).addOnSuccessListener {
+                onDataSaved()
+            }
         Log.d("MyLog","insertPersonalData $personalData")
 
     }
