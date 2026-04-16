@@ -1,5 +1,6 @@
 package com.kodex.guide.ui.settingsScreen
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val authManager: AuthManager,
-    private val fireStoreManagerPaging: FireStoreManagerPaging
+    private val fireStoreManagerPaging: FireStoreManagerPaging,
+    private val globalSettings: GlobalSettings,
 ) : ViewModel() {
     var newPersonalData = PersonalData()
     var oldPersonalData = PersonalData()
@@ -69,27 +71,53 @@ class SettingsViewModel @Inject constructor(
     fun saveSettings() {
         if (!newPersonalData.upToDate(oldPersonalData)) {
             fireStoreManagerPaging.insertPersonalData(newPersonalData)
+            Log.d("MyLog","newPersonalData ${newPersonalData}")
         }
 
         if (!newAddressData.upToDate(oldAddressData)) {
             fireStoreManagerPaging.insertAddressData(newAddressData)
+            Log.d("MyLog"," newAddressData ${newAddressData}")
         }
 
         if (!newUserSettingsData.upToDate(oldUserSettingsData)) {
             fireStoreManagerPaging.insertUserSettingsData(newUserSettingsData)
+            Log.d("MyLog","newUserSettingsData  ${newUserSettingsData}")
         }
     }
 
     fun getSettings(onSettingsLoaded: (UserSettingsData)-> Unit) = viewModelScope.launch {
-        fireStoreManagerPaging.getSettings(
-            onSettingsLoaded = { pData, aData, sData ->
-                oldPersonalData = pData
-                oldAddressData = aData
-                personalData.value = pData
-                addressData.value = aData
-                oldUserSettingsData = sData
-                onSettingsLoaded(sData)
-            }
-        )
+
+        fireStoreManagerPaging.getSettings { personal, address, settings ->
+            // Сохраняем в globalSettings для кэширования
+            globalSettings.personalData = personal
+            globalSettings.addressData = address
+            globalSettings.userSettingsData = settings
+
+            // Обновляем ViewModel поля
+            oldPersonalData = personal
+            personalData.value = personal
+
+            oldAddressData = address
+            addressData.value = address
+
+            oldUserSettingsData = settings
+
+            // Вызываем колбэк с настройками
+            onSettingsLoaded(settings)
+
+            /*
+            oldPersonalData = globalSettings.personalData
+
+        personalData.value = oldPersonalData
+        Log.d("MyLog","personalData.value = oldPersonalData  ${personalData}")
+
+        oldAddressData = globalSettings.addressData
+
+        addressData.value = oldAddressData
+        Log.d("MyLog","addressData.value = oldAddressData  ${addressData}")
+        oldUserSettingsData = globalSettings.userSettingsData
+
+        onSettingsLoaded(globalSettings.userSettingsData)*/
+        }
     }
 }

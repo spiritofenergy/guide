@@ -193,7 +193,8 @@ fun AddBookScreen(
                         imageUrl = if (viewModel.selectedImageUri.value != null) {
                             imageToBase64(
                                 viewModel.selectedImageUri.value!!,
-                                cv
+                                cv,
+                                viewModel.globalSettings.userSettingsData
                             )
                         } else {
                             navData.imageUrl
@@ -235,9 +236,9 @@ private fun saveBookToFirestore(
         .set(book.copy(key = key))
         .addOnSuccessListener { onSaved() }
         .addOnFailureListener { onError(it.message ?: "Error") }
-    Log.d("MyLog", "saveBookToFirestore: $book")
+   // Log.d("MyLog", "saveBookToFirestore: $book")
 }
-
+/*
 private fun imageToBase64(
     uri: Uri,
     contentResolver: ContentResolver
@@ -248,7 +249,7 @@ private fun imageToBase64(
     return bytes?.let {
         Base64.encodeToString(it, Base64.DEFAULT)
     } ?: ""
-}
+}*/
 
 @Preview(showBackground = true)
 @Composable

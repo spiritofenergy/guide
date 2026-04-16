@@ -7,14 +7,51 @@ import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.scale
+import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
 import java.io.ByteArrayOutputStream
 
 object ImageUtils {
-    fun imageToBase64(uri: Uri, contentResolver: ContentResolver): String{
+     val sizeList = listOf(
+        100,
+        200,
+        300,
+        600
+    )
+    val qualityList = listOf(
+        10,
+        50,
+        100,
 
-        val bytes = uriToBiteArray(uri, contentResolver)
+    )
+    @RequiresApi(Build.VERSION_CODES.R)
+    val formatListAboveV30 = listOf(
+        Bitmap.CompressFormat.WEBP_LOSSY,
+        Bitmap.CompressFormat.WEBP_LOSSLESS,
+        Bitmap.CompressFormat.JPEG,
+        Bitmap.CompressFormat.PNG
+    )
+    val formatList = listOf(
+        Bitmap.CompressFormat.WEBP,
+        Bitmap.CompressFormat.WEBP,
+        Bitmap.CompressFormat.JPEG,
+        Bitmap.CompressFormat.PNG
+    )
+    fun imageToBase64(
+        uri: Uri,
+        contentResolver: ContentResolver,
+        userSettingsData: UserSettingsData
+    ): String{
+
+        val bytes = uriToBiteArray(uri, contentResolver, userSettingsData)
         val base64Image = Base64.encodeToString(bytes, Base64.DEFAULT)
+
+        val inputStream = contentResolver.openInputStream(uri)
+        val bm = BitmapFactory.decodeStream(inputStream)
+        val resizedBitMap = resizeBitMapImage(bm, sizeList[userSettingsData.size])
+        val stream = ByteArrayOutputStream()
+
         /*   if (Build.VERSION.SDK_INT >= 30){
                resizedBitMap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 30, stream)
            }else
@@ -23,18 +60,24 @@ object ImageUtils {
         Log.d("MyLog2", "base64Image size: , ${base64Image.toByteArray(Charsets.UTF_8).size}")
         return base64Image
     }
-    fun uriToBiteArray(uri: Uri, contentResolver: ContentResolver): ByteArray{
+    fun uriToBiteArray(
+        uri: Uri,
+        contentResolver: ContentResolver,
+        userSettingsData: UserSettingsData
+    ): ByteArray{
         val inputStream = contentResolver.openInputStream(uri)
         val bm = BitmapFactory.decodeStream(inputStream)
-        val resizedBitMap = resizeBitMapImage(bm, 300)
+        val resizedBitMap = resizeBitMapImage(bm, sizeList[userSettingsData.size])
         val stream = ByteArrayOutputStream()
            if (Build.VERSION.SDK_INT >= 30){
-                resizedBitMap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 70, stream)
+                resizedBitMap.compress(formatListAboveV30[userSettingsData.imageFormat], qualityList[userSettingsData.quality] , stream)
             }else {
-                resizedBitMap.compress(Bitmap.CompressFormat.WEBP, 70, stream)
+                    resizedBitMap.compress(formatList[userSettingsData.imageFormat], qualityList[userSettingsData.quality] , stream)
             }
         resizedBitMap.compress(Bitmap.CompressFormat.JPEG, 70, stream)
         return stream.toByteArray()
+            // Log.d("MyLog3", "base64Image size: , ${bytes.size}")
+            // Log.d("MyLog4", "base64Image size: , ${base64Image.toByteArray(Charsets.UTF_8).size}")
     }
     //изменяем размер картинки
     private  fun resizeBitMapImage(bitmap: Bitmap, maxSize: Int): Bitmap{

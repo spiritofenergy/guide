@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.ui.data.NavRoutes
 import com.kodex.guide.ui.mainScreen.MainScreenViewModel.MainUiState
+import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.Categories
  import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
     private val fireStoreManager: FireStoreManagerPaging,
+    val globalSettings: GlobalSettings,
 ) : ViewModel() {
 
     val title = mutableStateOf("")

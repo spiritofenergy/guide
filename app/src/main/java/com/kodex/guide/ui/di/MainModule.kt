@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.StoreManager
 import com.kodex.guide.ui.utils.firebase.AuthManager
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
@@ -30,6 +31,11 @@ object MainModule {
             db, auth
 
         )
+    }
+    @Provides
+    @Singleton
+    fun provideGlobalSettings(): GlobalSettings {
+        return GlobalSettings()
     }
     @Provides
     @Singleton

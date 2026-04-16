@@ -46,32 +46,16 @@ class LoginViewModel@Inject constructor(
     fun saveLastEmail(){
         storeManager.saveString(StoreManager.EMAIL_KEY, emailState.value)
     }
-    fun signUp(
-        onSignUpSuccess: (NavRoutes.MainScreenDataObject)-> Unit,
-    ){
+    fun resetPassword() {
         errorState.value = ""
-        if (resetPasswordState.value){
-            authManager.resetPassword(
-                emailState.value,
-                onResetPasswordSuccess = {
-                    resetPasswordState.value = false
-                   showResetPasswordDialog.value = true
-                },
-            onResetPasswordFailure = {errorMassage->
-                errorState.value = errorMassage
-                 }
-            )
-            return
-        }
-        authManager.signUp(
+        authManager.resetPassword(
             emailState.value,
-            passwordState.value,
-            onSignUpSuccess = { navData->
-                onSignUpSuccess(navData)
-               // successState.value = true//?
+            onResetPasswordSuccess = {
+                resetPasswordState.value = false
+                showResetPasswordDialog.value = true
             },
-            onSignUpFailure = { errorMessage->
-                errorState.value = errorMessage
+            onResetPasswordFailure = { errorMassage ->
+                errorState.value = errorMassage
             }
         )
     }

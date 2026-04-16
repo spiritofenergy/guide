@@ -22,11 +22,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.login.sign_up.SignUpScreen
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onNavigationToMainScreen: (NavRoutes.MainScreenDataObject) -> Unit
+    onNavigationToMainScreen: (NavRoutes.MainScreenDataObject) -> Unit,
+    onNavigationToSignUpScreen: (NavRoutes.SingUpNavObject) -> Unit
 ) {
 
 
@@ -118,13 +120,13 @@ fun LoginScreen(
                     "Восстановить пароль "
                 } else {
                     "Авторизация"
-                },
+                }
             ) {
-                viewModel.signUp(
-                    onSignUpSuccess = { navData ->
-                        onNavigationToMainScreen(navData)
-                    }
-                )
+                if (viewModel.resetPasswordState.value){
+                    viewModel.resetPassword()
+                }else{
+                    onNavigationToSignUpScreen(NavRoutes.SingUpNavObject)
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))

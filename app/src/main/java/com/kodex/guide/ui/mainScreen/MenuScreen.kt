@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -34,6 +36,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -50,6 +53,8 @@ import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.ui.theme.ButtonColor
+import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.utils.Categories
 import kotlinx.coroutines.launch
 
@@ -85,6 +90,10 @@ fun MenuScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 refreshBooks(books, viewModel)
+               Log.d("MyLog", "refreshBooks" )
+                viewModel.getSettings()
+                Log.d("MyLog", "getSettings MenuScreen" )
+
             }
         }
         lifecycleOwner.lifecycle.removeObserver(observer)
@@ -221,12 +230,16 @@ fun MenuScreen(
                 if (books.itemCount == 0) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.empty_list),
-                            color = Color.LightGray
+                        contentAlignment = Alignment.Center,
+                   ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(70.dp),
+                            color = ButtonColorBlue
                         )
+//                        Text(
+//                            text = stringResource(id = R.string.empty_list),
+//                            color = Color.LightGray
+//                        )
                     }
                 }
                 MyDialog(
@@ -241,16 +254,7 @@ fun MenuScreen(
                     title = stringResource(id = R.string.attention),
                     message = stringResource(id = R.string.want_to_delete_this_message),
                 )
-                /*  if (books.loadState.refresh is LoadState.Loading) {
-                          Box(
-                              modifier = Modifier.fillMaxSize(),
-                              contentAlignment = Alignment.Center
-                          ) {
-                              CircularProgressIndicator(
-                                  modifier = Modifier.size(30.dp)
-                              )
-                          }
-                      }*/
+
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
                     onRefresh = {
@@ -268,6 +272,16 @@ fun MenuScreen(
                         )
                     }
                 ) {
+                    if (books.loadState.refresh is LoadState.Loading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    }
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
                         modifier = Modifier

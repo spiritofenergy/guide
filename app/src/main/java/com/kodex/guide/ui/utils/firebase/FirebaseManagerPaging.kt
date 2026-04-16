@@ -1,6 +1,7 @@
 package com.kodex.guide.ui.utils.firebase
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -305,14 +306,18 @@ class FireStoreManagerPaging(
             return querySnapshot.toObject(RatingData::class.java)
         }
 
-    fun insertPersonalData( personalData: PersonalData) {
+    fun insertPersonalData( personalData: PersonalData, onDataSaved: () -> Unit = {}) {
         if (auth.uid == null) return
         db.collection(USER_DATA)
             .document(auth.uid!!)
             .collection(PERSONAL_DATA)
             .document(DATA)
-            .set(personalData)
-         }
+            .set(personalData).addOnSuccessListener {
+                onDataSaved()
+            }
+        Log.d("MyLog","insertPersonalData $personalData")
+
+    }
 
     fun insertAddressData(addressData: AddressData) {
         if (auth.uid == null) return
@@ -321,7 +326,9 @@ class FireStoreManagerPaging(
             .collection(ADDRESS_DATA)
             .document(DATA)
             .set(addressData)
-         }
+        Log.d("MyLog","insertAddressData $addressData")
+
+    }
 
     fun insertUserSettingsData(userSettingsData: UserSettingsData) {
         if (auth.uid == null) return
@@ -330,7 +337,9 @@ class FireStoreManagerPaging(
             .collection(USER_SETTINGS)
             .document(DATA)
             .set(userSettingsData)
-         }
+        Log.d("MyLog","insertUserSettingsData $userSettingsData")
+
+    }
 
     suspend fun getSettings(
         onSettingsLoaded: (PersonalData, AddressData, UserSettingsData) -> Unit,
@@ -342,6 +351,7 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val personalData = querySnapshotPersonal.toObject(PersonalData::class.java) ?: PersonalData()
+        Log.d("MyLog","personalData $personalData")
 
        val querySnapshotAddress = db.collection(USER_DATA)
             .document(auth.uid!!)
@@ -349,6 +359,7 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val addressData = querySnapshotAddress.toObject(AddressData::class.java) ?: AddressData()
+        Log.d("MyLog","addressData $addressData")
 
        val querySnapshotSettings = db.collection(USER_DATA)
             .document(auth.uid!!)
@@ -356,8 +367,13 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val userSettingsData = querySnapshotSettings.toObject(UserSettingsData::class.java) ?: UserSettingsData()
+        Log.d("MyLog","userSettingsData $userSettingsData")
 
         onSettingsLoaded(personalData, addressData, userSettingsData)
-    }
+
+        Log.d("MyLog", "personalData: $personalData")
+        Log.d("MyLog", "addressData: $addressData")
+        Log.d("MyLog", "userSettingsData: $userSettingsData")
+         }
     }
 
