@@ -310,6 +310,7 @@ fun MenuScreen(
                                             book, viewModel.selectedBottomItemState.intValue,
                                             books.itemSnapshotList.items
                                         )
+                                        viewModel.insertPost(book)
                                         if (!book.isFavorite) {
                                             Toast.makeText(
                                                 context,
