@@ -2,6 +2,8 @@ package com.kodex.guide.ui.addscreen.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import com.kodex.guide.ui.db.BookConverter
 import com.kodex.guide.ui.utils.Categories
 
 @Entity(tableName = "books")

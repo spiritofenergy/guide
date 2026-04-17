@@ -315,8 +315,6 @@ class FireStoreManagerPaging(
             .set(personalData).addOnSuccessListener {
                 onDataSaved()
             }
-        Log.d("MyLog","insertPersonalData $personalData")
-
     }
 
     fun insertAddressData(addressData: AddressData) {
@@ -326,7 +324,6 @@ class FireStoreManagerPaging(
             .collection(ADDRESS_DATA)
             .document(DATA)
             .set(addressData)
-        Log.d("MyLog","insertAddressData $addressData")
 
     }
 
@@ -337,7 +334,6 @@ class FireStoreManagerPaging(
             .collection(USER_SETTINGS)
             .document(DATA)
             .set(userSettingsData)
-        Log.d("MyLog","insertUserSettingsData $userSettingsData")
 
     }
 
@@ -351,7 +347,6 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val personalData = querySnapshotPersonal.toObject(PersonalData::class.java) ?: PersonalData()
-        Log.d("MyLog","personalData $personalData")
 
        val querySnapshotAddress = db.collection(USER_DATA)
             .document(auth.uid!!)
@@ -359,7 +354,6 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val addressData = querySnapshotAddress.toObject(AddressData::class.java) ?: AddressData()
-        Log.d("MyLog","addressData $addressData")
 
        val querySnapshotSettings = db.collection(USER_DATA)
             .document(auth.uid!!)
@@ -367,13 +361,18 @@ class FireStoreManagerPaging(
             .document(DATA)
             .get().await()
         val userSettingsData = querySnapshotSettings.toObject(UserSettingsData::class.java) ?: UserSettingsData()
-        Log.d("MyLog","userSettingsData $userSettingsData")
 
         onSettingsLoaded(personalData, addressData, userSettingsData)
 
-        Log.d("MyLog", "personalData: $personalData")
-        Log.d("MyLog", "addressData: $addressData")
-        Log.d("MyLog", "userSettingsData: $userSettingsData")
          }
+    fun updateLastVisit() {
+        if (auth.uid == null) return
+        db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(PERSONAL_DATA)
+            .document(DATA)
+            .update("lastVisit", System.currentTimeMillis())
+            }
     }
+    
 

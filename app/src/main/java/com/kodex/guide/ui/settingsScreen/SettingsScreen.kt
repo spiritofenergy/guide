@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import com.kodex.guide.ui.settingsScreen.data.AddressData
 import com.kodex.guide.ui.settingsScreen.data.PersonalData
 import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import com.kodex.guide.ui.utils.firebase.TimeUtils
 import java.nio.file.Files.size
 
 
@@ -176,7 +177,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(text = "   Tel:  ${viewModel.personalData.value.phone}")
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(text = "   Last visit: 12/03/2025 12:30")
+                Text(text = "   Last visit: ${TimeUtils.gerFormatTime(viewModel.personalData.value.lastVisit)}")
             }
         }
         Spacer(modifier = Modifier.height(5.dp))

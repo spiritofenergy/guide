@@ -16,11 +16,13 @@ import com.google.firebase.firestore.firestore
 import com.kodex.guide.ui.addscreen.data.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.castom.FilterData
+import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.FirebaseConst
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +36,7 @@ class MainScreenViewModel @Inject constructor(
     private val fireStoreManagerPaging: FireStoreManagerPaging,
     private val pager: Flow<PagingData<Book>>,
     private val globalSettings: GlobalSettings,
+    private val mainDb: MainDb
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -140,6 +143,9 @@ class MainScreenViewModel @Inject constructor(
             bookList
         }
         // isFavesListEmptyState.value = bookListUpdate.value.isEmpty()
+    }
+    fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
+        mainDb.postDao.insertPost(book.copy())
     }
 
 
