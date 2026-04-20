@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.utils.toBitmap
  import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea

@@ -1,8 +1,8 @@
 package com.kodex.guide.ui.settingsScreen
 
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
 import javax.inject.Singleton
 
 @Singleton

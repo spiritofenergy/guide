@@ -13,9 +13,9 @@ import androidx.paging.map
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
-import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
-import com.kodex.guide.ui.castom.FilterData
+import com.kodex.guide.presentation.castom.FilterData
 import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.Categories
@@ -36,7 +36,7 @@ class MainScreenViewModel @Inject constructor(
     private val fireStoreManagerPaging: FireStoreManagerPaging,
     private val pager: Flow<PagingData<Book>>,
     private val globalSettings: GlobalSettings,
-    private val mainDb: MainDb
+    private val mainDb: MainDb,
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -51,6 +51,8 @@ class MainScreenViewModel @Inject constructor(
     val categoryState = mutableIntStateOf(Categories.ALL)
     var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
+    val trackList = mainDb.trackDao.getAllPost()
+
     val books: Flow<PagingData<Book>> = pager.cachedIn(viewModelScope)
         .combine(bookListUpdate) { pagingData, booksList ->
             val pgData = pagingData.map { book ->
@@ -145,7 +147,11 @@ class MainScreenViewModel @Inject constructor(
         // isFavesListEmptyState.value = bookListUpdate.value.isEmpty()
     }
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
-        mainDb.postDao.insertPost(book.copy())
+        mainDb.trackDao.insertPost(book)
+    }
+    // Получить все сохраненные книги
+    fun getAllSavedBooks(): Flow<List<Book>> {
+        return mainDb.trackDao.getAllPost()
     }
 
 
@@ -175,6 +181,8 @@ class MainScreenViewModel @Inject constructor(
             }
 
     }
+
+
     /*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
             val uid = Firebase.auth.currentUser!!.uid
             Firebase.firestore.collection("guide_users")

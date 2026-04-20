@@ -27,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.ui.theme.Orange
 

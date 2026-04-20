@@ -21,13 +21,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.dialods.MyDialog
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.login.sign_up.SignUpScreen
+import com.kodex.guide.presentation.navigation.NavRoutes
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onNavigationToMainScreen: (NavRoutes.MainScreenDataObject) -> Unit,
+    onNavigationToMainScreen: (NavRoutes.HomeDataObject) -> Unit,
     onNavigationToSignUpScreen: (NavRoutes.SingUpNavObject) -> Unit
 ) {
 
@@ -144,7 +143,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(10.dp))
             LoginButton(text = "Вход") {
                 onNavigationToMainScreen(
-                    NavRoutes.MainScreenDataObject(
+                    NavRoutes.HomeDataObject(
                         viewModel.currentUser.value!!.uid,
                         viewModel.currentUser.value!!.email!!
                     )

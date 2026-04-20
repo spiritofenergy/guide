@@ -37,11 +37,10 @@ import com.kodex.guide.ui.settingsScreen.menuItems.DropDownMenuItem
 import com.kodex.guide.ui.settingsScreen.menuItems.MenuCategoryItem
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import androidx.compose.ui.res.stringResource
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
 import com.kodex.guide.ui.utils.firebase.TimeUtils
-import java.nio.file.Files.size
 
 
 @Composable
