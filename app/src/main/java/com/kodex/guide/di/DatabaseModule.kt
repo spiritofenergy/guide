@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.di
+package com.kodex.guide.di
 
 import android.content.Context
 import androidx.room.Room

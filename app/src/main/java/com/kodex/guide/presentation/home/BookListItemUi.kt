@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.mainScreen
+package com.kodex.guide.presentation.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -19,11 +19,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.FireTruck
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.ui.utils.toBitmap
+import com.kodex.guide.utils.toBitmap
  import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange

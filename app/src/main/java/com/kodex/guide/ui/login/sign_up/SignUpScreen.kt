@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.login.LoginButton
+import com.kodex.guide.presentation.login.LoginButton
 
 @Composable
 fun SignUpScreen(

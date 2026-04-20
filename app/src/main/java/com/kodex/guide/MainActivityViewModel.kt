@@ -1,7 +1,7 @@
 package com.kodex.guide
 
 import androidx.lifecycle.ViewModel
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

@@ -1,6 +1,6 @@
 package com.kodex.guide.presentation.navigation
 
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 import kotlinx.serialization.Serializable
 
 @Serializable

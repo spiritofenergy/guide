@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.mainScreen
+package com.kodex.guide.presentation.home
 
 import android.util.Log
 import androidx.compose.animation.Crossfade
@@ -37,14 +37,14 @@ import com.kodex.bookmarketcompose.R
 
 import com.kodex.guide.ui.theme.DarkBlue
 import com.kodex.guide.ui.theme.PurpleGrey80
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopBar(
 
     titleIndex: Int,
-    viewModel: MainScreenViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     onSearch: (String) -> Unit,
     onTab: () -> Unit,
     onFilter: () -> Unit,

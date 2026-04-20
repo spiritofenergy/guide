@@ -5,9 +5,10 @@ import android.content.Intent
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.guide.data.repository.BooksRepo_Impl
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,20 +17,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsScreenViewModel @Inject constructor(
-    private val fireStoreManager: FireStoreManagerPaging
+    private val fireStoreManager: FireStoreManagerPaging,
+    val booksRepo: BooksRepo_Impl
 ) : ViewModel() {
   //  val ratingState = mutableStateOf("0")
     val commentState = mutableStateOf(emptyList<RatingData>())
     val ratingDataState = mutableStateOf<RatingData?>(RatingData())
 
     fun insertRating(ratingData: RatingData, bookId: String) {
-        fireStoreManager.insertUserRating(ratingData, bookId)
+      //  booksRepo.insertUserRating(ratingData, bookId)
     }
     fun getBookComments(bookId: String) = viewModelScope.launch{
-        commentState.value = fireStoreManager.getBookComments(bookId)
+      //  commentState.value = fireStoreManager.getBookComments(bookId)
     }
     fun getUserRating(bookId: String) = viewModelScope.launch {
-        ratingDataState.value = fireStoreManager.getUserRating(bookId)
+       // ratingDataState.value = fireStoreManager.getUserRating(bookId)
 
     }
 

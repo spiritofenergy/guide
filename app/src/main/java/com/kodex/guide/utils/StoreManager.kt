@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.utils
+package com.kodex.guide.utils
 
 import android.content.Context
 import javax.inject.Singleton

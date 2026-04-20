@@ -32,13 +32,13 @@ import com.kodex.guide.presentation.add_book.AddBookViewModel
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.login.LoginButton
+import com.kodex.guide.presentation.login.LoginButton
 import com.kodex.guide.ui.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
-import com.kodex.guide.ui.utils.FirebaseConst.POSTS
-import com.kodex.guide.ui.utils.ImageUtils.imageToBase64
-import com.kodex.guide.ui.utils.firebase.IS_BASE_64
-import com.kodex.guide.ui.utils.toBitmap
+import com.kodex.guide.utils.FirebaseConst.POSTS
+import com.kodex.guide.utils.ImageUtils.imageToBase64
+import com.kodex.guide.utils.firebase.IS_BASE_64
+import com.kodex.guide.utils.toBitmap
 
 @Composable
 fun AddBookScreen(
@@ -175,7 +175,10 @@ fun AddBookScreen(
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
+
+            //viewModel.uploadBook(navData)
             //showProgressIndicator.value = true
+          //  for(i in 1..40) {
                 saveBookToFirestore(
                     firestore = FirebaseFirestore.getInstance(),
                     Book(
@@ -211,6 +214,7 @@ fun AddBookScreen(
 
                     }
                 )
+            }
 
                 // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
 
@@ -218,9 +222,9 @@ fun AddBookScreen(
     }
     //viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
 
-}
 
-private fun saveBookToFirestore(
+
+fun saveBookToFirestore(
     firestore: FirebaseFirestore,
     book: Book,
     onSaved: () -> Unit,

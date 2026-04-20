@@ -5,12 +5,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.mainScreen.MainScreenViewModel
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
-import com.kodex.guide.ui.utils.Categories
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.Categories
+import com.kodex.guide.utils.FirebaseConst.POSTS
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -29,13 +31,13 @@ class AddBookViewModel @Inject constructor(
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
     val selectedCategory = mutableIntStateOf(Categories.ALL)
-     val selectedImageUri = mutableStateOf<Uri?>(null)
+    val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
 
-    private val _uiState = MutableSharedFlow<MainScreenViewModel.MainUiState>()
+    private val _uiState = MutableSharedFlow<HomeViewModel.MainUiState>()
     val uiState = _uiState.asSharedFlow()
 
-    private fun sendUiState(state: MainScreenViewModel.MainUiState) = viewModelScope.launch {
+    private fun sendUiState(state: HomeViewModel.MainUiState) = viewModelScope.launch {
         _uiState.emit(state)
     }
 
@@ -49,10 +51,65 @@ class AddBookViewModel @Inject constructor(
 
     }
 
-    fun uploadBook(
+    /*fun uploadBook(
         navData: NavRoutes.AddScreenObject
     ) {
-        sendUiState(MainScreenViewModel.MainUiState.Loading)
+        saveBookToFirestore(
+            firestore = FirebaseFirestore.getInstance(),
+            Book(
+                key = navData.key,
+                title = title.value,
+                description = description.value,
+                price = price.value.toInt(),
+                categoryIndex = selectedCategory.intValue,
+                village = village.value,
+
+                imageUrl = if (selectedImageUri.value != null) {
+                    imageToBase64(
+                        selectedImageUri.value!!,
+                        cv,
+                        globalSettings.userSettingsData
+                    )
+                } else {
+                    navData.imageUrl
+                }
+            ),
+            onSaved = {
+               // onSaved(
+
+              //  )
+                Log.d(
+                    "MyLog",
+                    "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"
+                )
+
+            },
+            onError = { error ->
+                Log.d("MyLog4", "Error: ${error}")
+
+            }
+        )
+    }*/
+
+    fun saveBookToFirestore(
+        firestore: FirebaseFirestore,
+        book: Book,
+        onSaved: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val db = firestore.collection(POSTS)
+        val key = book.key.ifEmpty { db.document().id }
+        db.document(key)
+            .set(book.copy(key = key))
+            .addOnSuccessListener { onSaved() }
+            .addOnFailureListener { onError(it.message ?: "Error") }
+        // Log.d("MyLog", "saveBookToFirestore: $book")
+    }
+
+    /*fun uploadBook(
+        navData: NavRoutes.AddScreenObject
+    ) {
+        sendUiState(HomeViewModel.MainUiState.Loading)
         val book = Book(
             key = navData.key,
             title = title.value,
@@ -60,7 +117,8 @@ class AddBookViewModel @Inject constructor(
             price = price.value.toInt(),
             telephone = telephone.value,
             categoryIndex = selectedCategory.intValue,
-            imageUrl = navData.imageUrl
+            imageUrl = navData.imageUrl,
+            village = navData.village
         )
 
         fireStoreManager.saveBookImage(
@@ -68,11 +126,11 @@ class AddBookViewModel @Inject constructor(
             uri = selectedImageUri.value,
             book = book,
             onSaved = {
-                sendUiState(MainScreenViewModel.MainUiState.Success)
+                sendUiState(HomeViewModel.MainUiState.Success)
             },
             onError = { message ->
-                sendUiState(MainScreenViewModel.MainUiState.Error(message))
+                sendUiState(HomeViewModel.MainUiState.Error(message))
             }
         )
-    }
+    }*/
 }

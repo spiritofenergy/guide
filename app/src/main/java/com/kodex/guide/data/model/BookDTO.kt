@@ -2,7 +2,7 @@ package com.kodex.guide.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 
 @Entity(tableName = "books")
 data class BookDTO(

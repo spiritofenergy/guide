@@ -53,7 +53,7 @@ import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
-import com.kodex.guide.ui.utils.toFormattedDate
+import com.kodex.guide.utils.toFormattedDate
 
 
 @RequiresApi(Build.VERSION_CODES.O)

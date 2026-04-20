@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.mainScreen
+package com.kodex.guide.presentation.home
 
 import android.util.Log
 import androidx.compose.runtime.mutableFloatStateOf
@@ -13,28 +13,33 @@ import androidx.paging.map
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.kodex.guide.domain.repository.BooksRepo
+import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.ui.bottomMenu.BottomMenuItem
+import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.presentation.castom.FilterData
+import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
-import com.kodex.guide.ui.utils.Categories
-import com.kodex.guide.ui.utils.FirebaseConst
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.Categories
+import com.kodex.guide.utils.FirebaseConst
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(
-    private val fireStoreManagerPaging: FireStoreManagerPaging,
-    private val pager: Flow<PagingData<Book>>,
+class HomeViewModel @Inject constructor(
+    private val booksRepo: BooksRepo,
+    private val favoritesRepo: FavoritesRepo,
     private val globalSettings: GlobalSettings,
     private val mainDb: MainDb,
 ) : ViewModel() {
@@ -51,9 +56,24 @@ class MainScreenViewModel @Inject constructor(
     val categoryState = mutableIntStateOf(Categories.ALL)
     var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
+    private val favoritesKeysFlow = flow{
+        val result = favoritesRepo.getIdsFavesList()
+        result.fold(
+            onSuccess = {keysList->
+                emit(keysList)
+            },
+            onFailure ={
+                emit(emptyList())
+                sendUiState(MainUiState.Error(it.message?:"Unknown error"))
+            }
+        )
+    }
     val trackList = mainDb.trackDao.getAllPost()
 
-    val books: Flow<PagingData<Book>> = pager.cachedIn(viewModelScope)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val books: Flow<PagingData<Book>> = favoritesKeysFlow.flatMapLatest{ keysList->
+        booksRepo.getBooks(keysList)
+    } .cachedIn(viewModelScope)
         .combine(bookListUpdate) { pagingData, booksList ->
             val pgData = pagingData.map { book ->
                 book
@@ -80,23 +100,26 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun getSettings() = viewModelScope.launch {
-        fireStoreManagerPaging.getSettings(
+        favoritesKeysFlow.collect{keysList ->
+
+        }
+    /*    booksRepo.getSettings(
             onSettingsLoaded = { pData, aData, sData ->
                 globalSettings.personalData = pData
                 globalSettings.addressData = aData
                 globalSettings.userSettingsData = sData
             }
-        )
+        )*/
     }
 
     fun clearTempBookList() {
         bookListUpdate.value = emptyList()
     }
-
+/*
     fun setPriceFilter(minPrice: Float, maxPrice: Float) {
-        fireStoreManagerPaging.minPrice = minPrice.toInt()
-        fireStoreManagerPaging.maxPrice = maxPrice.toInt()
-    }
+        booksRepo.minPrice = minPrice.toInt()
+        booksRepo.maxPrice = maxPrice.toInt()
+    }*/
 
     fun setFilter() {
         val filterData = FilterData(
@@ -110,41 +133,48 @@ class MainScreenViewModel @Inject constructor(
         // fireStoreManagerPaging.filterData = filterData
     }
 
-    fun deleteBook(uiList: List<Book>) {
-        if (bookToDelete == null) return
-        fireStoreManagerPaging.deleteBook(
-            bookToDelete!!,
-            onDeleted = {
-                bookListUpdate.value = uiList.filter {
-                    it.key != bookToDelete!!.key
-                }
-            },
-            onFailure = {
-                sendUiState(MainUiState.Error(it))
-            }
-        )
-    }
-
 
     fun searchBook(searchText: String) {
-        fireStoreManagerPaging.searchText = searchText
+       // booksRepo.searchText = searchText
     }
 
     fun getAllBooksFromCategory(categoryIndex: Int) {
         categoryState.intValue = categoryIndex
-        fireStoreManagerPaging.categoryIndex = categoryIndex
+       // booksRepo.categoryIndex = categoryIndex
         Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
 
     }
+    fun onFavesClick(book: Book, isFavesState: Int,
+                     bookList: List<Book>)  = viewModelScope.launch(Dispatchers.IO){
+                         val favsResult = favoritesRepo.onFavorites(Favorite(book.key),!book.isFavorite)
+        favsResult.fold(
+            onSuccess = {
+                val newUpdateList = changeFavesState(bookList, book)
+                bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
+                    bookList.filter { it.isFavorite }
+                } else {
+                    bookList
+                }
+                sendUiState(MainUiState.Success)
+            },
+            onFailure = {
+                sendUiState(MainUiState.Error(it.message ?: "Unknown error"))
+            }
+        )
+    }
 
-    fun onFavesClick(book: Book, isFavesState: Int, bookList: List<Book>) {
-        val bookList = fireStoreManagerPaging.changeFavesState(bookList, book)
-        bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
-            bookList.filter { it.isFavorite }
-        } else {
-            bookList
+   private fun changeFavesState(books: List<Book>, book: Book): List<Book> {
+        return books.map { bk ->
+            if (bk.key == book.key) {
+               /* onFaves(
+                    Favorite(bk.key),
+                    !bk.isFavorite
+                )*/
+                bk.copy(isFavorite = !bk.isFavorite)
+            } else {
+                bk
+            }
         }
-        // isFavesListEmptyState.value = bookListUpdate.value.isEmpty()
     }
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
         mainDb.trackDao.insertPost(book)

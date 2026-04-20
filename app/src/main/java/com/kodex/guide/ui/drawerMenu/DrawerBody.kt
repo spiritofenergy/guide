@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.ElectricalServices
-import androidx.compose.material.icons.filled.Input
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MiscellaneousServices
@@ -34,16 +33,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.mainScreen.MainScreenViewModel
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.GrayLite
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun DrawerBody(
-    viewModel: MainScreenViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
 
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},

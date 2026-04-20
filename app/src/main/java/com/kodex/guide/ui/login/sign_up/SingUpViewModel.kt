@@ -7,7 +7,7 @@ import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
 import com.kodex.guide.presentation.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import kotlinx.coroutines.launch
 
 
