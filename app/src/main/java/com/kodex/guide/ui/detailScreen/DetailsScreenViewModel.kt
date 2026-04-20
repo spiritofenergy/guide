@@ -5,7 +5,8 @@ import android.content.Intent
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

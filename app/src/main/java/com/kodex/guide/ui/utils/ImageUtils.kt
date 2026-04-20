@@ -9,7 +9,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.scale
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import com.kodex.guide.domain.model.UserSettingsData
 import java.io.ByteArrayOutputStream
 
 object ImageUtils {

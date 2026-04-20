@@ -3,20 +3,18 @@ package com.kodex.guide.ui.mainScreen
 import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -24,6 +22,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +43,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.bottomMenu.BottomMenu
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.dialods.FilterDialog
@@ -52,17 +51,16 @@ import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.theme.ButtonColor
-import com.kodex.guide.ui.theme.ButtonColorBlue
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.utils.Categories
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
     viewModel: MainScreenViewModel = hiltViewModel(),
-    navData: NavRoutes.MainScreenDataObject,
+    navData: NavRoutes.HomeDataObject,
     onBookEditClick: (Book) -> Unit,
     onBookClick: (Book) -> Unit,
     onAdminClick: () -> Unit,
@@ -79,6 +77,10 @@ fun MenuScreen(
     var showFilterDialog by remember { mutableStateOf(false) }
 
     val books = viewModel.books.collectAsLazyPagingItems()
+    val trackList = viewModel.trackList.collectAsState(initial = emptyList())
+
+    val booksRoomList = MutableStateFlow<List<Book>>(emptyList())
+
     val state = rememberPullToRefreshState()
 
     val configuration = LocalConfiguration.current
@@ -127,6 +129,19 @@ fun MenuScreen(
             Toast.makeText(context, errorMassage, Toast.LENGTH_SHORT).show()
         }
     }
+    LaunchedEffect(Unit ) {
+
+            viewModel.getAllSavedBooks().collect { booksRoom ->
+                booksRoomList.value = booksRoom
+                Log.d("SavedBooks", "Найдено ${booksRoom.size} сохраненных книг")
+                booksRoom.forEach { book ->
+
+                    Log.d("SavedBooks", "Книга: ${book.title}, Избранная: ${book.isFavorite}")
+
+            }
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         modifier = Modifier.fillMaxWidth(),
@@ -226,7 +241,7 @@ fun MenuScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-
+/*
                 if (books.itemCount == 0) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -241,7 +256,7 @@ fun MenuScreen(
 //                            color = Color.LightGray
 //                        )
                     }
-                }
+                }*/
                 MyDialog(
                     showDialog = showDeleteDialog.value,
                     onDismiss = {
@@ -272,7 +287,7 @@ fun MenuScreen(
                         )
                     }
                 ) {
-                    if (books.loadState.refresh is LoadState.Loading) {
+                    /*if (books.loadState.refresh is LoadState.Loading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -281,51 +296,54 @@ fun MenuScreen(
                                 modifier = Modifier.size(50.dp)
                             )
                         }
-                    }
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
-                        modifier = Modifier
-                            .fillMaxSize()
+                    }*/
 
-                    ) {
-                        items(count = books.itemCount) { index ->
-                            val book = books[index]
-                            if (book != null) {
-                                BookListItemUi(
-                                    titleIndex = viewModel.categoryState.intValue,
-                                    viewModel.isAdminState.value,
-                                    book,
-                                    onBookClick = { bk ->
-                                        onBookClick(bk)
-                                    },
-                                    onEditClick = {
-                                        onBookEditClick(it)
-                                    },
-                                    onDeleteClick = { bookToDelete ->
-                                        showDeleteDialog.value = true
-                                        viewModel.bookToDelete = bookToDelete
-                                    },
-                                    onFavesClick = {
-                                        viewModel.onFavesClick(
-                                            book, viewModel.selectedBottomItemState.intValue,
-                                            books.itemSnapshotList.items
-                                        )
-                                        viewModel.insertPost(book)
-                                        if (!book.isFavorite) {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.added_to_favorites,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.deleted_from_favorites,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
+                            modifier = Modifier
+                                .fillMaxSize()
+
+                        ) {
+                            items(count = books.itemCount) { index ->
+                                val book = books[index]
+                                if (book != null) {
+                                    BookListItemUi(
+                                        titleIndex = viewModel.categoryState.intValue,
+                                        viewModel.isAdminState.value,
+                                        book,
+                                        onBookClick = { bk ->
+                                            onBookClick(bk)
+                                        },
+                                        onEditClick = {
+                                            onBookEditClick(it)
+                                        },
+                                        onDeleteClick = { bookToDelete ->
+                                            showDeleteDialog.value = true
+                                            viewModel.bookToDelete = bookToDelete
+                                        },
+                                        onFavesClick = {
+                                            viewModel.onFavesClick(
+                                                book, viewModel.selectedBottomItemState.intValue,
+                                                books.itemSnapshotList.items
+                                            )
+                                            viewModel.insertPost(book)
+                                            if (!book.isFavorite) {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.added_to_favorites,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.deleted_from_favorites,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     }
@@ -344,7 +362,7 @@ fun MenuScreen(
             }
         }
     }
-}
+
 
 private fun refreshBooks(books: LazyPagingItems<Book>, viewModel: MainScreenViewModel){
     viewModel.clearTempBookList()

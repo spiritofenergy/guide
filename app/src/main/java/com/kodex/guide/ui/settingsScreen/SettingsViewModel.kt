@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
-import com.kodex.guide.ui.utils.firebase.AuthManager
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val authManager: AuthManager,
+    private val firebaseAuthDataSource: FirebaseAuthDataSource,
     private val fireStoreManagerPaging: FireStoreManagerPaging,
     private val globalSettings: GlobalSettings,
 ) : ViewModel() {
@@ -36,7 +36,7 @@ class SettingsViewModel @Inject constructor(
         onResetPasswordSuccess: () -> Unit,
         onResetPasswordFailure: (String) -> Unit
     ) {
-        authManager.resetPassword(
+        firebaseAuthDataSource.resetPassword(
             email,
             onResetPasswordSuccess,
             onResetPasswordFailure
@@ -51,7 +51,7 @@ class SettingsViewModel @Inject constructor(
             onAccountDeleteFailure("Email snd Password be empty")
             return
         }
-        authManager.deleteAccount(
+        firebaseAuthDataSource.deleteAccount(
             emailToDelete,
             passwordToDelete,
             onDeleteSuccess = {
@@ -66,7 +66,7 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    fun signOut() = authManager.signOut()
+    fun signOut() = firebaseAuthDataSource.signOut()
 
     fun saveSettings() {
         if (!newPersonalData.upToDate(oldPersonalData)) {

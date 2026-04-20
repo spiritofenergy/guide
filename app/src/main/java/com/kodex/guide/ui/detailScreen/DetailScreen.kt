@@ -48,10 +48,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
+import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
 import com.kodex.guide.ui.utils.toFormattedDate
 
 

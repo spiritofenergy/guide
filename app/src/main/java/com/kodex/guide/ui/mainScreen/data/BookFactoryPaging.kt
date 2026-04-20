@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.google.firebase.firestore.DocumentSnapshot
-import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import java.io.IOException
 import javax.inject.Inject

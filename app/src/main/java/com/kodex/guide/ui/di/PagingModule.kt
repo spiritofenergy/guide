@@ -3,7 +3,7 @@ package com.kodex.guide.ui.di
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.kodex.guide.ui.addscreen.data.Book
+import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.mainScreen.data.BookFactoryPaging
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.Module

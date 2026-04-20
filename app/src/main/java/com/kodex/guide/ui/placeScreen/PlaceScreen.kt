@@ -51,11 +51,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
+import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
 import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.domain.model.RatingData
 
 
 @RequiresApi(Build.VERSION_CODES.O)

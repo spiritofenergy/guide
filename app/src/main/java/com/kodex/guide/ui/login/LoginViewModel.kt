@@ -3,8 +3,8 @@ package com.kodex.guide.ui.login
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.utils.firebase.AuthManager
+import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.kodex.guide.ui.utils.StoreManager
@@ -12,7 +12,7 @@ import com.kodex.guide.ui.utils.StoreManager
 
 @HiltViewModel
 class LoginViewModel@Inject constructor(
-    private val authManager: AuthManager,
+    private val firebaseAuthDataSource: FirebaseAuthDataSource,
     private val storeManager: StoreManager
 ): ViewModel() {
     val currentUser = mutableStateOf<FirebaseUser?>(null)
@@ -26,10 +26,10 @@ class LoginViewModel@Inject constructor(
     val showResetPasswordDialog = mutableStateOf(false)
 
     fun signIn(
-        onSignInSuccess: (NavRoutes.MainScreenDataObject)-> Unit,
+        onSignInSuccess: (NavRoutes.HomeDataObject)-> Unit,
     ){
         errorState.value = ""
-        authManager.signIn(
+        firebaseAuthDataSource.signIn(
             emailState.value,
             passwordState.value,
             onSignInSuccess = { navData->
@@ -48,7 +48,7 @@ class LoginViewModel@Inject constructor(
     }
     fun resetPassword() {
         errorState.value = ""
-        authManager.resetPassword(
+        firebaseAuthDataSource.resetPassword(
             emailState.value,
             onResetPasswordSuccess = {
                 resetPasswordState.value = false
@@ -60,10 +60,10 @@ class LoginViewModel@Inject constructor(
         )
     }
     fun getAccountState(){
-        currentUser.value = authManager.getCurrentUser()
+        currentUser.value = firebaseAuthDataSource.getCurrentUser()
     }
         fun signOut(){
-            authManager.signOut()
+            firebaseAuthDataSource.signOut()
             currentUser.value = null
         }
 }

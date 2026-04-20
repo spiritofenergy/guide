@@ -1,7 +1,7 @@
 package com.kodex.guide.ui.utils.firebase
 
+import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -9,12 +9,12 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import com.kodex.guide.ui.addscreen.data.Book
-import com.kodex.guide.ui.addscreen.data.Favorite
-import com.kodex.guide.ui.detailScreen.RatingData
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
+import com.kodex.guide.domain.model.Book
+import com.kodex.guide.domain.model.Favorite
+import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
 import com.kodex.guide.ui.utils.Categories
 import com.kodex.guide.ui.utils.Categories.ALL
 import com.kodex.guide.ui.utils.FirebaseConst
@@ -40,7 +40,7 @@ const val IS_BASE_64 = true
 class FireStoreManagerPaging(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    //private val contentResolver: ContentResolver
+    // private val contentResolver: ContentResolver
     // private val storage: FirebaseStorage,
 ) {
     var categoryIndex: Int = Categories.ALL
@@ -133,7 +133,7 @@ class FireStoreManagerPaging(
         }
     }
 
-    fun deleteBook(
+  /*  fun deleteBook(
         book: Book,
         onDeleted: () -> Unit,
         onFailure: (String) -> Unit,
@@ -148,9 +148,9 @@ class FireStoreManagerPaging(
                 onFailure(exception.message ?: "Error deleting book")
 
             }
-    }
+    }*/
 
-    fun saveBookToFireStore(
+   /* fun saveBookToFireStore(
         book: Book,
         onSaved: () -> Unit,
         onError: (String) -> Unit,
@@ -167,7 +167,7 @@ class FireStoreManagerPaging(
                 onError(exception.message ?: "Error saved book")
             }
         onError
-    }
+    }*/
 
     private fun uploadImageToFirestore(
         oldImageUrl: String,
@@ -185,7 +185,7 @@ class FireStoreManagerPaging(
             // storage?.getReferenceFromUrl(oldImageUrl)
         }
         if (uri == null) {
-            saveBookToFireStore(
+          /*  saveBookToFireStore(
                 book.copy(imageUrl = oldImageUrl),
                 onSaved = {
                     onSaved()
@@ -193,7 +193,7 @@ class FireStoreManagerPaging(
                 onError = { massage ->
                     onError(massage)
                 }
-            )
+            )*/
             return
         }
 //        val imageBytes = ImageUtils.uriToBiteArray(uri, contentResolver)
@@ -221,7 +221,7 @@ class FireStoreManagerPaging(
         onError: (String) -> Unit,
     ) {
         if (IS_BASE_64) {
-            saveBookToFireStore(
+           /*  saveBookToFireStore(
                 book,
                 onSaved = {
                     onSaved()
@@ -229,7 +229,7 @@ class FireStoreManagerPaging(
                 onError = {
                     onError("Error save Image1 ")
                 },
-            )
+            )*/
         } else {
             uploadImageToFirestore(
                 oldImageUrl = oldImageUrl,
@@ -245,7 +245,7 @@ class FireStoreManagerPaging(
         }
     }
 
-    fun insertUserRating(ratingData: RatingData, bookId: String) {
+   /* fun insertUserRating(ratingData: RatingData, bookId: String) {
         if (auth.uid == null) return
         db.collection(MODERATION)
             .document(auth.uid!!)
@@ -254,7 +254,7 @@ class FireStoreManagerPaging(
                 uid = auth.uid!!,
                 bookId = bookId
                 ))
-    }
+    }*/
 
     suspend fun  insertModerationRating(ratingData: RatingData) {
         if (auth.uid == null) return
@@ -284,19 +284,19 @@ class FireStoreManagerPaging(
         val commentsList = querySnapshot.toObjects(RatingData::class.java)
         return commentsList
     }
-    suspend fun deleteComment(uid: String) {
+   /* suspend fun deleteComment(uid: String) {
         db.collection(MODERATION)
             .document(uid)
             .delete().await()
-    }
-    suspend fun getBookComments(bookId: String): List<RatingData> {
+    }*/
+ /*   suspend fun getBookComments(bookId: String): List<RatingData> {
         val querySnapshot = db.collection(RATING)
             .document(bookId)
             .collection(RATING_DATA)
             .get().await()
         return querySnapshot.toObjects(RatingData::class.java)
-    }
-        suspend fun getUserRating(bookId: String): RatingData? {
+    }*/
+    /*    suspend fun getUserRating(bookId: String): RatingData? {
             if (auth.uid == null) return null
             val querySnapshot = db.collection(RATING)
                 .document(bookId)
@@ -304,7 +304,7 @@ class FireStoreManagerPaging(
                 .document(auth.uid!!)
                 .get().await()
             return querySnapshot.toObject(RatingData::class.java)
-        }
+        }*/
 
     fun insertPersonalData( personalData: PersonalData, onDataSaved: () -> Unit = {}) {
         if (auth.uid == null) return

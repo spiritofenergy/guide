@@ -13,13 +13,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kodex.guide.ui.settingsScreen.SettingsScreen
 import com.kodex.guide.ui.addscreen.AddBookScreen
- import com.kodex.guide.ui.adminPanel.AdminPanelScreen
-import com.kodex.guide.ui.adminPanel.ModerationScreen
-import com.kodex.guide.ui.commentsScreen.CommentsScreen
+ import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
+import com.kodex.guide.presentation.admin_panel.ModerationScreen
+import com.kodex.guide.presentation.comments.CommentsScreen
 import com.kodex.guide.ui.mainScreen.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.ui.login.LoginScreen
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
 import com.kodex.guide.ui.placeScreen.PlaceScreen
@@ -60,8 +60,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                composable<NavRoutes.MainScreenDataObject> { navEntry ->
-                    val navData = navEntry.toRoute<NavRoutes.MainScreenDataObject>()
+                composable<NavRoutes.HomeDataObject> { navEntry ->
+                    val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
                     MenuScreen(
                         navData = navData,
 

@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.ui.utils.StoreManager
-import com.kodex.guide.ui.utils.firebase.AuthManager
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
 import dagger.Module
 import dagger.Provides
@@ -52,8 +52,8 @@ object MainModule {
     @Singleton
     fun provideAuthManager(
         auth: FirebaseAuth
-    ): AuthManager{
-        return AuthManager(auth)
+    ): FirebaseAuthDataSource{
+        return FirebaseAuthDataSource(auth)
     }
 
     @Provides
