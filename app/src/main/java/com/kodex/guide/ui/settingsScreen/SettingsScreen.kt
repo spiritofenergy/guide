@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
-import com.kodex.guide.ui.utils.firebase.TimeUtils
+import com.kodex.guide.utils.firebase.TimeUtils
 
 
 @Composable

@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.login
+package com.kodex.guide.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,10 +22,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.ui.login.RoundedCornerTextField
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: SignInViewModel = hiltViewModel(),
     onNavigationToMainScreen: (NavRoutes.HomeDataObject) -> Unit,
     onNavigationToSignUpScreen: (NavRoutes.SingUpNavObject) -> Unit
 ) {
@@ -105,13 +106,14 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             if (!viewModel.resetPasswordState.value) {
-                LoginButton(text = "Вход"
+                LoginButton(
+                    text = "Вход"
                 ) {
-                    viewModel.signIn(
-                        onSignInSuccess = { navData ->
-                            onNavigationToMainScreen(navData)
-                        }
-                    )
+                      viewModel.signIn(
+                          onSignInSuccess = { navData ->
+                              onNavigationToMainScreen(navData)
+                          }
+                      )
                 }
             }
             LoginButton(
@@ -121,9 +123,9 @@ fun LoginScreen(
                     "Авторизация"
                 }
             ) {
-                if (viewModel.resetPasswordState.value){
+                if (viewModel.resetPasswordState.value) {
                     viewModel.resetPassword()
-                }else{
+                } else {
                     onNavigationToSignUpScreen(NavRoutes.SingUpNavObject)
                 }
             }

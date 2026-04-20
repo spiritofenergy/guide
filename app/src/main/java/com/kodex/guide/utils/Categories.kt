@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.utils
+package com.kodex.guide.utils
 
 object Categories {
     const val ANIMALS = 0

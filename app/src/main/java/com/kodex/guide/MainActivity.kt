@@ -16,9 +16,9 @@ import com.kodex.guide.ui.addscreen.AddBookScreen
  import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
-import com.kodex.guide.ui.mainScreen.MenuScreen
+import com.kodex.guide.presentation.home.MenuScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
-import com.kodex.guide.ui.login.LoginScreen
+import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen

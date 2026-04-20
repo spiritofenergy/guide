@@ -1,6 +1,6 @@
 package com.kodex.guide.ui.parallaxScreen
 
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 
 
 data class ParallaxData (

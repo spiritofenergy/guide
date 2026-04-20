@@ -1,6 +1,6 @@
 package com.kodex.guide.presentation.castom
 
-import com.kodex.guide.ui.utils.FirebaseConst
+import com.kodex.guide.utils.FirebaseConst
 
 data class FilterData(
     val minPrise: Int = 0,

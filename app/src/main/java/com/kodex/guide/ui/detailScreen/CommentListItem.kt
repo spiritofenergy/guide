@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.theme.DarkWhite
-import com.kodex.guide.ui.utils.toFormattedDate
+import com.kodex.guide.utils.toFormattedDate
 
 
  @RequiresApi(Build.VERSION_CODES.O)

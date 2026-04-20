@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.utils.firebase
+package com.kodex.guide.utils.firebase
 
 import java.text.SimpleDateFormat
 import java.util.Date

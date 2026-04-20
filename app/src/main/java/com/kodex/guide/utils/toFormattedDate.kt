@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.utils
+package com.kodex.guide.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

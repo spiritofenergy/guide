@@ -8,7 +8,7 @@ import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,11 +36,11 @@ class SettingsViewModel @Inject constructor(
         onResetPasswordSuccess: () -> Unit,
         onResetPasswordFailure: (String) -> Unit
     ) {
-        firebaseAuthDataSource.resetPassword(
+       /* firebaseAuthDataSource.resetPassword(
             email,
             onResetPasswordSuccess,
             onResetPasswordFailure
-        )
+        )*/
     }
 
     fun deleteAccount(
@@ -51,7 +51,7 @@ class SettingsViewModel @Inject constructor(
             onAccountDeleteFailure("Email snd Password be empty")
             return
         }
-        firebaseAuthDataSource.deleteAccount(
+      /*  firebaseAuthDataSource.deleteAccount(
             emailToDelete,
             passwordToDelete,
             onDeleteSuccess = {
@@ -63,7 +63,7 @@ class SettingsViewModel @Inject constructor(
                 onAccountDeleteFailure(error)
 
             }
-        )
+        )*/
     }
 
     fun signOut() = firebaseAuthDataSource.signOut()

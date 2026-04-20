@@ -2,8 +2,6 @@ package com.kodex.guide.data.mapper
 
 import com.kodex.guide.data.model.BookDTO
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.ui.utils.Categories
-import kotlin.Int
 
 fun BookDTO.toBook(): Book {
     return Book(

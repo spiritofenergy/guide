@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.login
+package com.kodex.guide.presentation.login
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size

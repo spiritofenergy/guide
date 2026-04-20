@@ -1,14 +1,12 @@
-package com.kodex.guide.ui.mainScreen
+package com.kodex.guide.presentation.home
 
 import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.DrawerValue
@@ -35,7 +33,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -52,14 +49,15 @@ import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
-    viewModel: MainScreenViewModel = hiltViewModel(),
+
+    viewModel: HomeViewModel = hiltViewModel(),
     navData: NavRoutes.HomeDataObject,
     onBookEditClick: (Book) -> Unit,
     onBookClick: (Book) -> Unit,
@@ -68,6 +66,7 @@ fun MenuScreen(
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
 ) {
+   // val booksFirebaseRemoteDataSource: BooksFirebaseRemoteDataSource
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -118,7 +117,7 @@ fun MenuScreen(
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
-            if (uiState is MainScreenViewModel.MainUiState.Error) {
+            if (uiState is HomeViewModel.MainUiState.Error) {
                 Toast.makeText(context, uiState.massage, Toast.LENGTH_SHORT).show()
             }
         }
@@ -264,7 +263,7 @@ fun MenuScreen(
                     },
                     onConfirm = {
                         showDeleteDialog.value = false
-                        viewModel.deleteBook(books.itemSnapshotList.items)
+                     //   booksFirebaseRemoteDataSource.deleteBook(books.itemSnapshotList.items)
                     },
                     title = stringResource(id = R.string.attention),
                     message = stringResource(id = R.string.want_to_delete_this_message),
@@ -364,7 +363,7 @@ fun MenuScreen(
     }
 
 
-private fun refreshBooks(books: LazyPagingItems<Book>, viewModel: MainScreenViewModel){
+private fun refreshBooks(books: LazyPagingItems<Book>, viewModel: HomeViewModel){
     viewModel.clearTempBookList()
     books.refresh()
 }

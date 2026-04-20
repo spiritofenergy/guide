@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.di
+package com.kodex.guide.di
 
 import android.app.Application
 import com.google.firebase.Firebase
@@ -6,10 +6,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
+import com.kodex.guide.data.source.remote.FavoritesDataSource
 import com.kodex.guide.ui.settingsScreen.GlobalSettings
-import com.kodex.guide.ui.utils.StoreManager
+import com.kodex.guide.utils.StoreManager
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,15 +24,28 @@ object MainModule {
     @Provides
     @Singleton
 
-    fun provideFirebasePagingManager(
+    fun provideFirebaseDataSource (
         db: FirebaseFirestore,
         auth: FirebaseAuth,
-        app: Application
-    ): FireStoreManagerPaging{
-        return FireStoreManagerPaging(
-            db, auth
+    ): BooksFirebaseRemoteDataSource{
+        return BooksFirebaseRemoteDataSource(db, auth)
+    }
 
-        )
+    @Provides
+    @Singleton
+    fun provideFavoritesDataSource (
+        db: FirebaseFirestore,
+        auth: FirebaseAuth,
+    ): FavoritesDataSource{
+        return FavoritesDataSource(db, auth)
+    }
+    @Provides
+    @Singleton
+    fun provideFirebaseManager (
+        db: FirebaseFirestore,
+        auth: FirebaseAuth,
+    ): FireStoreManagerPaging{
+        return FireStoreManagerPaging(db, auth)
     }
     @Provides
     @Singleton
