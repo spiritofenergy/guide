@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +18,7 @@ import com.kodex.guide.ui.addscreen.AddBookScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
 import com.kodex.guide.presentation.home.MenuScreen
+import com.kodex.guide.presentation.home.TrackerScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
@@ -24,10 +26,18 @@ import com.kodex.guide.ui.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
 import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+  //  private val destroyScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     private val viewModel: MainActivityViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +47,12 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-               startDestination = NavRoutes.LoginNavObject
-              /*  startDestination = NavRoutes.MainScreenDataObject(
+                startDestination = NavRoutes.LoginNavObject
+                /*  startDestination = NavRoutes.TrackerDataObject(
+                   uid = "uid",
+                   email = "email"
+               )*/
+                /*  startDestination = NavRoutes.MainScreenDataObject(
                     uid = "uid",
                     email = "email"
                 )*/
@@ -54,12 +68,61 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-                            composable<NavRoutes.SingUpNavObject> {
-                                SignUpScreen() { navData ->
-                                    navController.navigate(navData)
-                                }
-                            }
+                composable<NavRoutes.SingUpNavObject> {
+                    SignUpScreen() { navData ->
+                        navController.navigate(navData)
+                    }
+                }
 
+                composable<NavRoutes.TrackerDataObject> { navEntry ->
+                    // val navData = navEntry.toRoute<NavRoutes.TrackerDataObject>()
+                    TrackerScreen(
+                        //  navData = navData,
+
+                        onBookClick = { place ->
+                            navController.navigate(
+                                NavRoutes.ParallaxNavObject(
+                                    bookId = place.key,
+                                    title = place.title,
+                                    description = place.description,
+                                    price = place.price,
+                                    categoryIndex = place.categoryIndex,
+                                    imageUrl = place.imageUrl,
+                                    telephone = place.telephone,
+                                    ratingsList = place.ratingsList,
+
+
+                                    )
+                            )
+                        },
+
+
+                        /*    onBookEditClick = { book ->
+                            navController.navigate(
+                                NavRoutes.AddScreenObject(
+                                    key = book.key,
+                                    title = book.title,
+                                    description = book.description,
+                                    price = book.price,
+                                    categoryIndex = book.categoryIndex,
+                                    imageUrl = book.imageUrl,
+                                )
+                            )
+                        },*/
+                        /* onAdminClick = {
+                            navController.navigate(NavRoutes.ModerationNavObject)
+                        },*/
+                        /*   onLoginClick = {
+                            navController.navigate(NavRoutes.LoginNavObject)
+                        },*/
+                        /*     onSettingsClick = {
+                            navController.navigate(NavRoutes.SettingsNavObject)
+                        },*/
+                        /* onAddBookClick = {
+                            navController.navigate(NavRoutes.AddScreenObject())
+                        }*/
+                    )
+                }
                 composable<NavRoutes.HomeDataObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
                     MenuScreen(
@@ -180,7 +243,7 @@ class MainActivity : ComponentActivity() {
                 }
 
 
-                composable<NavRoutes.ParallaxNavObject>{navEntry ->
+                composable<NavRoutes.ParallaxNavObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
                     ParallaxScreen(
                         navObject = navData,
@@ -189,18 +252,29 @@ class MainActivity : ComponentActivity() {
                         onNavigateToReviews = {}
                     )
                 }
-                composable<NavRoutes.CommentsNavData> {navEntry ->
+                composable<NavRoutes.CommentsNavData> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()
                     CommentsScreen(
-                        navObject = navData)
+                        navObject = navData
+                    )
                 }
             }
         }
     }
 
-    override fun onDestroy() {
+
+  /*  override suspend fun onDestroy() {
         super.onDestroy()
-        viewModel.updateLastVisit()
+        destroyScope.launch {
+            viewModel.updateLastVisit()
+        }
+    }*/
+
+    override fun onStop() {
+        super.onStop()
+        lifecycleScope.launch {
+            viewModel.updateLastVisit()
+        }
     }
 }
 

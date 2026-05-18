@@ -6,7 +6,7 @@ import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
-interface BooksRepo {
+interface  BooksRepo {
     fun getBooks(favsKeysList: List<String>): Flow<PagingData<Book>>
     suspend fun deleteBook(book: Book): Result<Unit>
     suspend fun saveBook(book: Book): Result<Unit>

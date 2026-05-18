@@ -32,8 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -42,8 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,6 +50,7 @@ import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
+import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 import com.kodex.guide.utils.toFormattedDate
 
 
@@ -69,10 +67,11 @@ fun DetailScreen(
 
 
     //val context = application.
-    var showRateDialog by remember { mutableStateOf(false) }
+  /*  var showRateDialog by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
-
+*/
+    val uiState = viewModel.uiState.collectAsState()
     var bitmap: Bitmap? = null
     try {
         val base64Image = Base64.decode(navObject.imageUrl, Base64.DEFAULT)
@@ -85,35 +84,45 @@ fun DetailScreen(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getBookComments(navObject.bookId)
+        viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
+            navObject.bookId
+        ))
     }
-
     RateDialog(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+        ratingData = uiState.value.ratingData,
         onDismiss = {
-            showRateDialog = false
+           viewModel.onEvent(
+               DetailUiEvent.HideUserRatingDialog
+           )
         },
         onSubmit = { rating, message ->
             val ratingData = RatingData(
                 name = "",
                 rating = rating,
                 message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0
+                lastRating = uiState.value.ratingData.rating
             )
-            viewModel.insertRating(ratingData, navObject.bookId)
-            showRateDialog = false
+            viewModel.onEvent(
+                DetailUiEvent.InsertRatingDialogEvent(
+                    ratingData, navObject.bookId
+                )
+            )
+           // showRateDialog = false
         },
-        show = showRateDialog,
+        show = uiState.value.showRateDialog,
     )
 
     CommentDialog(
-        showDialog = showCommentDialog,
+        showDialog = uiState.value.showCommentDialog,
         onDismiss = {
-            showCommentDialog = false
+           viewModel.onEvent(DetailUiEvent.CommentDialogEvent(
+               false,
+               null
+           ))
         },
-        ratingData = ratingDataToShow,
+        ratingData = uiState.value.ratingDataToShow,
         onConfirm = {
-            showCommentDialog = false
+          //  showCommentDialog = false
         }
     )
     // Information
@@ -201,7 +210,7 @@ fun DetailScreen(
                         },
                         horizontalArrangement =  Arrangement.Center
                     ) {
-                        if (viewModel.commentState.value.isNotEmpty()) {
+                        if (uiState.value.comments.isNotEmpty()) {
                             Log.d("MyLog", "DetailScreen ratingsList: ${navObject.ratingsList}")
                             Text(
                                 text = String.format("%.1f", navObject.ratingsList.average()),
@@ -237,9 +246,11 @@ fun DetailScreen(
                         .fillMaxWidth()
                         .weight(1F),
                     onClick = {
-                        viewModel.getUserRating(bookId = navObject.bookId)
-                        showRateDialog = true
-
+                        viewModel.onEvent(
+                            DetailUiEvent.ShowUserRatingDialogEvent(
+                                navObject.bookId
+                            )
+                        )
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Orange
@@ -305,7 +316,7 @@ fun DetailScreen(
             Spacer(Modifier.height(10.dp))
 
             //Comments
-            if (viewModel.commentState.value.isNotEmpty()) {
+            if (uiState.value.comments.isNotEmpty()) {
                 Text(
                     text = "Коментарии",
                     fontWeight = FontWeight.Bold,
@@ -316,11 +327,13 @@ fun DetailScreen(
                 LazyRow(modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.3F)) {
-                    items(viewModel.commentState.value) { ratingData ->
+                    items(uiState.value.comments  ) { ratingData ->
                         CommentListItem(
                             onClick = { rData->
-                                showCommentDialog = true
-                                ratingDataToShow = rData
+                                viewModel.onEvent(DetailUiEvent.CommentDialogEvent(
+                                    true,
+                                    rData
+                                ))
                             },
                             ratingData = ratingData
                         )

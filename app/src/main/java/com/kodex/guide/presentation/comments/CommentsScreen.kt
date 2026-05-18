@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
+import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -47,10 +49,12 @@ fun CommentsScreen(
     navObject: CommentsNavData = CommentsNavData(),
     viewModel: DetailsScreenViewModel = hiltViewModel()
 ) {
+    val uiState = viewModel.uiState.collectAsState()
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
     LaunchedEffect(key1 = Unit) {
-        viewModel.getBookComments(navObject.bookId)
-    }
+        viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
+            navObject.bookId
+        ))    }
     // Information
     Column(
         modifier = Modifier
@@ -88,11 +92,11 @@ fun CommentsScreen(
             Spacer(Modifier.height(10.dp))
 
             //Comments
-            if (viewModel.commentState.value.isNotEmpty()) {
+            if (uiState.value.comments.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 LazyRow(modifier = Modifier
                     .fillMaxSize()) {
-                    items(viewModel.commentState.value) { ratingData ->
+                    items(uiState.value.comments) { ratingData ->
                             CommentListItem(
                                 onClick = {
 

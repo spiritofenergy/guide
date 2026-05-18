@@ -10,6 +10,11 @@ class NavRoutes {
         val uid: String = "",
         val email: String = ""
     )
+  @Serializable
+    data class TrackerDataObject(
+        val uid: String = "",
+        val email: String = ""
+    )
 
     @Serializable
     object AdminPanelNavObject {

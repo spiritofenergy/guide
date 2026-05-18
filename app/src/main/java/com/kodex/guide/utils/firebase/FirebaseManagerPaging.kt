@@ -162,14 +162,7 @@ class FireStoreManagerPaging @Inject constructor(
             .update("ratingsList", ratingsList)
     }
 
-    fun updateLastVisit() {
-        if (auth.uid == null) return
-        db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(PERSONAL_DATA)
-            .document(DATA)
-            .update("lastVisit", System.currentTimeMillis())
-    }
+
 
     fun insertUserRating(ratingData: RatingData, bookId: String) {
         if (auth.uid == null) return
@@ -211,6 +204,8 @@ class FireStoreManagerPaging @Inject constructor(
         return querySnapshot.toObject(RatingData::class.java)
     }
 
+
+    /*
     fun insertPersonalData(personalData: PersonalData, onDataSaved: () -> Unit = {}) {
         if (auth.uid == null) return
         db.collection(USER_DATA)
@@ -240,6 +235,14 @@ class FireStoreManagerPaging @Inject constructor(
             .document(DATA)
             .set(userSettingsData)
 
+    }
+   fun updateLastVisit() {
+        if (auth.uid == null) return
+        db.collection(USER_DATA)
+            .document(auth.uid!!)
+            .collection(PERSONAL_DATA)
+            .document(DATA)
+            .update("lastVisit", System.currentTimeMillis())
     }
 
     suspend fun getSettings(
@@ -273,7 +276,7 @@ class FireStoreManagerPaging @Inject constructor(
         onSettingsLoaded(personalData, addressData, userSettingsData)
 
     }
-
+*/
 }
 
 

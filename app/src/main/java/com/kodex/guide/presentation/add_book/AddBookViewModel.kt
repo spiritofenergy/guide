@@ -9,7 +9,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.home.HomeViewModel
-import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.utils.Categories
 import com.kodex.guide.utils.FirebaseConst.POSTS
 import com.kodex.guide.utils.firebase.FireStoreManagerPaging
@@ -22,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
     private val fireStoreManager: FireStoreManagerPaging,
-    val globalSettings: GlobalSettings,
+
 ) : ViewModel() {
 
     val title = mutableStateOf("")

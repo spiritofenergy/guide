@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.Flow
         suspend fun insertAllBooks(books: List<Book>)
 
         @Delete
-        suspend fun deletePost(book: Book)
+        suspend fun deleteTracks(book: Book)
 
         @Query("SELECT * FROM books")
-        fun getAllPost(): Flow<List<Book>>
+        fun getAllTracks(): Flow<List<Book>>
 
         @Query("SELECT * FROM books WHERE isFavorite = 1")
         fun getFavoriteBooks(): Flow<List<Book>>

@@ -43,7 +43,7 @@ fun WriteReviewButton(
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
 
     DialogRating(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+       // ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
             showRateDialog = false
         },
@@ -52,9 +52,9 @@ fun WriteReviewButton(
                 name = "",
                 rating = rating,
                 message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0,
+                //lastRating = viewModel.ratingDataState.value?.rating ?: 0,
              )
-            viewModel.insertRating(ratingData, navObject.bookId)
+          //  viewModel.insertRating(ratingData, navObject.bookId)
             showRateDialog = false
         },
         show = showRateDialog

@@ -20,7 +20,6 @@ import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.presentation.castom.FilterData
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.db.MainDb
-import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.utils.Categories
 import com.kodex.guide.utils.FirebaseConst
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,8 +39,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val booksRepo: BooksRepo,
     private val favoritesRepo: FavoritesRepo,
-    private val globalSettings: GlobalSettings,
-    private val mainDb: MainDb,
+     private val mainDb: MainDb,
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -56,6 +54,7 @@ class HomeViewModel @Inject constructor(
     val categoryState = mutableIntStateOf(Categories.ALL)
     var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
+
     private val favoritesKeysFlow = flow{
         val result = favoritesRepo.getIdsFavesList()
         result.fold(
@@ -68,7 +67,7 @@ class HomeViewModel @Inject constructor(
             }
         )
     }
-    val trackList = mainDb.trackDao.getAllPost()
+    val trackList = mainDb.trackDao.getAllTracks()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<Book>> = favoritesKeysFlow.flatMapLatest{ keysList->
@@ -181,7 +180,7 @@ class HomeViewModel @Inject constructor(
     }
     // Получить все сохраненные книги
     fun getAllSavedBooks(): Flow<List<Book>> {
-        return mainDb.trackDao.getAllPost()
+        return mainDb.trackDao.getAllTracks()
     }
 
 

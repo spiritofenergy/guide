@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.add_book.AddBookViewModel
 import com.kodex.guide.domain.model.Book
+import com.kodex.guide.domain.repository.UserSettingsRepo
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
@@ -45,8 +46,10 @@ fun AddBookScreen(
     navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
     onSaved: () -> Unit = {},
     isDelivery: () -> Unit = {},
-    viewModel: AddBookViewModel = hiltViewModel()
-) {
+    viewModel: AddBookViewModel = hiltViewModel(),
+
+
+    ) {
     val cv = LocalContext.current.contentResolver
     val context = LocalContext.current
     val categories = remember { context.resources.getStringArray(R.array.category_array) }
@@ -189,7 +192,7 @@ fun AddBookScreen(
                         categoryIndex = viewModel.selectedCategory.intValue,
                         village = viewModel.village.value,
 
-                        imageUrl = if (viewModel.selectedImageUri.value != null) {
+                       /* imageUrl = if (viewModel.selectedImageUri.value != null) {
                             imageToBase64(
                                 viewModel.selectedImageUri.value!!,
                                 cv,
@@ -197,7 +200,7 @@ fun AddBookScreen(
                             )
                         } else {
                             navData.imageUrl
-                        }
+                        }*/
                     ),
                     onSaved = {
                         onSaved(
@@ -254,6 +257,5 @@ private fun imageToBase64(
 @Preview(showBackground = true)
 @Composable
 fun AddBookScreenPreview() {
-    AddBookScreen(
-    )
+
 }

@@ -8,9 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.data.source.remote.FavoritesDataSource
-import com.kodex.guide.ui.settingsScreen.GlobalSettings
 import com.kodex.guide.utils.StoreManager
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
+import com.kodex.guide.data.source.remote.UserSettingsDataSource
 import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.Module
 import dagger.Provides
@@ -39,6 +39,15 @@ object MainModule {
     ): FavoritesDataSource{
         return FavoritesDataSource(db, auth)
     }
+
+    @Provides
+    @Singleton
+    fun provideUserSettingsDataSource (
+        db: FirebaseFirestore,
+        auth: FirebaseAuth,
+    ): UserSettingsDataSource {
+        return UserSettingsDataSource(db, auth)
+    }
     @Provides
     @Singleton
     fun provideFirebaseManager (
@@ -47,11 +56,7 @@ object MainModule {
     ): FireStoreManagerPaging{
         return FireStoreManagerPaging(db, auth)
     }
-    @Provides
-    @Singleton
-    fun provideGlobalSettings(): GlobalSettings {
-        return GlobalSettings()
-    }
+
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth{

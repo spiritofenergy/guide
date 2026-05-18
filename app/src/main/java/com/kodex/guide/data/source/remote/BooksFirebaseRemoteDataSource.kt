@@ -30,7 +30,48 @@ class BooksFirebaseRemoteDataSource(
     var categoryIndex: Int = ALL
     var searchText = ""
     var filterData = FilterData()
-     suspend fun saveBook(book: Book): Result<Unit> {
+
+    suspend fun nextPage(
+        keysFavesList: List<String>,
+        pageSize: Long,
+        currentKey: String?,
+    ): BooksPageDTO{
+        var query: Query = fireStore.collection(POSTS)
+            .limit(pageSize)
+            .orderBy(filterData.filterType)
+        // val keysFaves List = getIdsFavesList()
+
+        query = when (categoryIndex) {
+            ALL -> query
+            Categories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
+            else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
+        }
+
+        if (searchText.isNotEmpty()) {
+            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
+                .whereLessThan(SEARCH_TITLE, "${searchText.lowercase()}\uF7FF")
+        }
+
+        /* if (!isPriceFilter) {
+            query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
+                .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
+        }*/
+        if (currentKey != null) {
+            query = query.startAfter(currentKey)
+        }
+        val querySnapshot = query.get().await()
+        val books = querySnapshot.toObjects(BookDTO::class.java)
+        val updatedBooks = books.map {
+            if (keysFavesList.contains(it.key)) {
+                it.copy(isFavorite = true)
+            } else {
+                it
+            }
+        }
+        return BooksPageDTO(updatedBooks, books.lastOrNull()?.title)
+    }
+
+    suspend fun saveBook(book: Book): Result<Unit> {
        return try {
            val db = fireStore.collection(POSTS)
            val key = if (book.key.isEmpty()) db.document().id else book.key
@@ -93,45 +134,7 @@ class BooksFirebaseRemoteDataSource(
         }
     }
 
-    suspend fun nextPage(
-        keysFavesList: List<String>,
-        pageSize: Long,
-        currentKey: String?,
-    ): BooksPageDTO{
-                var query: Query = fireStore.collection(POSTS)
-            .limit(pageSize)
-         .orderBy(filterData.filterType)
-       // val keysFaves List = getIdsFavesList()
 
-        query = when (categoryIndex) {
-            ALL -> query
-            Categories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
-            else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
-        }
-
-        if (searchText.isNotEmpty()) {
-            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
-                .whereLessThan(SEARCH_TITLE, "${searchText.lowercase()}\uF7FF")
-        }
-
-        /* if (!isPriceFilter) {
-            query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
-                .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
-        }*/
-        if (currentKey != null) {
-            query = query.startAfter(currentKey)
-        }
-        val querySnapshot = query.get().await()
-        val books = querySnapshot.toObjects(BookDTO::class.java)
-        val updatedBooks = books.map {
-            if (keysFavesList.contains(it.key)) {
-                it.copy(isFavorite = true)
-            } else {
-                it
-            }
-        }
-        return BooksPageDTO(updatedBooks, books.lastOrNull()?.title)
-    }
     suspend fun deleteBook(book: Book): Result<Unit> {
         return try {
             fireStore.collection(POSTS)

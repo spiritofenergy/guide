@@ -55,13 +55,12 @@ fun SettingsScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.getSettings(onSettingsLoaded = { settingsData ->
-            dropDownMenuSelectedOptions[0] = settingsData.imageFormat
-            dropDownMenuSelectedOptions[1] = settingsData.quality
-            dropDownMenuSelectedOptions[2] = settingsData.size
-
-             }
-        )
+        viewModel.getSettings()
+        viewModel.settingsBundleState.collect { settingsData ->
+            dropDownMenuSelectedOptions[0] = settingsData.userSettingsData.imageFormat
+            dropDownMenuSelectedOptions[1] = settingsData.userSettingsData.quality
+            dropDownMenuSelectedOptions[2] = settingsData.userSettingsData.size
+        }
     }
     Column(
         modifier = Modifier
@@ -74,17 +73,7 @@ fun SettingsScreen(
                 showConfirmDeleteDialog = false
             },
             onConfirm = {
-                viewModel.deleteAccount(
-                    onAccountDeleted = {
-                        Toast.makeText(context, R.string.you_account_was_deleted, Toast.LENGTH_LONG)
-                            .show()
-                        viewModel.signOut()
-                        onCloseAccountClick()
-                    },
-                    onAccountDeleteFailure = { error ->
-                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    }
-                )
+
             },
 
             title = stringResource(R.string.attention),
@@ -114,20 +103,7 @@ fun SettingsScreen(
 
                     DialogType.PASSWORD -> {
                         viewModel.resetPassword(
-                            fieldValuesList[0],
-                            onResetPasswordFailure = { error ->
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                            },
-                            onResetPasswordSuccess = {
-                                Toast.makeText(
-                                    context,
-                                    R.string.reset_password_dialog,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                viewModel.signOut()
-                                onCloseAccountClick()
-                            }
-                        )
+                            fieldValuesList[0] )
                     }
 
                     DialogType.DELETE_ACCOUNT -> {
@@ -230,7 +206,7 @@ fun SettingsScreen(
                                                 listOf("", "")
                                             }
                                             DialogType.DELETE_ACCOUNT -> {
-                                                // Для удаления аккаунта - два пустых поля (email и пароль)
+                                                // Для удаления аккаунта - два п устых поля (email и пароль)
                                                 listOf("", "")
                                             }
                                             else -> {

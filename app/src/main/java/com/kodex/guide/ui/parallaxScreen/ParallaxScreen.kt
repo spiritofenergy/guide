@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 
 
 import kotlinx.coroutines.launch
@@ -76,9 +77,12 @@ fun ParallaxScreen(
 
     }
     LaunchedEffect(key1 = Unit) {
-        viewModel.getBookComments(navObject.bookId)
+        viewModel.onEvent(
+            DetailUiEvent.GetCommentsEvent(
+                navObject.bookId
+            )
+        )
     }
-
     // NestedScroll для Parallax эффекта
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {

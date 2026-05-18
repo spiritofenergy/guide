@@ -4,11 +4,14 @@ import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -33,6 +36,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -61,6 +65,7 @@ fun MenuScreen(
     navData: NavRoutes.HomeDataObject,
     onBookEditClick: (Book) -> Unit,
     onBookClick: (Book) -> Unit,
+    book: Book = Book(),
     onAdminClick: () -> Unit,
     onLoginClick: () -> Unit,
     onAddBookClick: () -> Unit,
@@ -297,54 +302,78 @@ fun MenuScreen(
                         }
                     }*/
 
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
-                            modifier = Modifier
-                                .fillMaxSize()
-
-                        ) {
-                            items(count = books.itemCount) { index ->
-                                val book = books[index]
-                                if (book != null) {
-                                    BookListItemUi(
-                                        titleIndex = viewModel.categoryState.intValue,
-                                        viewModel.isAdminState.value,
+                        /*if (books == null ){
+                            LazyColumn(
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding( 2.dp))
+                            {
+                                items(books) { trackItem ->
+                                    TrackItemUi(
                                         book,
-                                        onBookClick = { bk ->
-                                            onBookClick(bk)
+                                        *//*onDeleteClick = {
+                                            showDialog.value = true
+                                            viewModel.trackToDelete = trackItem
+
                                         },
-                                        onEditClick = {
-                                            onBookEditClick(it)
-                                        },
-                                        onDeleteClick = { bookToDelete ->
-                                            showDeleteDialog.value = true
-                                            viewModel.bookToDelete = bookToDelete
-                                        },
-                                        onFavesClick = {
-                                            viewModel.onFavesClick(
-                                                book, viewModel.selectedBottomItemState.intValue,
-                                                books.itemSnapshotList.items
-                                            )
-                                            viewModel.insertPost(book)
-                                            if (!book.isFavorite) {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.added_to_favorites,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.deleted_from_favorites,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
+                                        onItemClick = {
+                                            onTrackClick(trackItem)
+                                        }*//*
                                     )
+
+                                    Spacer(Modifier.padding(5.dp))
                                 }
                             }
-                        }
+                        }else {*/
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
+                                modifier = Modifier
+                                    .fillMaxSize()
+
+                            ) {
+                                items(count = books.itemCount) { index ->
+                                    val book = books[index]
+                                    if (book != null) {
+                                        BookListItemUi(
+                                            titleIndex = viewModel.categoryState.intValue,
+                                            viewModel.isAdminState.value,
+                                            book,
+                                            onBookClick = { bk ->
+                                                onBookClick(bk)
+                                            },
+                                            onEditClick = {
+                                                onBookEditClick(it)
+                                            },
+                                            onDeleteClick = { bookToDelete ->
+                                                showDeleteDialog.value = true
+                                                viewModel.bookToDelete = bookToDelete
+                                            },
+                                            onFavesClick = {
+                                                viewModel.onFavesClick(
+                                                    book,
+                                                    viewModel.selectedBottomItemState.intValue,
+                                                    books.itemSnapshotList.items
+                                                )
+                                                viewModel.insertPost(book)
+                                                if (!book.isFavorite) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        R.string.added_to_favorites,
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        R.string.deleted_from_favorites,
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
                     }
                 }
 

@@ -1,6 +1,5 @@
 package com.kodex.guide.presentation.home
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -32,25 +32,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.utils.toBitmap
- import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
+import com.kodex.guide.utils.toBitmap
 
 
-@SuppressLint("DefaultLocale")
 @Composable
-fun BookListItemUi(
-    titleIndex: Int,
+fun TrackItemUi(
+    book: Book,
+    onItemClick: () -> Unit = {},
+
     showEditButton: Boolean = true,
-    book: Book = Book(),
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
     onFavesClick: () -> Unit = {},
@@ -82,7 +82,7 @@ fun BookListItemUi(
             // 2. Категория в левом верхнем углу
             Text(
                 " " + stringArrayResource(id = R.array.category_array)[book.categoryIndex]+ " ",
-               // " " + stringArrayResource(R.array.category_array)[book.categoryIndex] + " ",
+                // " " + stringArrayResource(R.array.category_array)[book.categoryIndex] + " ",
                 fontSize = 18.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Medium,
@@ -136,16 +136,16 @@ fun BookListItemUi(
                     .padding(horizontal = 10.dp, vertical = 15.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                 if (book.ratingsList.isNotEmpty()) {
-                Text(
-                    text = String.format("%.1f", book.ratingsList.average()),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                  } else {
-                Text(text = "0.0")
-            }
+                if (book.ratingsList.isNotEmpty()) {
+                    Text(
+                        text = String.format("%.1f", book.ratingsList.average()),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                } else {
+                    Text(text = "0.0")
+                }
                 Spacer(modifier = Modifier.width(5.dp))
                 Icon(
                     modifier = Modifier.size(22.dp),
@@ -153,8 +153,8 @@ fun BookListItemUi(
                     contentDescription = "Star",
                     tint = Orange
                 )
+            }
         }
-    }
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -245,11 +245,3 @@ fun BookListItemUi(
         }
     }
 }
-/*
-@Composable
-@Preview(showBackground = true)
-fun BookListItemUiPreview() {
-    BookListItemUi(
-        titleIndex = 0,
-    )
-}*/

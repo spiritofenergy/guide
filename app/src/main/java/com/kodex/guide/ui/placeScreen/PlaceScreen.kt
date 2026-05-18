@@ -251,7 +251,7 @@ fun PlaceScreen(
                         Tab(
                             selected = selectedTabIndex == 0,
                             onClick = { selectedTabIndex = 0 },
-                            text = { Text("Отзывы (${viewModel.commentState.value.size})") }
+                            text = { Text("Отзывы (${navObject.ratingsList.size})") }
                         )
                         Tab(
                             selected = selectedTabIndex == 1,
@@ -261,7 +261,7 @@ fun PlaceScreen(
                     }
 
                     // Контент вкладок - используем Column вместо LazyColumn
-                    when (selectedTabIndex) {
+                 /*   when (selectedTabIndex) {
                         0 -> Column(modifier = Modifier.fillMaxWidth()) {
                             viewModel.commentState.value.forEach { ratingData ->
                                 CommentListItem(
@@ -275,7 +275,7 @@ fun PlaceScreen(
                             }
                         }
                         1 -> AdditionalInfoSection()
-                    }
+                    }*/
                 }
             }
             /*item {
