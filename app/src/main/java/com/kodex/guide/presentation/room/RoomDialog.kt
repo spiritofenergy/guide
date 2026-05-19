@@ -1,4 +1,4 @@
-package com.kodex.guide.presentation.home
+package com.kodex.guide.presentation.room
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -18,26 +18,26 @@ import kotlin.text.ifEmpty
 
 
 @Composable
-fun TrackDialog(
+fun RoomDialog(
     title: String,
     showDialog: Boolean,
     dialogType: DialogType = DialogType.SAVE,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    var trackName by remember { mutableStateOf("") }
+    var postName by remember { mutableStateOf("") }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = {
                 onDismiss()
-                trackName = ""
+                postName = ""
             },
             confirmButton = {
                 Button(
                     onClick = {
                         onDismiss()
-                        trackName = ""
+                        postName = ""
                     }
                 ) {
                     Text(text = stringResource(R.string.cansel))
@@ -45,10 +45,10 @@ fun TrackDialog(
                 Button(
                     onClick = {
                         onConfirm(
-                            trackName.ifEmpty {
+                            postName.ifEmpty {
                                 "Track_${TimeUtils.getDateAndTime()}"
                             })
-                        trackName = ""
+                        postName = ""
                     }
                 ) {
                     Text(text = stringResource(R.string.ok))
@@ -64,9 +64,9 @@ fun TrackDialog(
             text = {
                 if (dialogType == DialogType.SAVE){
                     TextField(
-                        value = trackName,
+                        value = postName,
                         onValueChange = { text ->
-                            trackName = text
+                            postName = text
                         },
                         label = {
                             Text(text = stringResource(R.string.enter_track_name))

@@ -3,7 +3,7 @@ package com.kodex.guide.di
 import android.content.Context
 import androidx.room.Room
 import com.kodex.guide.ui.db.MainDb
-import com.kodex.guide.ui.db.TrackDao
+import com.kodex.guide.ui.db.RoomDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,8 +26,8 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun providePostDao(database: MainDb): TrackDao {
-        return database.trackDao // или database.mainDao(), зависит от вашей реализации
+    fun providePostDao(database: MainDb): RoomDao {
+        return database.roomDao // или database.mainDao(), зависит от вашей реализации
     }
 }
 

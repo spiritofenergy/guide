@@ -9,7 +9,7 @@ import com.kodex.guide.domain.model.Book
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-    interface TrackDao {
+    interface RoomDao {
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         suspend fun insertPost(book: Book)
 
@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.Flow
         suspend fun insertAllBooks(books: List<Book>)
 
         @Delete
-        suspend fun deleteTracks(book: Book)
+        suspend fun deletePost(book: Book)
 
         @Query("SELECT * FROM books")
-        fun getAllTracks(): Flow<List<Book>>
+        fun getAllPosts(): Flow<List<Book>>
 
         @Query("SELECT * FROM books WHERE isFavorite = 1")
         fun getFavoriteBooks(): Flow<List<Book>>

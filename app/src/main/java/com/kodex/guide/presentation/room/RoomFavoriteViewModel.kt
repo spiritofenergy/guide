@@ -1,6 +1,5 @@
-package com.kodex.guide.presentation.home
+package com.kodex.guide.presentation.room
 
-import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,18 +13,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TrackViewModel @Inject constructor(
+class RoomFavoriteViewModel @Inject constructor(
     private val mainDb: MainDb
 ) : ViewModel() {
-    val trackList = mainDb.trackDao.getAllTracks()
-    var trackToDelete: Book? = null
+    val postList = mainDb.roomDao.getAllPosts()
+    var postToDelete: Book? = null
 
     val categoryState = mutableIntStateOf(Categories.ALL)
     val isAdminState = mutableStateOf(false)
 
 
-    fun deleteTrack() = viewModelScope.launch(Dispatchers.IO) {
-        trackToDelete?.let{ mainDb.trackDao.deleteTracks(it) }
+    fun deletePost() = viewModelScope.launch(Dispatchers.IO) {
+        postToDelete?.let{ mainDb.roomDao.deletePost(it) }
     }
 
 }

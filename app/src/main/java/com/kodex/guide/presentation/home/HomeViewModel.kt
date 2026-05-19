@@ -67,7 +67,7 @@ class HomeViewModel @Inject constructor(
             }
         )
     }
-    val trackList = mainDb.trackDao.getAllTracks()
+    val postList = mainDb.roomDao.getAllPosts()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<Book>> = favoritesKeysFlow.flatMapLatest{ keysList->
@@ -176,11 +176,11 @@ class HomeViewModel @Inject constructor(
         }
     }
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
-        mainDb.trackDao.insertPost(book)
+        mainDb.roomDao.insertPost(book)
     }
     // Получить все сохраненные книги
     fun getAllSavedBooks(): Flow<List<Book>> {
-        return mainDb.trackDao.getAllTracks()
+        return mainDb.roomDao.getAllPosts()
     }
 
 

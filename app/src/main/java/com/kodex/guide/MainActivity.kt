@@ -18,7 +18,7 @@ import com.kodex.guide.ui.addscreen.AddBookScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
 import com.kodex.guide.presentation.home.MenuScreen
-import com.kodex.guide.presentation.home.TrackerScreen
+import com.kodex.guide.presentation.room.RoomFavoriteScreen
 import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
@@ -26,9 +26,6 @@ import com.kodex.guide.ui.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
 import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -74,9 +71,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                composable<NavRoutes.TrackerDataObject> { navEntry ->
+                composable<NavRoutes.RoomDataObject> { navEntry ->
                     // val navData = navEntry.toRoute<NavRoutes.TrackerDataObject>()
-                    TrackerScreen(
+                    RoomFavoriteScreen(
                         //  navData = navData,
 
                         onBookClick = { place ->
@@ -181,7 +178,7 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(NavRoutes.SettingsNavObject)
                         },
                         onTrackClick = {
-                            navController.navigate(NavRoutes.TrackerDataObject(
+                            navController.navigate(NavRoutes.RoomDataObject(
                                 uid = "uid",
                                 email = "email"
                             ))

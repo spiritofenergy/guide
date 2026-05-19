@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat
 @SuppressLint("ConstantLocale","SimpleDateFormat")
 object TimeUtils {
     private  val timerFormatter = SimpleDateFormat("mm:ss")
-    private  val trackNameFormatter = SimpleDateFormat("dd/MM/yyyy mm:ss")
+    private  val postNameFormatter = SimpleDateFormat("dd/MM/yyyy mm:ss")
 
     fun getTimerTime(startTimerInMillis: Long): String {
         val elapsedTimeInMillis = System.currentTimeMillis() - startTimerInMillis
@@ -18,6 +18,6 @@ object TimeUtils {
     }
     fun getDateAndTime(): String {
         val cv = Calendar.getInstance()
-        return trackNameFormatter.format(cv.time)
+        return postNameFormatter.format(cv.time)
     }
 }

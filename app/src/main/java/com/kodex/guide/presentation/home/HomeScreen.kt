@@ -3,18 +3,15 @@ package com.kodex.guide.presentation.home
 import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -56,6 +53,7 @@ import com.kodex.guide.ui.drawerMenu.DrawerBody
 import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.presentation.room.RoomFavoriteViewModel
 import com.kodex.guide.utils.Categories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -63,7 +61,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
-    viewModelT: TrackViewModel = hiltViewModel(),
+    viewModelT: RoomFavoriteViewModel = hiltViewModel(),
    // onTrackClick: (Book) -> Unit = {},
 
 
@@ -79,7 +77,7 @@ fun MenuScreen(
     onTrackClick: () -> Unit,
 ) {
 
-    val book = viewModel.trackList.collectAsState(initial = emptyList())
+    val book = viewModel.postList.collectAsState(initial = emptyList())
     val showDialog = remember { mutableStateOf(false) }
 
 
@@ -93,7 +91,7 @@ fun MenuScreen(
     var showFilterDialog by remember { mutableStateOf(false) }
 
     val books = viewModel.books.collectAsLazyPagingItems()
-    val trackList = viewModel.trackList.collectAsState(initial = emptyList())
+    val trackList = viewModel.postList.collectAsState(initial = emptyList())
 
     val booksRoomList = MutableStateFlow<List<Book>>(emptyList())
 
@@ -367,8 +365,8 @@ fun MenuScreen(
 
                             }
                         }else {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
+                            LazyVerticalStaggeredGrid(
+                                columns = StaggeredGridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
                                 modifier = Modifier
                                     .fillMaxSize()
                             ) {

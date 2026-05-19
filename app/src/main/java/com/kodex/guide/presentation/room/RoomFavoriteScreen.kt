@@ -1,4 +1,4 @@
-package com.kodex.guide.presentation.home
+package com.kodex.guide.presentation.room
 
 
 import android.util.Log
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,13 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.domain.model.Book
-import kotlinx.coroutines.delay
+import com.kodex.guide.presentation.home.ProgressBar
 import kotlin.collections.emptyList
 
 
 @Composable
-fun TrackerScreen(
-    viewModel: TrackViewModel = hiltViewModel(),
+fun RoomFavoriteScreen(
+    viewModel: RoomFavoriteViewModel = hiltViewModel(),
     onTrackClick: (Book) -> Unit = {},
 
 
@@ -40,7 +39,7 @@ fun TrackerScreen(
     //onAddBookClick: () -> Unit,
    // onSettingsClick: () -> Unit,
 ) {
-    val book = viewModel.trackList.collectAsState(initial = emptyList())
+    val book = viewModel.postList.collectAsState(initial = emptyList())
     val showDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
     Log.d("MyLog", "${book}")
@@ -62,11 +61,11 @@ fun TrackerScreen(
                     .padding( 2.dp))
             {
                 items(book.value) { trackItem ->
-                    TrackItemUi(
+                    RoomItemUi(
                         trackItem,
                         onDeleteClick = {
                             showDialog.value = true
-                            viewModel.trackToDelete = trackItem
+                            viewModel.postToDelete = trackItem
 
                         },
                         onItemClick = {
@@ -80,13 +79,13 @@ fun TrackerScreen(
         }
     }
 
-    TrackDialog(
+    RoomDialog(
         title = stringResource(R.string.delete_dialog_massage),
         showDialog = showDialog.value,
         dialogType = DialogType.DELETE,
         onDismiss = { showDialog.value = false },
         onConfirm = {
-            viewModel.deleteTrack()
+            viewModel.deletePost()
             showDialog.value = false
         }
     )

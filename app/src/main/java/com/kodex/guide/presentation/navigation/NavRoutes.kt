@@ -11,7 +11,7 @@ class NavRoutes {
         val email: String = ""
     )
   @Serializable
-    data class TrackerDataObject(
+    data class RoomDataObject(
         val uid: String = "",
         val email: String = ""
     )
