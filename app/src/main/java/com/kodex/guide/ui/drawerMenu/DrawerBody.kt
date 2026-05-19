@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddHomeWork
 import androidx.compose.material.icons.filled.Agriculture
+import androidx.compose.material.icons.filled.Attractions
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.CleaningServices
@@ -47,6 +48,7 @@ fun DrawerBody(
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onTrackClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (Int) -> Unit = {}
@@ -185,6 +187,14 @@ fun DrawerBody(
                  text = categoryAdmin[5],
                  onItemClick = {
                      onSettingsClick()
+                     coroutineScope.launch { drawerState.close() }
+                 }
+             )
+             DrawerMenuItem(
+                 iconDrawableId = Icons.Default.Attractions,
+                 text = categoryAdmin[5],
+                 onItemClick = {
+                     onTrackClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )

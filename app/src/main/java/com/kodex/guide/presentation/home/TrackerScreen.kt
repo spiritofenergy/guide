@@ -50,9 +50,9 @@ fun TrackerScreen(
         contentAlignment = Alignment.Center){
         if (book.value.isEmpty()){
             ProgressBar()
-            LaunchedEffect(Unit) {
+           /* LaunchedEffect(Unit) {
                 delay(1000)
-            }
+            }*/
             // Text(text = stringResource(R.string.no_tracks))
 
         }else{

@@ -3,15 +3,18 @@ package com.kodex.guide.presentation.home
 import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -60,6 +63,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
+    viewModelT: TrackViewModel = hiltViewModel(),
+   // onTrackClick: (Book) -> Unit = {},
+
 
     viewModel: HomeViewModel = hiltViewModel(),
     navData: NavRoutes.HomeDataObject,
@@ -70,8 +76,14 @@ fun MenuScreen(
     onLoginClick: () -> Unit,
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onTrackClick: () -> Unit,
 ) {
-   // val booksFirebaseRemoteDataSource: BooksFirebaseRemoteDataSource
+
+    val book = viewModel.trackList.collectAsState(initial = emptyList())
+    val showDialog = remember { mutableStateOf(false) }
+
+
+    // val booksFirebaseRemoteDataSource: BooksFirebaseRemoteDataSource
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -96,15 +108,15 @@ fun MenuScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 refreshBooks(books, viewModel)
-               Log.d("MyLog", "refreshBooks" )
+                Log.d("MyLog", "refreshBooks")
                 viewModel.getSettings()
-                Log.d("MyLog", "getSettings MenuScreen" )
+                Log.d("MyLog", "getSettings MenuScreen")
 
             }
         }
         lifecycleOwner.lifecycle.removeObserver(observer)
-          onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -133,14 +145,14 @@ fun MenuScreen(
             Toast.makeText(context, errorMassage, Toast.LENGTH_SHORT).show()
         }
     }
-    LaunchedEffect(Unit ) {
+    LaunchedEffect(Unit) {
 
-            viewModel.getAllSavedBooks().collect { booksRoom ->
-                booksRoomList.value = booksRoom
-                Log.d("SavedBooks", "Найдено ${booksRoom.size} сохраненных книг")
-                booksRoom.forEach { book ->
+        viewModel.getAllSavedBooks().collect { booksRoom ->
+            booksRoomList.value = booksRoom
+            Log.d("SavedBooks", "Найдено ${booksRoom.size} сохраненных книг")
+            booksRoom.forEach { book ->
 
-                    Log.d("SavedBooks", "Книга: ${book.title}, Избранная: ${book.isFavorite}")
+                Log.d("SavedBooks", "Книга: ${book.title}, Избранная: ${book.isFavorite}")
 
             }
         }
@@ -183,6 +195,10 @@ fun MenuScreen(
 
                     onSettingsClick = {
                         onSettingsClick()
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onTrackClick = {
+                        onTrackClick()
                         coroutineScope.launch { drawerState.close() }
                     },
 
@@ -268,7 +284,7 @@ fun MenuScreen(
                     },
                     onConfirm = {
                         showDeleteDialog.value = false
-                     //   booksFirebaseRemoteDataSource.deleteBook(books.itemSnapshotList.items)
+                        //   booksFirebaseRemoteDataSource.deleteBook(books.itemSnapshotList.items)
                     },
                     title = stringResource(id = R.string.attention),
                     message = stringResource(id = R.string.want_to_delete_this_message),
@@ -277,7 +293,8 @@ fun MenuScreen(
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
                     onRefresh = {
-                        refreshBooks(books, viewModel)                    },
+                        refreshBooks(books, viewModel)
+                    },
                     state = state,
                     modifier = Modifier.padding(),
                     indicator = {
@@ -291,7 +308,7 @@ fun MenuScreen(
                         )
                     }
                 ) {
-                    /*if (books.loadState.refresh is LoadState.Loading) {
+                    /* if (books.loadState.refresh is LoadState.Loading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -301,35 +318,59 @@ fun MenuScreen(
                             )
                         }
                     }*/
-
-                        /*if (books == null ){
-                            LazyColumn(
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding( 2.dp))
-                            {
-                                items(books) { trackItem ->
-                                    TrackItemUi(
+                    if (books.itemCount == 0)
+                        LazyColumn(
+                            Modifier
+                                .fillMaxSize()
+                                .padding( 2.dp))
+                        {
+                            items(book.value) { book ->
+                                    BookListItemUi(
+                                        titleIndex = viewModel.categoryState.intValue,
+                                        viewModel.isAdminState.value,
                                         book,
-                                        *//*onDeleteClick = {
-                                            showDialog.value = true
-                                            viewModel.trackToDelete = trackItem
-
+                                        onBookClick = { bk ->
+                                            onBookClick(bk)
                                         },
-                                        onItemClick = {
-                                            onTrackClick(trackItem)
-                                        }*//*
+                                        onEditClick = {
+                                            onBookEditClick(it)
+                                        },
+                                        onDeleteClick = { bookToDelete ->
+                                            showDeleteDialog.value = true
+                                            viewModel.bookToDelete = bookToDelete
+                                        },
+                                        onFavesClick = {
+                                            viewModel.onFavesClick(
+                                                book,
+                                                viewModel.selectedBottomItemState.intValue,
+                                                books.itemSnapshotList.items
+                                            )
+                                            viewModel.insertPost(book)
+
+                                            /*    if (!book.isFavorite) {
+                                            Toast.makeText(
+                                                context,
+                                                R.string.added_to_favorites,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                R.string.deleted_from_favorites,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }*/
+                                        }
                                     )
 
                                     Spacer(Modifier.padding(5.dp))
-                                }
+
                             }
-                        }else {*/
+                        }else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
                                 modifier = Modifier
                                     .fillMaxSize()
-
                             ) {
                                 items(count = books.itemCount) { index ->
                                     val book = books[index]
@@ -373,7 +414,7 @@ fun MenuScreen(
                                     }
                                 }
                             }
-
+                        }
                     }
                 }
 

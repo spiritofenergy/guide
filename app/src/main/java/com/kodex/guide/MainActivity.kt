@@ -180,6 +180,12 @@ class MainActivity : ComponentActivity() {
                         onSettingsClick = {
                             navController.navigate(NavRoutes.SettingsNavObject)
                         },
+                        onTrackClick = {
+                            navController.navigate(NavRoutes.TrackerDataObject(
+                                uid = "uid",
+                                email = "email"
+                            ))
+                        },
                         onAddBookClick = {
                             navController.navigate(NavRoutes.AddScreenObject())
                         }
