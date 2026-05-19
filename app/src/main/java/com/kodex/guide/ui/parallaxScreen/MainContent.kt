@@ -3,6 +3,7 @@ package com.kodex.guide.ui.parallaxScreen
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.ui.detailScreen.RatingData
-import com.kodex.guide.ui.dialods.DialogComments
+import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 import com.kodex.guide.ui.dialods.DialogRating
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.Orange
@@ -61,35 +59,49 @@ fun MainContent(
     onNavigateToReviews: () -> Unit,
     viewModel: DetailsScreenViewModel = viewModel()
 ) {
-    var showRateDialog by remember { mutableStateOf(false) }
-    var showCommentDialog by remember { mutableStateOf(false) }
-    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+    /*  var showRateDialog by remember { mutableStateOf(false) }
+      var showCommentDialog by remember { mutableStateOf(false) }
+      var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+      */
+    val uiState = viewModel.uiState.collectAsState()
+
     val context = LocalContext.current
     val telephone = "+79197716667"
 
     DialogRating(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
-        onDismiss = { showRateDialog = false },
+        ratingData = uiState.value.ratingData,
+        onDismiss = {
+            viewModel.onEvent(
+                DetailUiEvent.CommentDialogEvent(
+                    false,
+                    null
+                )
+            )
+        },
         onSubmit = { rating, message ->
             val ratingData = RatingData(
                 name = "",
                 rating = rating,
                 message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0
+                lastRating = uiState.value.ratingData.rating
             )
-            viewModel.insertRating(ratingData, navObject.bookId)
-            showRateDialog = false
+            Log.d("MyLog", "BookId: ${navObject.bookId}")
+            viewModel.onEvent(
+                DetailUiEvent.InsertRatingDialogEvent(
+                    ratingData, navObject.bookId
+                )
+            )
         },
-        show = showRateDialog
+        show = uiState.value.showRateDialog,
     )
 
-    DialogComments(
-        showDialog = showCommentDialog,
-        onDismiss = { showCommentDialog = false },
-        ratingData = ratingDataToShow,
-        onConfirm = { showCommentDialog = false }
-    )
-
+    /* DialogComments(
+         showDialog =  showCommentDialog,
+         onDismiss = { showCommentDialog = false },
+         ratingData = ratingDataToShow,
+         onConfirm = { showCommentDialog = false }
+     )
+ */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -259,8 +271,12 @@ fun MainContent(
                     .fillMaxWidth()
                     .weight(1f),
                 onClick = {
-                    viewModel.getUserRating(bookId = navObject.bookId)
-                    showRateDialog = true
+                    viewModel.onEvent(
+                        DetailUiEvent.ShowUserRatingDialogEvent(
+                            navObject.bookId
+                        )
+                    )
+                    //showRateDialog = true
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Orange)
             ) {
@@ -305,17 +321,21 @@ fun MainContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Отзывы в виде горизонтального списка
-        if (viewModel.commentState.value.isNotEmpty()) {
+        if (uiState.value.comments.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp) // Фиксированная высота для LazyRow
             ) {
-                items(viewModel.commentState.value) { ratingData ->
+                items(uiState.value.comments) { ratingData ->
                     CommentListItem(
                         onClick = { rData ->
-                            showCommentDialog = true
-                            ratingDataToShow = rData
+                            viewModel.onEvent(
+                                DetailUiEvent.CommentDialogEvent(
+                                    true,
+                                    rData
+                                )
+                            )
                         },
                         ratingData = ratingData
                     )

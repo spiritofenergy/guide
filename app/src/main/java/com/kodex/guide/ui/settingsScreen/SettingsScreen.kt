@@ -37,11 +37,10 @@ import com.kodex.guide.ui.settingsScreen.menuItems.DropDownMenuItem
 import com.kodex.guide.ui.settingsScreen.menuItems.MenuCategoryItem
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import androidx.compose.ui.res.stringResource
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
-import com.kodex.guide.ui.utils.firebase.TimeUtils
-import java.nio.file.Files.size
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
+import com.kodex.guide.utils.firebase.TimeUtils
 
 
 @Composable
@@ -56,13 +55,12 @@ fun SettingsScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.getSettings(onSettingsLoaded = { settingsData ->
-            dropDownMenuSelectedOptions[0] = settingsData.imageFormat
-            dropDownMenuSelectedOptions[1] = settingsData.quality
-            dropDownMenuSelectedOptions[2] = settingsData.size
-
-             }
-        )
+        viewModel.getSettings()
+        viewModel.settingsBundleState.collect { settingsData ->
+            dropDownMenuSelectedOptions[0] = settingsData.userSettingsData.imageFormat
+            dropDownMenuSelectedOptions[1] = settingsData.userSettingsData.quality
+            dropDownMenuSelectedOptions[2] = settingsData.userSettingsData.size
+        }
     }
     Column(
         modifier = Modifier
@@ -75,17 +73,7 @@ fun SettingsScreen(
                 showConfirmDeleteDialog = false
             },
             onConfirm = {
-                viewModel.deleteAccount(
-                    onAccountDeleted = {
-                        Toast.makeText(context, R.string.you_account_was_deleted, Toast.LENGTH_LONG)
-                            .show()
-                        viewModel.signOut()
-                        onCloseAccountClick()
-                    },
-                    onAccountDeleteFailure = { error ->
-                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    }
-                )
+
             },
 
             title = stringResource(R.string.attention),
@@ -115,20 +103,7 @@ fun SettingsScreen(
 
                     DialogType.PASSWORD -> {
                         viewModel.resetPassword(
-                            fieldValuesList[0],
-                            onResetPasswordFailure = { error ->
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                            },
-                            onResetPasswordSuccess = {
-                                Toast.makeText(
-                                    context,
-                                    R.string.reset_password_dialog,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                viewModel.signOut()
-                                onCloseAccountClick()
-                            }
-                        )
+                            fieldValuesList[0] )
                     }
 
                     DialogType.DELETE_ACCOUNT -> {
@@ -231,7 +206,7 @@ fun SettingsScreen(
                                                 listOf("", "")
                                             }
                                             DialogType.DELETE_ACCOUNT -> {
-                                                // Для удаления аккаунта - два пустых поля (email и пароль)
+                                                // Для удаления аккаунта - два п устых поля (email и пароль)
                                                 listOf("", "")
                                             }
                                             else -> {

@@ -23,9 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.dialods.DialogComments
 import com.kodex.guide.ui.dialods.DialogRating
 import com.kodex.guide.ui.theme.ButtonColor
@@ -43,7 +43,7 @@ fun WriteReviewButton(
     var ratingDataToShow by remember { mutableStateOf(RatingData()) }
 
     DialogRating(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+       // ratingData = viewModel.ratingDataState.value ?: RatingData(),
         onDismiss = {
             showRateDialog = false
         },
@@ -52,9 +52,9 @@ fun WriteReviewButton(
                 name = "",
                 rating = rating,
                 message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0,
+                //lastRating = viewModel.ratingDataState.value?.rating ?: 0,
              )
-            viewModel.insertRating(ratingData, navObject.bookId)
+          //  viewModel.insertRating(ratingData, navObject.bookId)
             showRateDialog = false
         },
         show = showRateDialog

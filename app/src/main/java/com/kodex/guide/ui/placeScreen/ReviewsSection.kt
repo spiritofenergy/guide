@@ -20,10 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.kodex.guide.ui.data.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.domain.model.RatingData
 
 
 /*

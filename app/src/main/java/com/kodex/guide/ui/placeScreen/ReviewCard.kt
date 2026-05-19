@@ -33,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kodex.guide.ui.detailScreen.RatingData
-import com.kodex.guide.ui.utils.toFormattedDate
+import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.utils.toFormattedDate
 
 
 @RequiresApi(Build.VERSION_CODES.O)

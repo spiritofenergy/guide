@@ -1,23 +1,30 @@
 package com.kodex.guide.ui.settingsScreen
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.ui.settingsScreen.data.AddressData
-import com.kodex.guide.ui.settingsScreen.data.PersonalData
-import com.kodex.guide.ui.settingsScreen.data.UserSettingsData
-import com.kodex.guide.ui.utils.firebase.AuthManager
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.google.android.play.integrity.internal.u
+import com.kodex.guide.domain.model.AddressData
+import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.model.UserSettingsData
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
+import com.kodex.guide.domain.model.UserSettingsBundle
+import com.kodex.guide.domain.repository.AuthRepo
+import com.kodex.guide.domain.repository.UserSettingsRepo
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val authManager: AuthManager,
-    private val fireStoreManagerPaging: FireStoreManagerPaging,
-    private val globalSettings: GlobalSettings,
+    private val authRepo: AuthRepo,
+    private val userSettingsRepo: UserSettingsRepo,
 ) : ViewModel() {
     var newPersonalData = PersonalData()
     var oldPersonalData = PersonalData()
@@ -26,98 +33,78 @@ class SettingsViewModel @Inject constructor(
 
     var oldUserSettingsData = UserSettingsData()
     var newUserSettingsData = UserSettingsData()
+
     var emailToDelete = ""
     var passwordToDelete = ""
+
     val personalData = mutableStateOf(PersonalData())
     val addressData = mutableStateOf(AddressData())
+   // val userSettingsData = mutableStateOf(UserSettingsData())
 
-    fun resetPassword(
-        email: String,
-        onResetPasswordSuccess: () -> Unit,
-        onResetPasswordFailure: (String) -> Unit
-    ) {
-        authManager.resetPassword(
-            email,
-            onResetPasswordSuccess,
-            onResetPasswordFailure
+    private val _settingsBundleState = MutableStateFlow(
+        UserSettingsBundle(
+            PersonalData(),
+            AddressData(),
+            UserSettingsData()
         )
-    }
+    )
+    val settingsBundleState = _settingsBundleState.asStateFlow()
 
-    fun deleteAccount(
-        onAccountDeleted: () -> Unit,
-        onAccountDeleteFailure: (String) -> Unit
-    ) {
-        if (emailToDelete.isEmpty() || passwordToDelete.isEmpty()) {
-            onAccountDeleteFailure("Email snd Password be empty")
-            return
-        }
-        authManager.deleteAccount(
-            emailToDelete,
-            passwordToDelete,
-            onDeleteSuccess = {
-                emailToDelete = ""
-                passwordToDelete = ""
-                onAccountDeleted()
+    fun resetPassword(email: String) = viewModelScope.launch(Dispatchers.IO) {
+        val result = authRepo.resetPassword(email)
+        result.fold(
+            onSuccess = {
+
             },
-            onDeleteFailure = { error ->
-                onAccountDeleteFailure(error)
+            onFailure = {
 
             }
         )
     }
 
-    fun signOut() = authManager.signOut()
+    fun deleteAccount() = viewModelScope.launch(Dispatchers.IO) {
+        val result = authRepo.deleteAccount(emailToDelete, passwordToDelete)
+        result.fold(
+            onSuccess = {
+            },
+            onFailure = {
+            }
+        )
+    }
 
-    fun saveSettings() {
+    fun signOut() = authRepo.signOut()
+
+    fun saveSettings() = viewModelScope.launch(Dispatchers.IO) {
         if (!newPersonalData.upToDate(oldPersonalData)) {
-            fireStoreManagerPaging.insertPersonalData(newPersonalData)
-            Log.d("MyLog","newPersonalData ${newPersonalData}")
+            userSettingsRepo.insertPersonalData(newPersonalData)
+            Log.d("MyLog", "newPersonalData ${newPersonalData}")
         }
 
         if (!newAddressData.upToDate(oldAddressData)) {
-            fireStoreManagerPaging.insertAddressData(newAddressData)
-            Log.d("MyLog"," newAddressData ${newAddressData}")
+            userSettingsRepo.insertAddressData(newAddressData)
+            Log.d("MyLog", " newAddressData ${newAddressData}")
         }
 
         if (!newUserSettingsData.upToDate(oldUserSettingsData)) {
-            fireStoreManagerPaging.insertUserSettingsData(newUserSettingsData)
-            Log.d("MyLog","newUserSettingsData  ${newUserSettingsData}")
+            userSettingsRepo.insertUserSettingsData(newUserSettingsData)
+            Log.d("MyLog", "newUserSettingsData  ${newUserSettingsData}")
         }
     }
 
-    fun getSettings(onSettingsLoaded: (UserSettingsData)-> Unit) = viewModelScope.launch {
-
-        fireStoreManagerPaging.getSettings { personal, address, settings ->
-            // Сохраняем в globalSettings для кэширования
-            globalSettings.personalData = personal
-            globalSettings.addressData = address
-            globalSettings.userSettingsData = settings
-
-            // Обновляем ViewModel поля
-            oldPersonalData = personal
-            personalData.value = personal
-
-            oldAddressData = address
-            addressData.value = address
-
-            oldUserSettingsData = settings
-
-            // Вызываем колбэк с настройками
-            onSettingsLoaded(settings)
-
-            /*
-            oldPersonalData = globalSettings.personalData
-
-        personalData.value = oldPersonalData
-        Log.d("MyLog","personalData.value = oldPersonalData  ${personalData}")
-
-        oldAddressData = globalSettings.addressData
-
-        addressData.value = oldAddressData
-        Log.d("MyLog","addressData.value = oldAddressData  ${addressData}")
-        oldUserSettingsData = globalSettings.userSettingsData
-
-        onSettingsLoaded(globalSettings.userSettingsData)*/
-        }
+    fun getSettings() = viewModelScope.launch(Dispatchers.IO) {
+        val resul = userSettingsRepo.getSettings()
+        resul.fold(
+            onSuccess = { userSettingsBundle ->
+                oldPersonalData = userSettingsBundle.personalData
+                personalData.value = oldPersonalData
+                oldAddressData = userSettingsBundle.addressData
+                addressData.value = oldAddressData
+                oldUserSettingsData = userSettingsBundle.userSettingsData
+              //  userSettingsData.value = oldUserSettingsData
+                _settingsBundleState.value = userSettingsBundle
+            },
+            onFailure = {
+            }
+        )
     }
 }

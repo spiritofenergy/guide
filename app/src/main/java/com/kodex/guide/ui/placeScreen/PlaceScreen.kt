@@ -51,11 +51,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.data.NavRoutes.CommentsNavData
+import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
 import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.domain.model.RatingData
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -251,7 +251,7 @@ fun PlaceScreen(
                         Tab(
                             selected = selectedTabIndex == 0,
                             onClick = { selectedTabIndex = 0 },
-                            text = { Text("Отзывы (${viewModel.commentState.value.size})") }
+                            text = { Text("Отзывы (${navObject.ratingsList.size})") }
                         )
                         Tab(
                             selected = selectedTabIndex == 1,
@@ -261,7 +261,7 @@ fun PlaceScreen(
                     }
 
                     // Контент вкладок - используем Column вместо LazyColumn
-                    when (selectedTabIndex) {
+                 /*   when (selectedTabIndex) {
                         0 -> Column(modifier = Modifier.fillMaxWidth()) {
                             viewModel.commentState.value.forEach { ratingData ->
                                 CommentListItem(
@@ -275,7 +275,7 @@ fun PlaceScreen(
                             }
                         }
                         1 -> AdditionalInfoSection()
-                    }
+                    }*/
                 }
             }
             /*item {

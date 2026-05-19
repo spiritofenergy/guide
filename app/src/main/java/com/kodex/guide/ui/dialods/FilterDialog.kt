@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.castom.PricePickerThumb
-import com.kodex.guide.ui.castom.RadioButtonSet
-import com.kodex.guide.ui.mainScreen.MainScreenViewModel
+import com.kodex.guide.presentation.castom.PricePickerThumb
+import com.kodex.guide.presentation.castom.RadioButtonSet
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.theme.DrawerColorBlue
 
 @Composable
@@ -31,7 +31,7 @@ fun FilterDialog(
     onConfirm: () -> Unit = {},
     title: String = "Order by:",
     confirmButtonText: String = "Ok",
-    viewModel: MainScreenViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 
 ) {
 

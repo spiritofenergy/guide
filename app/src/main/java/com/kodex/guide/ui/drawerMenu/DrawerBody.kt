@@ -11,13 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddHomeWork
 import androidx.compose.material.icons.filled.Agriculture
+import androidx.compose.material.icons.filled.Attractions
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.ElectricalServices
-import androidx.compose.material.icons.filled.Input
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MiscellaneousServices
@@ -34,20 +34,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.mainScreen.MainScreenViewModel
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.GrayLite
-import com.kodex.guide.ui.utils.Categories
+import com.kodex.guide.utils.Categories
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun DrawerBody(
-    viewModel: MainScreenViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
 
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onTrackClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (Int) -> Unit = {}
@@ -186,6 +187,14 @@ fun DrawerBody(
                  text = categoryAdmin[5],
                  onItemClick = {
                      onSettingsClick()
+                     coroutineScope.launch { drawerState.close() }
+                 }
+             )
+             DrawerMenuItem(
+                 iconDrawableId = Icons.Default.Attractions,
+                 text = categoryAdmin[5],
+                 onItemClick = {
+                     onTrackClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )

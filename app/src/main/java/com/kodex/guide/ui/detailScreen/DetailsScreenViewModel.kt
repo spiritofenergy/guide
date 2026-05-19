@@ -2,34 +2,101 @@ package com.kodex.guide.ui.detailScreen
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.ui.data.NavRoutes
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.data.repository.BooksRepo_Impl
+import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
+import com.kodex.guide.ui.detailScreen.states.DetailsUiState
+import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailsScreenViewModel @Inject constructor(
-    private val fireStoreManager: FireStoreManagerPaging
+    private val fireStoreManager: FireStoreManagerPaging,
+    val booksRepo: BooksRepo_Impl
 ) : ViewModel() {
-  //  val ratingState = mutableStateOf("0")
-    val commentState = mutableStateOf(emptyList<RatingData>())
-    val ratingDataState = mutableStateOf<RatingData?>(RatingData())
 
-    fun insertRating(ratingData: RatingData, bookId: String) {
-        fireStoreManager.insertUserRating(ratingData, bookId)
-    }
-    fun getBookComments(bookId: String) = viewModelScope.launch{
-        commentState.value = fireStoreManager.getBookComments(bookId)
-    }
-    fun getUserRating(bookId: String) = viewModelScope.launch {
-        ratingDataState.value = fireStoreManager.getUserRating(bookId)
+    private val _uiState = MutableStateFlow(DetailsUiState())
+    val uiState = _uiState.asStateFlow()
 
+    //  val ratingState = mutableStateOf("0")
+    /* val commentState = mutableStateOf(emptyList<RatingData>())
+     val ratingDataState = mutableStateOf<RatingData?>(RatingData())
+ */
+    private fun insertRating(ratingData: RatingData, bookId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = booksRepo.submitUserRating(ratingData, bookId)
+            result.fold(
+                onSuccess = {
+                    _uiState.value = uiState.value.copy(
+                        showRateDialog = false
+                    )
+                },
+                onFailure = { error ->
+
+                }
+            )
+        }
+    }
+
+   private fun getBookComments(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
+        val result = booksRepo.getBookComments(bookId)
+        result.fold(
+            onSuccess = { commentsList ->
+
+            },
+            onFailure = { error ->
+
+            }
+        )
+    }
+
+    private fun getUserRating(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
+        val result = booksRepo.getUserRating(bookId)
+        result.fold(
+            onSuccess = { rData ->
+                _uiState.value = uiState.value.copy(
+                    showRateDialog = true,
+                    ratingData = rData?: RatingData()
+                )
+            },
+            onFailure = { error ->
+
+            }
+        )
+    }
+
+    fun onEvent(event: DetailUiEvent) {
+        when (event) {
+            is DetailUiEvent.CommentDialogEvent -> {
+                _uiState.value = uiState.value.copy(
+                    showCommentDialog = event.show,
+                    ratingData = event.ratingData ?: RatingData()
+                )
+            }
+            is DetailUiEvent.ShowUserRatingDialogEvent -> {
+                getUserRating(event.bookId)
+            }
+            is DetailUiEvent.HideUserRatingDialog -> {
+                _uiState.value = uiState.value.copy(
+                    showRateDialog = false
+                )
+            }
+            is DetailUiEvent.InsertRatingDialogEvent -> {
+                insertRating(event.ratingData, event.bookId)
+            }
+            is DetailUiEvent.GetCommentsEvent -> {
+                getBookComments(event.bookId)
+            }
+        }
     }
 
     // Выносим логику шаринга в отдельную функцию
