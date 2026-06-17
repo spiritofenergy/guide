@@ -47,7 +47,7 @@ fun RateDialog(
     val context = LocalContext.current
     var selectedRate by remember { mutableIntStateOf(0) }
     var messageState by remember { mutableStateOf("") }
-    selectedRate = ratingData.rating
+    selectedRate = ratingData.rating ?: 1
     messageState = ratingData.message
 
     if (show) {

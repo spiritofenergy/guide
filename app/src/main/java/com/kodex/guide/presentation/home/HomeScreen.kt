@@ -54,13 +54,13 @@ import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.room.RoomFavoriteViewModel
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuScreen(
+fun HomeScreen(
     viewModelT: RoomFavoriteViewModel = hiltViewModel(),
    // onTrackClick: (Book) -> Unit = {},
 
@@ -144,14 +144,11 @@ fun MenuScreen(
         }
     }
     LaunchedEffect(Unit) {
-
         viewModel.getAllSavedBooks().collect { booksRoom ->
             booksRoomList.value = booksRoom
             Log.d("SavedBooks", "Найдено ${booksRoom.size} сохраненных книг")
             booksRoom.forEach { book ->
-
                 Log.d("SavedBooks", "Книга: ${book.title}, Избранная: ${book.isFavorite}")
-
             }
         }
     }
@@ -171,7 +168,7 @@ fun MenuScreen(
                         viewModel.isAdminState.value = isAdmin
                     },
                     onCategoryClick = { categoryIndex ->
-                        if (categoryIndex == Categories.FAVORITES) {
+                        if (categoryIndex == BookCategories.FAVORITES) {
                             viewModel.selectedBottomItemState.intValue =
                                 BottomMenuItem.Faves.titleId
                             Log.d("MyLog", "onCategoryClick FAVORITES")
@@ -208,7 +205,7 @@ fun MenuScreen(
             topBar = {
                 if (!isLandscape)
                     MainTopBar(
-                        viewModel.categoryState.intValue,
+                        viewModel.categoryState.value,
                         onSearch = { searchText ->
                             viewModel.searchBook(searchText)
                             refreshBooks(books, viewModel)
@@ -242,7 +239,7 @@ fun MenuScreen(
                         onHomeClick = {
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
-                            viewModel.getAllBooksFromCategory(categoryIndex = Categories.ALL)
+                            viewModel.getAllBooksFromCategory(categoryIndex = BookCategories.ALL)
                             refreshBooks(books, viewModel)
                         },
                         onSettingsClick = {
@@ -324,7 +321,7 @@ fun MenuScreen(
                         {
                             items(book.value) { book ->
                                     BookListItemUi(
-                                        titleIndex = viewModel.categoryState.intValue,
+                                        titleIndex = viewModel.categoryState.value.id,
                                         viewModel.isAdminState.value,
                                         book,
                                         onBookClick = { bk ->
@@ -374,7 +371,7 @@ fun MenuScreen(
                                     val book = books[index]
                                     if (book != null) {
                                         BookListItemUi(
-                                            titleIndex = viewModel.categoryState.intValue,
+                                            titleIndex = viewModel.categoryState.value.id,
                                             viewModel.isAdminState.value,
                                             book,
                                             onBookClick = { bk ->

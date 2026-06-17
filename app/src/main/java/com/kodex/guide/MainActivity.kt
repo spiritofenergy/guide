@@ -17,9 +17,8 @@ import com.kodex.guide.ui.addscreen.AddBookScreen
  import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
-import com.kodex.guide.presentation.home.MenuScreen
+import com.kodex.guide.presentation.home.HomeScreen
 import com.kodex.guide.presentation.room.RoomFavoriteScreen
-import com.kodex.guide.ui.detailScreen.DetailScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.login.sign_up.SignUpScreen
@@ -122,7 +121,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<NavRoutes.HomeDataObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
-                    MenuScreen(
+                    HomeScreen(
                         navData = navData,
 
                         onBookClick = { place ->
@@ -197,7 +196,7 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-                composable<NavRoutes.DetailNavObject> { navEntry ->
+             /*   composable<NavRoutes.DetailNavObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.DetailNavObject>()
                     DetailScreen(
                         onCommentsClick = { commentsNavData ->
@@ -205,9 +204,9 @@ class MainActivity : ComponentActivity() {
                         },
                         navObject = navData
                     )
-                }
+                }*/
 
-                composable<NavRoutes.PlaceNavObject> { navEntry ->
+             /*   composable<NavRoutes.PlaceNavObject> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.PlaceNavObject>()
                     PlaceScreen(
                         onCommentsClick = { commentsNavData ->
@@ -216,7 +215,7 @@ class MainActivity : ComponentActivity() {
                         navObject = navData,
                         navController = navController
                     )
-                }
+                }*/
 
                 composable<NavRoutes.AdminPanelNavObject> {
                     AdminPanelScreen(

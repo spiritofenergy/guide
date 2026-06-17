@@ -47,7 +47,7 @@ fun CommentListItem(
                 .fillMaxWidth()
                 .padding(start = 20.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
         ) {
-            StarsIndicator(rating = ratingData.rating)
+            StarsIndicator(rating = ratingData.rating ?: 1)
             Spacer(modifier = Modifier.width(2.dp))
         }
 

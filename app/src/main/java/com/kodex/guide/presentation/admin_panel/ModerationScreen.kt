@@ -50,7 +50,7 @@ fun ModerationScreen(
                         viewModel.deleteComment(comment.uid)
                     },
                     onClickAccept = {
-                        viewModel.insertModerationRating(comment)
+                        viewModel.acceptComment(comment)
                     }
                 )
                 Spacer(modifier = Modifier.height(5.dp))

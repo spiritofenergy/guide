@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.home.HomeViewModel
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.utils.FirebaseConst.POSTS
 import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +29,7 @@ class AddBookViewModel @Inject constructor(
     val description = mutableStateOf("")
     val price = mutableStateOf("")
     val telephone = mutableStateOf("")
-    val selectedCategory = mutableIntStateOf(Categories.ALL)
+    val selectedCategory = mutableStateOf(BookCategories.ALL)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
 
@@ -46,7 +46,7 @@ class AddBookViewModel @Inject constructor(
         description.value = navData.description
         price.value = navData.price.toString()
         telephone.value = navData.telephone
-        selectedCategory.intValue = navData.categoryIndex
+        selectedCategory.value = navData.categoryIndex
 
     }
 

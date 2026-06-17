@@ -43,7 +43,7 @@ fun AdminCommentListItem(
                 .fillMaxWidth()
                 .padding(16.dp),
         ) {
-            StarsIndicator(rating = ratingData.rating)
+            StarsIndicator(rating = ratingData.rating ?: 1)
 
             Text(
                 text = ratingData.name,

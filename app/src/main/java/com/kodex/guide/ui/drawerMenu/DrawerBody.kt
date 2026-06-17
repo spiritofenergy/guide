@@ -37,7 +37,7 @@ import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.GrayLite
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import kotlinx.coroutines.launch
 
 
@@ -51,7 +51,7 @@ fun DrawerBody(
     onTrackClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
-    onCategoryClick: (Int) -> Unit = {}
+    onCategoryClick: (BookCategories) -> Unit = {}
 ) {
 
     val categoryList = stringArrayResource(id = R.array.category_array)
@@ -78,7 +78,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.CrueltyFree,
                  text = categoryList[0],
                  onItemClick = {
-                     onCategoryClick(Categories.ANIMALS)
+                     onCategoryClick(BookCategories.ANIMALS)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -86,7 +86,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Celebration,
                  text = categoryList[1],
                  onItemClick = {
-                     onCategoryClick(Categories.PLANTS)
+                     onCategoryClick(BookCategories.PLANTS)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -94,7 +94,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.CleaningServices,
                  text = categoryList[2],
                  onItemClick = {
-                     onCategoryClick(Categories.WORK)
+                     onCategoryClick(BookCategories.WORK)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -102,7 +102,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.MiscellaneousServices,
                  text = categoryList[3],
                  onItemClick = {
-                     onCategoryClick(Categories.SERVICES)
+                     onCategoryClick(BookCategories.SERVICES)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -110,7 +110,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.AddHomeWork,
                  text = categoryList[4],
                  onItemClick = {
-                     onCategoryClick(Categories.REAL_ESTATE)
+                     onCategoryClick(BookCategories.REAL_ESTATE)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -118,7 +118,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Agriculture,
                  text = categoryList[5],
                  onItemClick = {
-                     onCategoryClick(Categories.AUTO)
+                     onCategoryClick(BookCategories.AUTO)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -126,7 +126,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.ElectricalServices,
                  text = categoryList[6],
                  onItemClick = {
-                     onCategoryClick(Categories.ELECTRONICS)
+                     onCategoryClick(BookCategories.ELECTRONICS)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -134,7 +134,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.AutoAwesome,
                  text = categoryList[7],
                  onItemClick = {
-                     onCategoryClick(Categories.ENTERTAINMENTS)
+                     onCategoryClick(BookCategories.ENTERTAINMENTS)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -142,7 +142,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Dialpad,
                  text = categoryList[8],
                  onItemClick = {
-                     onCategoryClick(Categories.MISCELLANEOUS)
+                     onCategoryClick(BookCategories.MISCELLANEOUS)
                      coroutineScope.launch { drawerState.close() }
                  }
              )

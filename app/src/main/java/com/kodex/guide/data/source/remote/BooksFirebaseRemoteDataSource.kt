@@ -6,11 +6,12 @@ package com.kodex.guide.data.source.remote
  import com.google.firebase.firestore.Query
  import com.kodex.guide.data.model.BookDTO
  import com.kodex.guide.data.model.BooksPageDTO
+ import com.kodex.guide.data.model.RatingDataDTO
  import com.kodex.guide.domain.model.Book
  import com.kodex.guide.domain.model.RatingData
  import com.kodex.guide.presentation.castom.FilterData
- import com.kodex.guide.utils.Categories
- import com.kodex.guide.utils.Categories.ALL
+ import com.kodex.guide.domain.model.BookCategories
+ import com.kodex.guide.domain.model.BookCategories.ALL
  import com.kodex.guide.utils.FirebaseConst.CATEGORY_INDEX
  import com.kodex.guide.utils.FirebaseConst.KEY
  import com.kodex.guide.utils.FirebaseConst.MODERATION
@@ -27,7 +28,7 @@ class BooksFirebaseRemoteDataSource(
     private val auth: FirebaseAuth,
 
     ) {
-    var categoryIndex: Int = ALL
+    var categoryIndex: BookCategories = ALL
     var searchText = ""
     var filterData = FilterData()
 
@@ -43,7 +44,7 @@ class BooksFirebaseRemoteDataSource(
 
         query = when (categoryIndex) {
             ALL -> query
-            Categories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
+            BookCategories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
             else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
         }
 
@@ -71,7 +72,7 @@ class BooksFirebaseRemoteDataSource(
         return BooksPageDTO(updatedBooks, books.lastOrNull()?.title)
     }
 
-    suspend fun saveBook(book: Book): Result<Unit> {
+    suspend fun saveBook(book: BookDTO): Result<Unit> {
        return try {
            val db = fireStore.collection(POSTS)
            val key = if (book.key.isEmpty()) db.document().id else book.key
@@ -83,7 +84,7 @@ class BooksFirebaseRemoteDataSource(
            Result.failure(e)
        }
    }
-    suspend fun submitUserRating(ratingData: RatingData, bookId: String): Result<Unit> {
+    suspend fun submitUserRating(ratingData: RatingDataDTO, bookId: String): Result<Unit> {
         if (auth.uid == null) return Result.failure(Throwable("User not authenticated"))
       return  try {
             fireStore.collection(MODERATION)
@@ -109,18 +110,18 @@ class BooksFirebaseRemoteDataSource(
        }
     }
 
-    suspend fun getBookComments(bookId: String): Result<List<RatingData>> {
+    suspend fun getBookComments(bookId: String): Result<List<RatingDataDTO>> {
        return try {
            val querySnapshot = fireStore.collection(RATING)
                .document(bookId)
                .collection(RATING_DATA)
                .get().await()
-           Result.success(querySnapshot.toObjects(RatingData::class.java))
+           Result.success(querySnapshot.toObjects(RatingDataDTO::class.java))
        }catch (e: Exception){
            Result.failure(e)
        }
     }
-    suspend fun getUserRating(bookId: String): Result<RatingData?> {
+    suspend fun getUserRating(bookId: String): Result<RatingDataDTO?> {
         if (auth.uid == null) return  Result.failure(Throwable("User not authenticated"))
        return try {
             val querySnapshot = fireStore.collection(RATING)
@@ -128,14 +129,14 @@ class BooksFirebaseRemoteDataSource(
                 .collection(RATING_DATA)
                 .document(auth.uid!!)
                 .get().await()
-            return  Result.success(querySnapshot.toObject(RatingData::class.java))
+            return  Result.success(querySnapshot.toObject(RatingDataDTO::class.java))
       }  catch (e:Exception){
             Result.failure(e)
         }
     }
 
 
-    suspend fun deleteBook(book: Book): Result<Unit> {
+    suspend fun deleteBook(book: BookDTO): Result<Unit> {
         return try {
             fireStore.collection(POSTS)
                 .document(book.key)

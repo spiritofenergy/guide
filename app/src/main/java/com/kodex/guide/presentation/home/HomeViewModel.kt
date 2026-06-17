@@ -20,7 +20,7 @@ import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.presentation.castom.FilterData
 import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.db.MainDb
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.utils.FirebaseConst
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
     val isAdminState = mutableStateOf(false)
     var isRegisterState = mutableStateOf(false)
-    val categoryState = mutableIntStateOf(Categories.ALL)
+    val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
 
@@ -137,8 +137,8 @@ class HomeViewModel @Inject constructor(
        // booksRepo.searchText = searchText
     }
 
-    fun getAllBooksFromCategory(categoryIndex: Int) {
-        categoryState.intValue = categoryIndex
+    fun getAllBooksFromCategory(categoryIndex: BookCategories) {
+        categoryState.value = categoryIndex
        // booksRepo.categoryIndex = categoryIndex
         Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
 

@@ -79,7 +79,7 @@ fun PrevDialogComments() {
         onDismiss = {},
         onConfirm = {},
         showDialog = true,
-        confirmButtonText = "yes"
+        confirmButtonText = "Yes"
     )
 }
 

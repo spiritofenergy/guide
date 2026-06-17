@@ -47,14 +47,16 @@ import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 fun CommentsScreen(
     onCommentsClick: (CommentsNavData) -> Unit = {},
     navObject: CommentsNavData = CommentsNavData(),
-    viewModel: DetailsScreenViewModel = hiltViewModel()
+    viewModel: CommentsViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
-    LaunchedEffect(key1 = Unit) {
-        viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
+
+     LaunchedEffect(key1 = Unit) {
+         viewModel.getBookComments(navObject.bookId)
+
+        /*viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
             navObject.bookId
-        ))    }
+        )) */
+         }
     // Information
     Column(
         modifier = Modifier
@@ -92,11 +94,11 @@ fun CommentsScreen(
             Spacer(Modifier.height(10.dp))
 
             //Comments
-            if (uiState.value.comments.isNotEmpty()) {
+            if (viewModel.commentsState.value.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 LazyRow(modifier = Modifier
                     .fillMaxSize()) {
-                    items(uiState.value.comments) { ratingData ->
+                    items(viewModel.commentsState.value) { ratingData ->
                             CommentListItem(
                                 onClick = {
 

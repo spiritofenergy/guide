@@ -37,13 +37,13 @@ import com.kodex.bookmarketcompose.R
 
 import com.kodex.guide.ui.theme.DarkBlue
 import com.kodex.guide.ui.theme.PurpleGrey80
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopBar(
 
-    titleIndex: Int,
+    category: BookCategories,
     viewModel: HomeViewModel = hiltViewModel(),
     onSearch: (String) -> Unit,
     onTab: () -> Unit,
@@ -133,10 +133,10 @@ fun MainTopBar(
                             )
                         }
 
-                    Text( text = when (titleIndex){
-                        Categories.FAVORITES -> stringResource(id = R.string.faves)
-                        Categories.ALL -> stringResource(id = R.string.all)
-                        else -> stringArrayResource(id = R.array.category_array)[titleIndex]
+                    Text( text = when (category){
+                        BookCategories.FAVORITES -> stringResource(id = R.string.faves)
+                        BookCategories.ALL -> stringResource(id = R.string.all)
+                        else -> stringArrayResource(id = R.array.category_array)[category.id]
                     }
                     )
                         }
@@ -191,11 +191,5 @@ fun MainTopBar(
 @Preview(showBackground = true)
 @Composable
 fun ShowMainTopBar(){
-    MainTopBar(
-        titleIndex = Categories.ANIMALS,
-        onSearch = {},
-        onTab = {},
-        onMenu = {},
-        onFilter = {}
-    )
+
 }
