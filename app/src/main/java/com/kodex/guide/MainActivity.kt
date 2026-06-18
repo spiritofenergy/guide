@@ -12,7 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.kodex.guide.ui.settingsScreen.SettingsScreen
+import com.kodex.guide.presentation.settingsScreen.SettingsScreen
 import com.kodex.guide.ui.addscreen.AddBookScreen
  import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
@@ -21,9 +21,8 @@ import com.kodex.guide.presentation.home.HomeScreen
 import com.kodex.guide.presentation.room.RoomFavoriteScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.login.sign_up.SignUpScreen
+import com.kodex.guide.presentation.login.sign_up.SignUpScreen
 import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
-import com.kodex.guide.ui.placeScreen.PlaceScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

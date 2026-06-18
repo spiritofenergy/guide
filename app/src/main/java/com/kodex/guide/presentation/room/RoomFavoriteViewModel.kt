@@ -19,7 +19,7 @@ class RoomFavoriteViewModel @Inject constructor(
     val postList = mainDb.roomDao.getAllPosts()
     var postToDelete: Book? = null
 
-    val categoryState = mutableIntStateOf(BookCategories.ALL)
+    val categoryState = mutableIntStateOf(BookCategories.ALL.id)
     val isAdminState = mutableStateOf(false)
 
 

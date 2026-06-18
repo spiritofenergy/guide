@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.settingsScreen
+package com.kodex.guide.presentation.settingsScreen
 
 import android.util.Log
 import android.widget.Toast
@@ -32,9 +32,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.dialods.AccountDialog
 import com.kodex.guide.ui.dialods.MyDialog
-import com.kodex.guide.ui.settingsScreen.menuItems.DialogMenuItem
-import com.kodex.guide.ui.settingsScreen.menuItems.DropDownMenuItem
-import com.kodex.guide.ui.settingsScreen.menuItems.MenuCategoryItem
+import com.kodex.guide.presentation.settingsScreen.menuItems.DialogMenuItem
+import com.kodex.guide.presentation.settingsScreen.menuItems.DropDownMenuItem
+import com.kodex.guide.presentation.settingsScreen.menuItems.MenuCategoryItem
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import androidx.compose.ui.res.stringResource
 import com.kodex.guide.domain.model.AddressData
@@ -168,7 +168,7 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .background(ButtonColorBlue)
             ) {
-                items(CategoryMenuList.menuItemList) { item ->
+                items(SettingsCategoryMenuList.menuItemList) { item ->
                     when (item) {
                         is MenuItem.CategoryItem -> {
                             MenuCategoryItem(item.title)

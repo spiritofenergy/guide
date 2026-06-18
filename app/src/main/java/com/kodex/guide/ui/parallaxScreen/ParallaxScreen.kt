@@ -111,7 +111,7 @@ fun ParallaxScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
+                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex.id],
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 18.sp,

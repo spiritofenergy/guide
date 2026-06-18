@@ -46,7 +46,7 @@ import com.kodex.guide.ui.theme.ButtonColorBlue
                 },
                 title = {
                     Column(Modifier.fillMaxWidth()) {
-                        StarsIndicator(rating = ratingData.rating)
+                       // StarsIndicator(rating = ratingData.rating.id)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(

@@ -4,6 +4,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.android.play.core.integrity.d
+import com.kodex.guide.data.mapper.toBookDTO
+import com.kodex.guide.data.mapper.toDTO
+import com.kodex.guide.data.mapper.toRatingData
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.RatingData
@@ -29,18 +32,18 @@ class BooksRepo_Impl @Inject constructor(
     }
 
     override suspend fun deleteBook(book: Book): Result<Unit> {
-        return dataSource.deleteBook(book)
+        return dataSource.deleteBook(book.toBookDTO())
     }
 
     override suspend fun saveBook(book: Book): Result<Unit> {
-        return dataSource.saveBook(book)
+        return dataSource.saveBook(book.toBookDTO())
     }
 
     override suspend fun submitUserRating(
         ratingData: RatingData,
         bookId: String
     ): Result<Unit> {
-        return dataSource.submitUserRating(ratingData, bookId)
+        return dataSource.submitUserRating(ratingData.toDTO(), bookId)
     }
 
     override suspend fun deleteComment(uid: String): Result<Unit> {
@@ -48,10 +51,16 @@ class BooksRepo_Impl @Inject constructor(
     }
 
     override suspend fun getBookComments(bookId: String): Result<List<RatingData>> {
-        return dataSource.getBookComments(bookId)
+        return dataSource.getBookComments(bookId).map { list->
+            list.map {
+                rData -> rData.toRatingData()
+            }
+        }
     }
 
     override suspend fun getUserRating(bookId: String): Result<RatingData?> {
-        return dataSource.getUserRating(bookId)
+        return dataSource.getUserRating(bookId).map {
+            it?.toRatingData()
+        }
     }
 }

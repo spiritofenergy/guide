@@ -18,7 +18,7 @@ class FireStoreManagerPaging @Inject constructor(
     // private val contentResolver: ContentResolver
     // private val storage: FirebaseStorage,
 ) {
-    var categoryIndex: Int = ALL
+    var categoryIndex: Int = ALL.id
     var searchText = ""
     var minPrice = 0
     var maxPrice = 5000

@@ -149,7 +149,7 @@ fun PlaceScreen(
         topBar = {
             TopAppBar(
                 title = { Text(
-                    text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
+                    text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex.id],
                     fontSize = 20.sp)
                         },
                 navigationIcon = {

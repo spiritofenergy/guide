@@ -1,12 +1,10 @@
-package com.kodex.guide.ui.settingsScreen
+package com.kodex.guide.presentation.settingsScreen
 
-import androidx.compose.material3.DropdownMenu
 import com.kodex.bookmarketcompose.R
 
-object CategoryMenuList {
+object SettingsCategoryMenuList {
     val menuItemList = listOf(
-        MenuItem.CategoryItem("Account Settings",
-        ),
+        MenuItem.CategoryItem("Account Settings"),
         MenuItem.DialogItem("Personal Data",
 
         ),

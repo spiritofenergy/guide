@@ -30,14 +30,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.add_book.AddBookViewModel
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.domain.repository.UserSettingsRepo
+import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
-import com.kodex.guide.ui.login.RoundedCornerTextField
+import com.kodex.guide.presentation.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
 import com.kodex.guide.utils.FirebaseConst.POSTS
-import com.kodex.guide.utils.ImageUtils.imageToBase64
 import com.kodex.guide.utils.firebase.IS_BASE_64
 import com.kodex.guide.utils.toBitmap
 
@@ -114,9 +113,9 @@ fun AddBookScreen(
         Spacer(modifier = Modifier.height(10.dp))
         RoundedCornerDropDownMenu(
             categories.toList(),
-            categories[viewModel.selectedCategory.intValue],
+            categories[viewModel.selectedCategory.value.id],
             onOptionSelected = { selectedItemIndex ->
-                viewModel.selectedCategory.intValue = selectedItemIndex
+                viewModel.selectedCategory.value = BookCategories.fromId(selectedItemIndex)
             },
         )
 
@@ -189,7 +188,7 @@ fun AddBookScreen(
                         title = viewModel.title.value,
                         description = viewModel.description.value,
                         price = viewModel.price.value.toInt(),
-                        categoryIndex = viewModel.selectedCategory.intValue,
+                        categoryIndex = viewModel.selectedCategory.value,
                         village = viewModel.village.value,
 
                        /* imageUrl = if (viewModel.selectedImageUri.value != null) {

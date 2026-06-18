@@ -20,7 +20,7 @@ data class ParallaxData (
     val longitude: Double,
 
     val description: String = "",
-    val categoryIndex: Int = BookCategories.ALL,
+    val categoryIndex: Int = BookCategories.ALL.id,
     val author: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val isFaves: Boolean = false,
