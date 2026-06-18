@@ -45,13 +45,13 @@ import com.kodex.guide.ui.theme.Orange
 fun DialogRating(
     ratingData: RatingData = RatingData(),
     onDismiss: () -> Unit = {},
-    onSubmit: (Int, String) -> Unit = {_, _ ->},
+    onSubmit: (RatingData) -> Unit = {_ ->},
     show: Boolean = false
 ) {
     val context = LocalContext.current
     var selectedRate by remember { mutableIntStateOf(0) }
     var messageState by remember { mutableStateOf("") }
-    selectedRate = ratingData.rating
+    selectedRate = ratingData.rating ?: 1
     messageState = ratingData.message
 
     if (show)
@@ -126,7 +126,13 @@ fun DialogRating(
                         containerColor = ButtonColorBlue
                     ),
                     onClick = {
-                        onSubmit(selectedRate,messageState)
+                        onSubmit(
+                            ratingData.copy(
+                                rating = selectedRate,
+                                message = messageState,
+                                lastRating = ratingData.rating ?: 0
+                            )
+                        )
 
                     }
                 ) {

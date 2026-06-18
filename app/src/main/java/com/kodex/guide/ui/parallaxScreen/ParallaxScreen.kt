@@ -2,7 +2,9 @@ package com.kodex.guide.ui.parallaxScreen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Base64
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -46,6 +48,7 @@ import kotlinx.coroutines.launch
 // Модель данных места
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParallaxScreen(
@@ -108,7 +111,7 @@ fun ParallaxScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex],
+                        text = stringArrayResource(id = R.array.category_array)[navObject.categoryIndex.id],
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 18.sp,
@@ -236,7 +239,7 @@ fun ParallaxScreen(
 @Composable
 fun PreviewDetailScreen() {
     MaterialTheme {
-        ParallaxScreen(
+       /* ParallaxScreen(
             navObject = NavRoutes.ParallaxNavObject(
                 bookId = "1",
                 title = "Coffee House & Bakery",
@@ -255,6 +258,6 @@ fun PreviewDetailScreen() {
             onBackPressed = {},
             onCallTaxi = { _, _ -> },
             onNavigateToReviews = {}
-        )
+        )*/
     }
 }

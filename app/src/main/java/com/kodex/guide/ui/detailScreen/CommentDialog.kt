@@ -52,7 +52,7 @@ fun CommentDialog(
             },
             title = {
                 Column (modifier = Modifier.fillMaxWidth()){
-                   StarsIndicator(rating = ratingData.rating)
+                   StarsIndicator(rating = ratingData.rating ?: 1)
                   //  Spacer(Modifier.height(4.dp))
                     Text(
                         text = ratingData.name,

@@ -81,7 +81,7 @@ fun BookListItemUi(
 
             // 2. Категория в левом верхнем углу
             Text(
-                " " + stringArrayResource(id = R.array.category_array)[book.categoryIndex]+ " ",
+                " " + stringArrayResource(id = R.array.category_array)[book.categoryIndex.id]+ " ",
                // " " + stringArrayResource(R.array.category_array)[book.categoryIndex] + " ",
                 fontSize = 18.sp,
                 color = Color.White,

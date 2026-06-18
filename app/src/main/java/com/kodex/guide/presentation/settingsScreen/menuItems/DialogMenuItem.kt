@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.settingsScreen.menuItems
+package com.kodex.guide.presentation.settingsScreen.menuItems
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kodex.guide.ui.settingsScreen.DialogType
-import com.kodex.guide.ui.settingsScreen.MenuItem
+import com.kodex.guide.presentation.settingsScreen.DialogType
+import com.kodex.guide.presentation.settingsScreen.MenuItem
 
 @Composable
 fun DialogMenuItem(

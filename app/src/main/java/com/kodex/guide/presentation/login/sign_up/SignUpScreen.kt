@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.login.sign_up
+package com.kodex.guide.presentation.login.sign_up
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

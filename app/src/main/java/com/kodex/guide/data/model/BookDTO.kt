@@ -2,7 +2,7 @@ package com.kodex.guide.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 
 @Entity(tableName = "books")
 data class BookDTO(
@@ -14,7 +14,7 @@ data class BookDTO(
     val description: String = "",
     val price: Int = 0,
     val telephone: String = "",
-    val categoryIndex: Int = Categories.ALL,
+    val categoryIndex: Int = BookCategories.ALL.id,
     val imageUrl: String = "",
     val isFavorite: Boolean = false,
     val isAuthor: Boolean = false,

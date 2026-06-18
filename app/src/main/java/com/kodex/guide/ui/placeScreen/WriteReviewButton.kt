@@ -47,12 +47,12 @@ fun WriteReviewButton(
         onDismiss = {
             showRateDialog = false
         },
-        onSubmit = { rating, message ->
+        onSubmit = {  ratingData ->
             val ratingData = RatingData(
-                name = "",
-                rating = rating,
-                message = message,
-                //lastRating = viewModel.ratingDataState.value?.rating ?: 0,
+               // name = "",
+               // rating = rating,
+               // message = message,
+               // lastRating = viewModel.ratingDataState.value?.rating ?: 0,
              )
           //  viewModel.insertRating(ratingData, navObject.bookId)
             showRateDialog = false

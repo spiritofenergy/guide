@@ -2,6 +2,7 @@ package com.kodex.guide.ui.detailScreen
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.data.repository.BooksRepo_Impl
@@ -27,10 +28,10 @@ class DetailsScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailsUiState())
     val uiState = _uiState.asStateFlow()
 
-    //  val ratingState = mutableStateOf("0")
-    /* val commentState = mutableStateOf(emptyList<RatingData>())
+      val ratingState = mutableStateOf("0")
+    // val commentState = mutableStateOf(emptyList<RatingData>())
      val ratingDataState = mutableStateOf<RatingData?>(RatingData())
- */
+
     private fun insertRating(ratingData: RatingData, bookId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = booksRepo.submitUserRating(ratingData, bookId)
@@ -51,7 +52,9 @@ class DetailsScreenViewModel @Inject constructor(
         val result = booksRepo.getBookComments(bookId)
         result.fold(
             onSuccess = { commentsList ->
-
+                _uiState.value = uiState.value.copy(
+                    comments = commentsList
+                )
             },
             onFailure = { error ->
 
@@ -65,7 +68,7 @@ class DetailsScreenViewModel @Inject constructor(
             onSuccess = { rData ->
                 _uiState.value = uiState.value.copy(
                     showRateDialog = true,
-                    ratingData = rData?: RatingData()
+                    ratingData =  rData?: RatingData()
                 )
             },
             onFailure = { error ->
@@ -79,7 +82,7 @@ class DetailsScreenViewModel @Inject constructor(
             is DetailUiEvent.CommentDialogEvent -> {
                 _uiState.value = uiState.value.copy(
                     showCommentDialog = event.show,
-                    ratingData = event.ratingData ?: RatingData()
+                    ratingDataToShow = event.ratingData ?: RatingData()
                 )
             }
             is DetailUiEvent.ShowUserRatingDialogEvent -> {
@@ -87,8 +90,7 @@ class DetailsScreenViewModel @Inject constructor(
             }
             is DetailUiEvent.HideUserRatingDialog -> {
                 _uiState.value = uiState.value.copy(
-                    showRateDialog = false
-                )
+                    showRateDialog =true)
             }
             is DetailUiEvent.InsertRatingDialogEvent -> {
                 insertRating(event.ratingData, event.bookId)
@@ -119,7 +121,7 @@ class DetailsScreenViewModel @Inject constructor(
                 appendLine()
                 appendLine(place.description)
                 appendLine()
-                appendLine("Поделиться из приложения Искра Кучугуры")
+                appendLine("Поделиться из приложения Guide Кучугуры")
             }
 
             withContext(Dispatchers.Main) {

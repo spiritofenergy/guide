@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.settingsScreen.menuItems
+package com.kodex.guide.presentation.settingsScreen.menuItems
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

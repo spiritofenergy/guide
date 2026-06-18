@@ -33,6 +33,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +51,7 @@ import com.kodex.guide.ui.detailScreen.CommentListItem
 import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
+import com.kodex.guide.ui.dialods.DialogComments
 import com.kodex.guide.ui.dialods.DialogRating
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.Orange
@@ -59,32 +64,39 @@ fun MainContent(
     onNavigateToReviews: () -> Unit,
     viewModel: DetailsScreenViewModel = viewModel()
 ) {
-    /*  var showRateDialog by remember { mutableStateOf(false) }
+      var showRateDialog by remember { mutableStateOf(false) }
       var showCommentDialog by remember { mutableStateOf(false) }
       var ratingDataToShow by remember { mutableStateOf(RatingData()) }
-      */
+
     val uiState = viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
     val telephone = "+79197716667"
 
-    DialogRating(
-        ratingData = uiState.value.ratingData,
-        onDismiss = {
-            viewModel.onEvent(
-                DetailUiEvent.CommentDialogEvent(
-                    false,
-                    null
-                )
-            )
-        },
+    /*DialogRating(
+        ratingData = viewModel.ratingDataState.value ?: RatingData(),
+        onDismiss = { showRateDialog = false },
         onSubmit = { rating, message ->
             val ratingData = RatingData(
                 name = "",
                 rating = rating,
                 message = message,
-                lastRating = uiState.value.ratingData.rating
+                lastRating = viewModel.ratingDataState.value?.rating ?: 0
             )
+            viewModel.insertRating(ratingData, navObject.bookId)
+            showRateDialog = false
+        },
+        show = showRateDialog
+    )*/
+
+    DialogRating(
+        ratingData = uiState.value.ratingData,
+        onDismiss = {
+            viewModel.onEvent(
+                DetailUiEvent.HideUserRatingDialog
+            )
+        },
+        onSubmit = {ratingData ->
             Log.d("MyLog", "BookId: ${navObject.bookId}")
             viewModel.onEvent(
                 DetailUiEvent.InsertRatingDialogEvent(
@@ -95,13 +107,16 @@ fun MainContent(
         show = uiState.value.showRateDialog,
     )
 
-    /* DialogComments(
-         showDialog =  showCommentDialog,
-         onDismiss = { showCommentDialog = false },
-         ratingData = ratingDataToShow,
+
+     DialogComments(
+         showDialog =  uiState.value.showCommentDialog,
+         onDismiss = {
+           //  showCommentDialog = false
+         },
+         ratingData = uiState.value.ratingDataToShow,
          onConfirm = { showCommentDialog = false }
      )
- */
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -271,12 +286,17 @@ fun MainContent(
                     .fillMaxWidth()
                     .weight(1f),
                 onClick = {
+                    Log.d("MyLog", "onClick: ${navObject.bookId}")
+
                     viewModel.onEvent(
                         DetailUiEvent.ShowUserRatingDialogEvent(
                             navObject.bookId
+
                         )
                     )
-                    //showRateDialog = true
+                    Log.d("MyLog2", "ShowUserRatingDialogEvent: ${navObject.bookId}")
+
+                    showRateDialog = true
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Orange)
             ) {
@@ -323,6 +343,7 @@ fun MainContent(
         // Отзывы в виде горизонтального списка
         if (uiState.value.comments.isNotEmpty()) {
             LazyRow(
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp) // Фиксированная высота для LazyRow

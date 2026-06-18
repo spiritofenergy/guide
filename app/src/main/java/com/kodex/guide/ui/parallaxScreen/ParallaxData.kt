@@ -1,6 +1,6 @@
 package com.kodex.guide.ui.parallaxScreen
 
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 
 
 data class ParallaxData (
@@ -20,7 +20,7 @@ data class ParallaxData (
     val longitude: Double,
 
     val description: String = "",
-    val categoryIndex: Int = Categories.ALL,
+    val categoryIndex: Int = BookCategories.ALL.id,
     val author: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val isFaves: Boolean = false,

@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.settingsScreen
+package com.kodex.guide.presentation.settingsScreen
 
 import com.kodex.bookmarketcompose.R
 

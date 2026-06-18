@@ -1,19 +1,15 @@
-package com.kodex.guide.ui.settingsScreen
+package com.kodex.guide.presentation.settingsScreen
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.play.integrity.internal.u
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
-import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.domain.model.UserSettingsBundle
 import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.domain.repository.UserSettingsRepo
-import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

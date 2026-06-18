@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.db.MainDb
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +19,7 @@ class RoomFavoriteViewModel @Inject constructor(
     val postList = mainDb.roomDao.getAllPosts()
     var postToDelete: Book? = null
 
-    val categoryState = mutableIntStateOf(Categories.ALL)
+    val categoryState = mutableIntStateOf(BookCategories.ALL.id)
     val isAdminState = mutableStateOf(false)
 
 

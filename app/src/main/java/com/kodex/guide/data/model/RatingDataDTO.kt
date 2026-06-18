@@ -9,7 +9,7 @@ data class RatingDataDTO (
     val id: Int? = null,
     val name: String  = "",
     val uid: String  = "",
-    val rating: Int = 1,
+    val rating: Int? = null,
 
     val lastRating: Int = 0,
     val message: String = "",

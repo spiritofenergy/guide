@@ -1,6 +1,6 @@
 package com.kodex.guide.presentation.navigation
 
-import com.kodex.guide.utils.Categories
+import com.kodex.guide.domain.model.BookCategories
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -43,7 +43,7 @@ class NavRoutes {
         val website: String = "coffeehouse.ru",
         val latitude: String = "9",
         val longitude:String = "22",
-        val categoryIndex: Int = Categories.ALL,
+        val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val author: String = "",
         val timestamp: Long = System.currentTimeMillis(),
@@ -57,7 +57,7 @@ class NavRoutes {
         val description: String = "",
         val price: String = "",
         val telephone: String = "",
-        val categoryIndex: Int = Categories.ALL,
+        val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val author: String = "",
         val timestamp: Long = System.currentTimeMillis(),
@@ -70,7 +70,7 @@ class NavRoutes {
         val title: String = "Уютный уголок",
         val description: String = "Уютная кофейня в центре города. Мы предлагаем свежую выпечку, авторский кофе и приятную атмосферу для работы и встреч с друзьями. У нас есть бесплатный Wi-Fi, розетки и вежливый персонал.",
         val price: Int = 0,
-        val categoryIndex: Int = Categories.ALL,
+        val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val author: String = "",
         val address: String = "ул. Центральная, 15, Москва",
@@ -100,7 +100,7 @@ class NavRoutes {
         val description: String = "",
         val price: Int = 0,
         val telephone: String = "",
-        val categoryIndex: Int = Categories.MISCELLANEOUS,
+        val categoryIndex: BookCategories = BookCategories.MISCELLANEOUS,
         val imageUrl: String = "",
         val isFavorite: Boolean = false,
         val isAuthor: Boolean = false,

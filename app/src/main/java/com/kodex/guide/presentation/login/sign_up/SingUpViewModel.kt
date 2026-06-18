@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.login.sign_up
+package com.kodex.guide.presentation.login.sign_up
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

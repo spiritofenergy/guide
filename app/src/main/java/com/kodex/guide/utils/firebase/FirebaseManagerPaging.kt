@@ -4,21 +4,8 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.domain.model.RatingData
-import com.kodex.guide.domain.model.AddressData
-import com.kodex.guide.domain.model.PersonalData
-import com.kodex.guide.domain.model.UserSettingsData
-import com.kodex.guide.utils.Categories.ALL
-import com.kodex.guide.utils.FirebaseConst.RATING_DATA
-import com.kodex.guide.utils.FirebaseConst.MODERATION
-import com.kodex.guide.utils.FirebaseConst.RATING
+import com.kodex.guide.domain.model.BookCategories.ALL
 import com.kodex.guide.utils.FirebaseConst.POSTS
-import com.kodex.guide.utils.FirebaseConst.ADDRESS_DATA
-import com.kodex.guide.utils.FirebaseConst.DATA
-import com.kodex.guide.utils.FirebaseConst.PERSONAL_DATA
-import com.kodex.guide.utils.FirebaseConst.USER_DATA
-import com.kodex.guide.utils.FirebaseConst.USER_SETTINGS
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +18,7 @@ class FireStoreManagerPaging @Inject constructor(
     // private val contentResolver: ContentResolver
     // private val storage: FirebaseStorage,
 ) {
-    var categoryIndex: Int = ALL
+    var categoryIndex: Int = ALL.id
     var searchText = ""
     var minPrice = 0
     var maxPrice = 5000
@@ -133,150 +120,10 @@ class FireStoreManagerPaging @Inject constructor(
                 return
             }
         }
-    suspend fun getCommentsToModerate(): List<RatingData> {
-        val querySnapshot = db.collection(MODERATION)
-            .get().await()
-        val commentsList = querySnapshot.toObjects(RatingData::class.java)
-        return commentsList
-    }
-    suspend fun insertModerationRating(ratingData: RatingData) {
-        if (auth.uid == null) return
-        db.collection(RATING)
-            .document(ratingData.bookId)
-            .collection(RATING_DATA)
-            .document(ratingData.uid)
-            .set(ratingData)
-
-        val book: Book = db.collection(POSTS)
-            .document(ratingData.bookId)
-            .get().await().toObject(Book::class.java) ?: return
-        val ratingsList = book.ratingsList.toMutableList()
-        if (ratingData.lastRating == 0) {
-            ratingsList.add(ratingData.rating)
-        } else {
-            val index = ratingsList.indexOf(ratingData.lastRating)
-            ratingsList[index] = ratingData.rating
-        }
-        db.collection(POSTS)
-            .document(ratingData.bookId)
-            .update("ratingsList", ratingsList)
-    }
-
-
-
-    fun insertUserRating(ratingData: RatingData, bookId: String) {
-        if (auth.uid == null) return
-        db.collection(MODERATION)
-            .document(auth.uid!!)
-            .set(
-                ratingData.copy(
-                    name = auth.currentUser?.email ?: "Unknown",
-                    uid = auth.uid!!,
-                    bookId = bookId
-                )
-            )
-    }
 
 
 
 
-    suspend fun deleteComment(uid: String) {
-        db.collection(MODERATION)
-            .document(uid)
-            .delete().await()
-    }
-
-    suspend fun getBookComments(bookId: String): List<RatingData> {
-        val querySnapshot = db.collection(RATING)
-            .document(bookId)
-            .collection(RATING_DATA)
-            .get().await()
-        return querySnapshot.toObjects(RatingData::class.java)
-    }
-
-    suspend fun getUserRating(bookId: String): RatingData? {
-        if (auth.uid == null) return null
-        val querySnapshot = db.collection(RATING)
-            .document(bookId)
-            .collection(RATING_DATA)
-            .document(auth.uid!!)
-            .get().await()
-        return querySnapshot.toObject(RatingData::class.java)
-    }
-
-
-    /*
-    fun insertPersonalData(personalData: PersonalData, onDataSaved: () -> Unit = {}) {
-        if (auth.uid == null) return
-        db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(PERSONAL_DATA)
-            .document(DATA)
-            .set(personalData).addOnSuccessListener {
-                onDataSaved()
-            }
-    }
-
-    fun insertAddressData(addressData: AddressData) {
-        if (auth.uid == null) return
-        db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(ADDRESS_DATA)
-            .document(DATA)
-            .set(addressData)
-
-    }
-
-    fun insertUserSettingsData(userSettingsData: UserSettingsData) {
-        if (auth.uid == null) return
-        db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(USER_SETTINGS)
-            .document(DATA)
-            .set(userSettingsData)
-
-    }
-   fun updateLastVisit() {
-        if (auth.uid == null) return
-        db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(PERSONAL_DATA)
-            .document(DATA)
-            .update("lastVisit", System.currentTimeMillis())
-    }
-
-    suspend fun getSettings(
-        onSettingsLoaded: (PersonalData, AddressData, UserSettingsData) -> Unit,
-    ) {
-        if (auth.uid == null) return
-        val querySnapshotPersonal = db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(PERSONAL_DATA)
-            .document(DATA)
-            .get().await()
-        val personalData =
-            querySnapshotPersonal.toObject(PersonalData::class.java) ?: PersonalData()
-
-        val querySnapshotAddress = db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(ADDRESS_DATA)
-            .document(DATA)
-            .get().await()
-        val addressData =
-            querySnapshotAddress.toObject(AddressData::class.java) ?: AddressData()
-
-        val querySnapshotSettings = db.collection(USER_DATA)
-            .document(auth.uid!!)
-            .collection(USER_SETTINGS)
-            .document(DATA)
-            .get().await()
-        val userSettingsData =
-            querySnapshotSettings.toObject(UserSettingsData::class.java) ?: UserSettingsData()
-
-        onSettingsLoaded(personalData, addressData, userSettingsData)
-
-    }
-*/
 }
 
 
