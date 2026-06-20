@@ -5,13 +5,13 @@ package com.kodex.guide.data.source.remote
  import com.google.firebase.firestore.FirebaseFirestore
  import com.google.firebase.firestore.Query
  import com.kodex.guide.data.model.BookDTO
+ import com.kodex.guide.data.model.BookFilter
  import com.kodex.guide.data.model.BooksPageDTO
  import com.kodex.guide.data.model.RatingDataDTO
- import com.kodex.guide.domain.model.Book
- import com.kodex.guide.domain.model.RatingData
  import com.kodex.guide.presentation.castom.FilterData
  import com.kodex.guide.domain.model.BookCategories
  import com.kodex.guide.domain.model.BookCategories.ALL
+ import com.kodex.guide.utils.FirebaseConst
  import com.kodex.guide.utils.FirebaseConst.CATEGORY_INDEX
  import com.kodex.guide.utils.FirebaseConst.KEY
  import com.kodex.guide.utils.FirebaseConst.MODERATION
@@ -28,35 +28,40 @@ class BooksFirebaseRemoteDataSource(
     private val auth: FirebaseAuth,
 
     ) {
-    var categoryIndex: BookCategories = ALL
+   /* var category: BookCategories = ALL
     var searchText = ""
-    var filterData = FilterData()
+    var filterData = FilterData()*/
 
     suspend fun nextPage(
         keysFavesList: List<String>,
         pageSize: Long,
         currentKey: String?,
+        bookFilter: BookFilter,
     ): BooksPageDTO{
         var query: Query = fireStore.collection(POSTS)
             .limit(pageSize)
-            .orderBy(filterData.filterType)
-        // val keysFaves List = getIdsFavesList()
+            .orderBy(bookFilter.filterData.filterType)
 
-        query = when (categoryIndex) {
-            ALL -> query
+        query = when (bookFilter.category) {
+            BookCategories.ALL -> query
             BookCategories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
-            else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
+            else -> query.whereEqualTo(CATEGORY_INDEX, bookFilter.category.id)
         }
 
-        if (searchText.isNotEmpty()) {
-            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
-                .whereLessThan(SEARCH_TITLE, "${searchText.lowercase()}\uF7FF")
-        }
-
-        /* if (!isPriceFilter) {
-            query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
-                .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
+      /*  if (bookFilter.searchText.isNotEmpty()) {
+            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, bookFilter.searchText.lowercase())
+                .whereLessThan(SEARCH_TITLE, "${bookFilter.searchText.lowercase()}\uF7FF")
         }*/
+
+        if (bookFilter.filterData.filterType == FirebaseConst.PRICE
+            && bookFilter.filterData.minPrise != 0
+            && bookFilter.filterData.maxPrise != 0
+            && bookFilter.filterData.minPrise <= bookFilter.filterData.minPrise
+            ) {
+            query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, bookFilter.filterData.minPrise)
+                .whereLessThanOrEqualTo(FirebaseConst.PRICE, bookFilter.filterData.maxPrise)
+        }
+
         if (currentKey != null) {
             query = query.startAfter(currentKey)
         }

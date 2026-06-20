@@ -3,6 +3,7 @@ package com.kodex.guide.presentation.home
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kodex.guide.data.mapper.toBook
+import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.domain.model.Book
 import java.io.IOException
@@ -11,6 +12,7 @@ import javax.inject.Inject
 class BookFactoryPaging @Inject constructor(
     private val dataSource: BooksFirebaseRemoteDataSource,
     private val keysFavsList: List<String>,
+    private val bookFilter: BookFilter,
     ): PagingSource<String, Book>() {
 
     override fun getRefreshKey(state: PagingState<String, Book>)
@@ -26,6 +28,7 @@ class BookFactoryPaging @Inject constructor(
                 keysFavesList = keysFavsList,
                 pageSize = params.loadSize.toLong(),
                 currentKey = currentPage,
+                bookFilter = bookFilter,
             )
             return LoadResult.Page(
                 data = booksPageDTO.books.map { it.toBook() },

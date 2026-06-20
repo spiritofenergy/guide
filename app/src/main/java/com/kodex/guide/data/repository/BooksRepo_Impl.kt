@@ -7,6 +7,7 @@ import com.google.android.play.core.integrity.d
 import com.kodex.guide.data.mapper.toBookDTO
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toRatingData
+import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.RatingData
@@ -19,14 +20,18 @@ class BooksRepo_Impl @Inject constructor(
     private val dataSource: BooksFirebaseRemoteDataSource,
 
 ): BooksRepo{
-    override fun getBooks(favsKeysList: List<String>): Flow<PagingData<Book>> {
+    override fun getBooks(favsKeysList: List<String>, bookFilter: BookFilter): Flow<PagingData<Book>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 16,
                 prefetchDistance = 3,
                 initialLoadSize = 30,
             ),
-            pagingSourceFactory = { BookFactoryPaging(dataSource, favsKeysList)
+            pagingSourceFactory = { BookFactoryPaging(
+                dataSource,
+                favsKeysList,
+                bookFilter,
+                )
             }
         ).flow
     }
