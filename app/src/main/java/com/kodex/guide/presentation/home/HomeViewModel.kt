@@ -13,6 +13,7 @@ import androidx.paging.map
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,6 +56,7 @@ class HomeViewModel @Inject constructor(
     val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
+    private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
 
     private val favoritesKeysFlow = flow{
         val result = favoritesRepo.getIdsFavesList()
@@ -70,12 +73,13 @@ class HomeViewModel @Inject constructor(
     val postList = mainDb.roomDao.getAllPosts()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val books: Flow<PagingData<Book>> = favoritesKeysFlow.flatMapLatest{ keysList->
-        booksRepo.getBooks(keysList)
-    } .cachedIn(viewModelScope)
+    val books: Flow<PagingData<Book>> = combine(favoritesKeysFlow, bookFilterStateFlow) { keysList, bookFilter ->
+        keysList to bookFilter
+    }.flatMapLatest {(keysList, filter) ->
+        booksRepo.getBooks( keysList, filter)
+    }.cachedIn(viewModelScope)
         .combine(bookListUpdate) { pagingData, booksList ->
             val pgData = pagingData.map { book ->
-                book
                 val updateBook = booksList.find {
                     it.key == book.key
                 }
@@ -137,10 +141,12 @@ class HomeViewModel @Inject constructor(
        // booksRepo.searchText = searchText
     }
 
-    fun getAllBooksFromCategory(categoryIndex: BookCategories) {
-        categoryState.value = categoryIndex
-       // booksRepo.categoryIndex = categoryIndex
-        Log.d("MyLog", "getAllBooksFromCategory: $categoryIndex")
+    fun getAllBooksFromCategory(category: BookCategories) {
+        categoryState.value = category
+        bookFilterStateFlow.update { filter ->
+            filter.copy(category = category)
+        }
+        Log.d("MyLog", "getAllBooksFromCategory: $category")
 
     }
     fun onFavesClick(book: Book, isFavesState: Int,

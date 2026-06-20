@@ -24,6 +24,4 @@ import kotlinx.coroutines.flow.Flow
 
         @Query("SELECT * FROM books WHERE isFavorite = 1")
         fun getFavoriteBooks(): Flow<List<Book>>
-
-
     }

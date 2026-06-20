@@ -239,7 +239,7 @@ fun HomeScreen(
                         onHomeClick = {
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
-                            viewModel.getAllBooksFromCategory(categoryIndex = BookCategories.ALL)
+                            viewModel.getAllBooksFromCategory(category = BookCategories.ALL)
                             refreshBooks(books, viewModel)
                         },
                         onSettingsClick = {

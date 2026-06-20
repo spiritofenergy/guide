@@ -18,11 +18,7 @@ class SingUpViewModel @Inject constructor(
 ) : ViewModel() {
     val errorState = mutableStateOf("")
     val successState = mutableStateOf(false)
-    val emailState = mutableStateOf(
-        "" +
-                //' "nillsimon24@gmail.com" +
-                ""
-    )
+    val emailState = mutableStateOf("nillsimon24@gmail.com")
     val passwordState = mutableStateOf("test2401")
     val nameState = mutableStateOf("")
     val phoneNumberState = mutableStateOf("")
@@ -30,7 +26,7 @@ class SingUpViewModel @Inject constructor(
      fun signUp(
         onSignUpSuccess: (NavRoutes.HomeDataObject) -> Unit
     ) = viewModelScope.launch{
-            emailState.value = ""
+           // emailState.value = ""
         val result = authRepo.signUp(emailState.value, passwordState.value)
          result.fold(
              onSuccess = { user ->

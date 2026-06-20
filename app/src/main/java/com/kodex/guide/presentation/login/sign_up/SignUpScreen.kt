@@ -51,7 +51,7 @@ fun SignUpScreen(
 
 
         Spacer(modifier = Modifier.height(40.dp))
-
+        //User name
             RoundedCornerTextField(
                 text = viewModel.nameState.value,
                 label = "User nane:",
@@ -60,7 +60,7 @@ fun SignUpScreen(
                 viewModel.nameState.value = it
             }
         Spacer(modifier = Modifier.height(5.dp))
-
+        //Telephone
         RoundedCornerTextField(
                 text = viewModel.phoneNumberState.value,
                 label = "Phone number:",
@@ -69,7 +69,7 @@ fun SignUpScreen(
                 viewModel.phoneNumberState.value = it
             }
         Spacer(modifier = Modifier.height(5.dp))
-
+        //email
         RoundedCornerTextField(
                 text = viewModel.emailState.value,
                 label = "Logon:",
@@ -78,7 +78,7 @@ fun SignUpScreen(
                 viewModel.emailState.value = it
             }
             Spacer(modifier = Modifier.height(5.dp))
-
+            //Password
                 RoundedCornerTextField(
                     text = viewModel.passwordState.value,
                     label = "Password:",
