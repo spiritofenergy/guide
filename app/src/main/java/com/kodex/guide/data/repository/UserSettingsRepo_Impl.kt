@@ -15,8 +15,9 @@ import javax.inject.Singleton
 class UserSettingsRepo_Impl@Inject constructor(
     private val userSettingsDataSource: UserSettingsDataSource
 ): UserSettingsRepo{
-    override suspend fun insertPersonalData(personalData: PersonalData): Result<Unit> {
-       return userSettingsDataSource.insertPersonalData(personalData.toDTO())
+    override suspend fun insertPersonalData(personalData: PersonalData, onSignUpSuccess: Unit): Result<Unit> {
+        // Просто конвертируем полученный personalData в DTO
+        return userSettingsDataSource.insertPersonalData(personalData)
     }
 
     override suspend fun insertAddressData(addressData: AddressData): Result<Unit> {
