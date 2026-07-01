@@ -217,7 +217,6 @@ fun BookListItemUi(
             if (!showEditButton) {
                 Text(
                     modifier = Modifier
-
                         .padding(10.dp),
                     text = book.village,
                     color = Color.Black,
@@ -225,21 +224,24 @@ fun BookListItemUi(
                     fontSize = 16.sp
                 )
             }
+
             if (showEditButton) IconButton(onClick = {
                 onEditClick(book)
 
             }) {
                 Icon(
                     Icons.Default.Edit,
-                    contentDescription = ""
+                    contentDescription = "Редактирование"
                 )
             }
+
+
             if (showEditButton) IconButton(onClick = {
                 onDeleteClick(book)
             }) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = ""
+                    contentDescription = "Удаление"
                 )
             }
         }

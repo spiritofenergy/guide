@@ -26,7 +26,7 @@ class BooksRepo_Impl @Inject constructor(
                 pageSize = 16,
                 prefetchDistance = 3,
                 initialLoadSize = 30,
-            ),
+            ),  
             pagingSourceFactory = { BookFactoryPaging(
                 dataSource,
                 favsKeysList,

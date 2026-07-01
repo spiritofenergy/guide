@@ -27,7 +27,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providePostDao(database: MainDb): RoomDao {
-        return database.roomDao // или database.mainDao(), зависит от вашей реализации
+        return database.trackDao // или database.mainDao(), зависит от вашей реализации
     }
 }
 

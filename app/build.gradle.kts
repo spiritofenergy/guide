@@ -49,6 +49,8 @@ android {
 }
 
 dependencies {
+    val koin_version = "4.1.0"
+    implementation("io.insert-koin:koin-androidx-compose:$koin_version")
 
     implementation(libs.androidx.paging)
 

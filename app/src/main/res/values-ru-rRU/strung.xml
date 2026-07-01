@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="app_name">Тамань</string>
+<string name="create_account">Создать аккаунт</string>
+<string name="email_send">Письмо для сброса пароля отправлено</string>
+<string name="reset_password_dialog">Ссылка для сброса пароля отправлена на вашу почту. Пожалуйста, следуйте инструкциям для восстановления пароля.</string>
+
+<!-- LoginScreen -->
+<string name="warning">Внимание</string>
+<string name="you_want_to_delete">Вы действительно хотите удалить?</string>
+<string name="mark_post">Отметить пост</string>
+
+<!-- BottomMenu-->
+<string name="home">Главная</string>
+<string name="faves">Избранное</string>
+<string name="settings">Настройки</string>
+
+<!-- DriverMenu-->
+<string name="all">Все</string>
+<string name="taman_peninsula">Таманский полуостров</string>
+
+<!-- General -->
+<string name="empty_list">Список пуст</string>
+<string name="added_to_favorites">Добавлено в избранное</string>
+<string name="deleted_from_favorites">Удалено из избранного</string>
+
+<!-- MenuScreen -->
+<string name="attention">Внимание</string>
+<string name="want_to_delete_this_message">Вы действительно хотите удалить это сообщение?</string>
+
+<!-- DetailScreen -->
+<string name="rate_this_book">Оцените эту книгу</string>
+<string name="submit">Отправить</string>
+<string name="message">Сообщение</string>
+<string name="yes">Да</string>
+<string name="ok">OK</string>
+<string name="cancel">Отмена</string>
+<string name="comments">Комментарии</string>
+
+<!-- SettingsScreen -->
+<string name="enter_track_name">Введите название трека</string>
+<string name="delete_dialog_massage">Вы уверены, что хотите удалить этот трек?</string>
+<string name="you_account_was_deleted">Ваш аккаунт был удален</string>
+<string name="deleted_account_massage">Вы уверены, что хотите удалить свой аккаунт?</string>
+<string name="delete">Удалить</string>
+<string name="the_fields_on_may_be_empty">Поля не могут быть пустыми</string>
+</resources>

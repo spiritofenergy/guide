@@ -70,7 +70,7 @@ class HomeViewModel @Inject constructor(
             }
         )
     }
-    val postList = mainDb.roomDao.getAllPosts()
+    val postList = mainDb.trackDao.getAllPosts()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<Book>> = combine(favoritesKeysFlow, bookFilterStateFlow) { keysList, bookFilter ->
@@ -182,11 +182,11 @@ class HomeViewModel @Inject constructor(
         }
     }
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
-        mainDb.roomDao.insertPost(book)
+        mainDb.trackDao.insertPost(book)
     }
     // Получить все сохраненные книги
     fun getAllSavedBooks(): Flow<List<Book>> {
-        return mainDb.roomDao.getAllPosts()
+        return mainDb.trackDao.getAllPosts()
     }
 
 
@@ -196,6 +196,19 @@ class HomeViewModel @Inject constructor(
         data class Error(val massage: String) : MainUiState()
     }
 
+   /* private fun deleteBook(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
+        val result = booksRepo.getBookComments(bookId)
+        result.fold(
+            onSuccess = { commentsList ->
+                _uiState.value = uiState.value.copy(
+                    comments = commentsList
+                )
+            },
+            onFailure = { error ->
+
+            }
+        )
+    }*/
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
         Firebase.firestore.collection("admin")

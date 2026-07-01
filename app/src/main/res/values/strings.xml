@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Тамань</string>
+    <string name="create_account">Create account</string>
     <string name="email_send">Correo de restablecimiento de contraseña enviado</string>
     <string name="reset_password_dialog">Se ha enviado un enlace para restablecer la contraseña a su correo. Por favor, siga las instrucciones para restablecer la contraseña.</string>
     <!-- LoginScreen -->
