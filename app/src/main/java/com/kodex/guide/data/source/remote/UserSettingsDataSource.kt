@@ -24,18 +24,18 @@ class UserSettingsDataSource(
 
     suspend fun insertPersonalData(
         personalData: PersonalData,
-        onDataSaved:()-> Unit = {},
+      //  onDataSaved:()-> Unit = {},
     ): Result<Unit> {
         if (auth.uid == null) return Result.failure(Exception("No user uid found"))
-        try {
+        return try {
             db.collection(USER_DATA)
                 .document(auth.uid!!)
                 .collection(PERSONAL_DATA)
                 .document(DATA)
                 .set(personalData).await()
-            return Result.success(Unit)
+             Result.success(Unit)
         } catch (e: Exception) {
-            return Result.failure(e)
+             Result.failure(e)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.kodex.guide.presentation.login.sign_up
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,27 +27,62 @@ class SingUpViewModel @Inject constructor(
     val nameState = mutableStateOf("")
     val phoneNumberState = mutableStateOf("")
 
-     fun signUp(
+    fun signUp(
+        onSignUpSuccess: (NavRoutes.HomeDataObject) -> Unit
+    ) = viewModelScope.launch {
+        val authResult = authRepo.signUp(emailState.value, passwordState.value)
+
+        authResult.fold(
+            onSuccess = { user ->
+                // Сохраняем персональные данные в Firestore
+                val insertResult = userSettingsDataSource.insertPersonalData(
+                    personalData = PersonalData(
+                        nameState.value,
+                        phoneNumberState.value,
+                    )
+                )
+
+                // ВАЖНО: обрабатываем результат сохранения
+                insertResult.fold(
+                    onSuccess = {
+                        // Успех — переходим на главный экран
+                        onSignUpSuccess(NavRoutes.HomeDataObject(user.uid, user.email))
+                    },
+                    onFailure = { exception ->
+                        // Ошибка сохранения — показываем пользователю
+                        errorState.value = "Ошибка сохранения: ${exception.message}"
+                        Log.e("SignUp", "Не удалось сохранить данные", exception)
+                    }
+                )
+            },
+            onFailure = { exception ->
+                errorState.value = exception.message ?: "Unknown error"
+            }
+        )
+    }
+ /*    fun signUp(
         onSignUpSuccess: (NavRoutes.HomeDataObject) -> Unit
     ) = viewModelScope.launch{
            // emailState.value = ""
-        val result = authRepo.signUp(emailState.value, passwordState.value)
-         result.fold(
+        val authResult = authRepo.signUp(emailState.value, passwordState.value)
+         authResult.fold(
              onSuccess = { user ->
-                 userSettingsDataSource.insertPersonalData(
+                val insertResult = userSettingsDataSource.insertPersonalData(
                      personalData = PersonalData(
                          nameState.value,
                          phoneNumberState.value,
-                     ),
-                     onDataSaved = {
+                     )
+                   *//*  onDataSaved = {
                          onSignUpSuccess(NavRoutes.HomeDataObject(user.uid, user.email))
                          //   onSignUpSuccess(navData)
-                     }
+                     }*//*
                  )
+                 insertResult.fold(onSuccess = onSignUpSuccess(NavRoutes.HomeDataObject(user.uid, user.email)))
+
              },
              onFailure = { exception->
                  errorState.value = exception.message ?: "Unknown error"
              }
          )
-    }
+    }*/
 }
