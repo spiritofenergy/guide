@@ -3,7 +3,6 @@ package com.kodex.guide.data.source.remote
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.data.model.AddressDataDTO
-import com.kodex.guide.data.model.PersonalDataDTO
 import com.kodex.guide.data.model.UserSettingsBundleDTO
 import com.kodex.guide.data.model.UserSettingsDataDTO
 import com.kodex.guide.domain.model.AddressData
@@ -24,7 +23,8 @@ class UserSettingsDataSource(
 ) {
 
     suspend fun insertPersonalData(
-        personalData: PersonalDataDTO
+        personalData: PersonalData,
+        onDataSaved:()-> Unit = {},
     ): Result<Unit> {
         if (auth.uid == null) return Result.failure(Exception("No user uid found"))
         try {

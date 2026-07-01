@@ -16,7 +16,7 @@ import javax.inject.Inject
 class RoomFavoriteViewModel @Inject constructor(
     private val mainDb: MainDb
 ) : ViewModel() {
-    val postList = mainDb.roomDao.getAllPosts()
+    val postList = mainDb.trackDao.getAllPosts()
     var postToDelete: Book? = null
 
     val categoryState = mutableIntStateOf(BookCategories.ALL.id)
@@ -24,7 +24,7 @@ class RoomFavoriteViewModel @Inject constructor(
 
 
     fun deletePost() = viewModelScope.launch(Dispatchers.IO) {
-        postToDelete?.let{ mainDb.roomDao.deletePost(it) }
+        postToDelete?.let{ mainDb.trackDao.deletePost(it) }
     }
 
 }
