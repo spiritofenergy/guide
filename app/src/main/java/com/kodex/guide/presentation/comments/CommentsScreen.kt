@@ -22,23 +22,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.kodex.guide.ui.detailScreen.CommentListItem
-import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.domain.model.RatingData
+import com.kodex.guide.presentation.detailScreen.CommentListItem
+import com.kodex.guide.presentation.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.ui.theme.Orange
 import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
-import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -47,15 +41,17 @@ import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
 fun CommentsScreen(
     onCommentsClick: (CommentsNavData) -> Unit = {},
     navObject: CommentsNavData = CommentsNavData(),
-    viewModel: CommentsViewModel = hiltViewModel()
+    viewModel: CommentsViewModel = hiltViewModel(),
+    //viewModelD: DetailsScreenViewModel = hiltViewModel()
 ) {
 
-     LaunchedEffect(key1 = Unit) {
+
+    LaunchedEffect(key1 = Unit) {
          viewModel.getBookComments(navObject.bookId)
 
-        /*viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
+       /* viewModel.onEvent(DetailUiEvent.GetCommentsEvent(
             navObject.bookId
-        )) */
+        ))*/
          }
     // Information
     Column(
@@ -94,7 +90,7 @@ fun CommentsScreen(
             Spacer(Modifier.height(10.dp))
 
             //Comments
-            if (viewModel.commentsState.value.isNotEmpty()) {
+            if ( viewModel.commentsState.value.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 LazyRow(modifier = Modifier
                     .fillMaxSize()) {

@@ -22,7 +22,7 @@ import com.kodex.guide.presentation.room.RoomFavoriteScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.sign_up.SignUpScreen
-import com.kodex.guide.ui.parallaxScreen.ParallaxScreen
+import com.kodex.guide.presentation.details.parallaxScreen.ParallaxScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -250,9 +250,18 @@ class MainActivity : ComponentActivity() {
                         navObject = navData,
                         onBackPressed = { navController.popBackStack() },
                         onCallTaxi = { _, _ -> /* Позвонить */ },
-                        onNavigateToReviews = {}
+                        onNavigateToReviews = {},
+                        onCommentClick = {
+                            navController.navigate(NavRoutes.CommentsNavData(
+                                bookId = navData.bookId,
+                                title = navData.title,
+                                ratingsList =  navData.ratingsList
+                            ))
+                        }
                     )
                 }
+
+
                 composable<NavRoutes.CommentsNavData> { navEntry ->
                     val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()
                     CommentsScreen(

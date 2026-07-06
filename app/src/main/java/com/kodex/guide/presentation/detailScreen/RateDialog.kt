@@ -1,6 +1,5 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.presentation.detailScreen
 
-import android.R.attr.rating
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +39,7 @@ import com.kodex.guide.ui.theme.Orange
 fun RateDialog(
     ratingData: RatingData = RatingData(),
     onDismiss: () -> Unit = {},
-    onSubmit: (Int, String) -> Unit = {_, _ ->},
+    onSubmit: (RatingData) -> Unit = { _ ->},
     show: Boolean = false
 
 ) {
@@ -107,7 +106,11 @@ fun RateDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        onSubmit(selectedRate, messageState)
+                        onSubmit(ratingData.copy(
+                            rating = selectedRate,
+                            message = messageState,
+                            lastRating = ratingData.rating ?: 0
+                            ))
                     },colors = ButtonDefaults.buttonColors(
                         containerColor = ButtonColor
                     )
@@ -121,13 +124,13 @@ fun RateDialog(
 @Preview(showBackground = true)
 @Composable
 fun ShowRatingData(){
-    RateDialog(
+  /*  RateDialog(
         show = true,
         onSubmit = { rating, message ->
             println("Rating: $rating, Message: $message")
         },
         onDismiss = {}
-    )
+    )*/
 }
 
 

@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.placeScreen
+package com.kodex.guide.presentation.placeScreen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -6,16 +6,13 @@ import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -44,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,8 +49,7 @@ import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.navigation.NavRoutes.CommentsNavData
-import com.kodex.guide.ui.detailScreen.CommentListItem
-import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.presentation.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.domain.model.RatingData
 
 

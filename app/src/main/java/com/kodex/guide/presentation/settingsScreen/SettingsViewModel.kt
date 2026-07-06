@@ -71,9 +71,9 @@ class SettingsViewModel @Inject constructor(
 
     fun signOut() = authRepo.signOut()
 
-    fun saveSettings(onSuccess: () -> Unit = {}) = viewModelScope.launch(Dispatchers.IO) {
+    fun saveSettings() = viewModelScope.launch(Dispatchers.IO) {
         if (!newPersonalData.upToDate(oldPersonalData)) {
-            val result = userSettingsRepo.insertPersonalData(newPersonalData, Unit)
+            val result = userSettingsRepo.insertPersonalData(newPersonalData)
             result.fold(
                 onSuccess = {
                     Log.d("MyLog", "newPersonalData ${newPersonalData}")
@@ -103,7 +103,6 @@ class SettingsViewModel @Inject constructor(
                 oldAddressData = userSettingsBundle.addressData
                 addressData.value = oldAddressData
                 oldUserSettingsData = userSettingsBundle.userSettingsData
-                //  userSettingsData.value = oldUserSettingsData
                 _settingsBundleState.value = userSettingsBundle
             },
             onFailure = {

@@ -4,8 +4,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.data.model.BookDTO
 import com.kodex.guide.data.model.RatingDataDTO
-import com.kodex.guide.domain.model.Book
-import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.utils.FirebaseConst.MODERATION
 import com.kodex.guide.utils.FirebaseConst.POSTS
 import com.kodex.guide.utils.FirebaseConst.RATING
@@ -33,6 +31,7 @@ class ModerationDataSource(
               .get().await().toObject(BookDTO::class.java) ?: return Result.failure(Throwable("Book not found"))
 
           val ratingsList = book.ratingsList.toMutableList()
+
           if (ratingData.lastRating == 0) {
               ratingsList.add(ratingData.rating ?: 1)
           } else {
@@ -48,7 +47,7 @@ class ModerationDataSource(
          Result.failure(e)
       }
     }
-    suspend fun getCommentsToModerate(): Result <List<RatingDataDTO>> {
+    suspend fun getAllCommentsToModerate(): Result <List<RatingDataDTO>> {
         return try {
             val querySnapshot = db.collection(MODERATION)
                 .get().await()

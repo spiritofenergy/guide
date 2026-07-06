@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.parallaxScreen
+package com.kodex.guide.presentation.details.parallaxScreen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -38,9 +38,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.presentation.detailScreen.DetailsScreenViewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
+import com.kodex.guide.presentation.events.DetailUiEvents
 
 
 import kotlinx.coroutines.launch
@@ -56,7 +56,8 @@ fun ParallaxScreen(
     navObject: NavRoutes.ParallaxNavObject = NavRoutes.ParallaxNavObject(),
     onBackPressed: () -> Unit,
     onCallTaxi: (String, String) -> Unit,
-    onNavigateToReviews: () -> Unit
+    onNavigateToReviews: () -> Unit,
+    onCommentClick:() -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -81,7 +82,7 @@ fun ParallaxScreen(
     }
     LaunchedEffect(key1 = Unit) {
         viewModel.onEvent(
-            DetailUiEvent.GetCommentsEvent(
+            DetailUiEvents.DetailUiEvent.GetCommentsEvent(
                 navObject.bookId
             )
         )
@@ -177,6 +178,9 @@ fun ParallaxScreen(
                 item {
                     MainContent(
                         navObject = navObject,
+                        onCommentClick = {
+                            onCommentClick()
+                        },
                         //onCallTaxi = { onCallTaxi(navObject.latitude, navObject.longitude) },
                         onNavigateToReviews = onNavigateToReviews
                     )

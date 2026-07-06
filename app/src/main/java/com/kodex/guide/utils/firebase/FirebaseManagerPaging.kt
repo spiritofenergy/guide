@@ -25,52 +25,6 @@ class FireStoreManagerPaging @Inject constructor(
     var isTitleFilter = false
     var isPriceFilter = false
 
-   /* suspend fun nextPage(
-        pageSize: Long,
-        currentKey: DocumentSnapshot?,
-    ): Pair<QuerySnapshot, List<Book>> {
-        var query: Query = db.collection(POSTS).limit(pageSize)
-        //  .orderBy(FirebaseConst.TITLE)
-        // val keysFavesList = getIdsFavesList()
-
-        query = when (categoryIndex) {
-            ALL -> query
-            //Categories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
-            else -> query.whereEqualTo(CATEGORY_INDEX, categoryIndex)
-        }
-
-        if (searchText.isNotEmpty()) {
-            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, searchText.lowercase())
-                .whereLessThan(SEARCH_TITLE, "${searchText.lowercase()}\uF7FF")
-        }
-
-        if (!isPriceFilter) {
-            query = query.whereGreaterThanOrEqualTo(FirebaseConst.PRICE, minPrice)
-                .whereLessThanOrEqualTo(FirebaseConst.PRICE, maxPrice)
-        }
-        if (currentKey != null) {
-            query = query.startAfter(currentKey)
-        }
-        val querySnapshot = query.get().await()
-        val books = querySnapshot.toObjects(Book::class.java)
-        *//*  val updatedBooks = books.map {
-            if (keysFavesList.contains(it.key)) {
-                it.copy(isFavorite = true)
-            } else {
-                it
-            }
-        }
-        return Pair(querySnapshot, updatedBooks)
-    }
-    *//*
-
-    }*/
-/*
-        fun getFavesCategoryReference(): CollectionReference {
-            return db.collection(USERS)
-                .document(auth.uid ?: "")
-                .collection(FirebaseConst.FAVORITES)
-        }*/
 
 
         fun saveBookToFireStore(

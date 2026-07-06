@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen.states
+package com.kodex.guide.presentation.detailScreen.states
 
 import com.kodex.guide.domain.model.RatingData
 

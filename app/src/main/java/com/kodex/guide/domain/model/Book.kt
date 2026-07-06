@@ -2,6 +2,7 @@ package com.kodex.guide.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.firebase.database.PropertyName
 
 @Entity(tableName = "books")
 data class Book(

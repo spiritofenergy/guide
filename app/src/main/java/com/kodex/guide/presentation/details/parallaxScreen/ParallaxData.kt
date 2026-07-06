@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.parallaxScreen
+package com.kodex.guide.presentation.details.parallaxScreen
 
 import com.kodex.guide.domain.model.BookCategories
 

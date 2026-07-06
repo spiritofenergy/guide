@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.presentation.detailScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -23,7 +23,7 @@ import com.kodex.guide.utils.toFormattedDate
 fun CommentDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+   // onConfirm: () -> Unit,
     ratingData: RatingData,
     confirmButtonText: String = "Yes",
     confirmButton: String = "No"
@@ -43,7 +43,7 @@ fun CommentDialog(
                 }
 
                 Button(onClick = {
-                    onConfirm()
+                   // onConfirm()
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = ButtonColor
                 )) {
@@ -85,7 +85,7 @@ fun ShowCommentDialog(){
     CommentDialog(
         showDialog = true,
         onDismiss = {},
-        onConfirm = {},
+       // onConfirm = {},
         ratingData = RatingData(
             name = "User",
             rating = 5,

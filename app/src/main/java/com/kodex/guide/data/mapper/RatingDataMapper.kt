@@ -6,25 +6,25 @@ import kotlin.Int
 
 fun RatingDataDTO.toRatingData(): RatingData {
     return RatingData(
-       // id = id,
+        id = id,
         name = name,
         uid = uid,
         rating = rating,
         lastRating = lastRating,
         message = message,
-       // timestamp = timestamp,
+        timestamp = timestamp,
         bookId = bookId,
     )
 }
 fun RatingData.toDTO  (): RatingDataDTO {
     return RatingDataDTO(
-     //   id = id,
+        id = id,
         name = name,
         uid = uid,
         rating = rating,
         lastRating = lastRating,
         message = message,
-       // timestamp = timestamp,
+        timestamp = timestamp,
         bookId = bookId,
     )
 }

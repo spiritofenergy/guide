@@ -31,6 +31,7 @@ import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.add_book.AddBookViewModel
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.domain.model.BookFirestore
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
@@ -234,8 +235,29 @@ fun saveBookToFirestore(
 ) {
     val db = firestore.collection(POSTS)
     val key = book.key.ifEmpty { db.document().id }
+    val bookFirestore = BookFirestore(
+        id = book.id,
+        key = key,
+        title = book.title,
+        searchTitle = book.searchTitle,
+        description = book.description,
+        price = book.price,
+        telephone = book.telephone,
+        categoryIndex = book.categoryIndex.id, // Сохраняем ID
+        imageUrl = book.imageUrl,
+        isFavorite = book.isFavorite,
+        isAuthor = book.isAuthor,
+        authorId = book.authorId,
+        publishPeriod = book.publishPeriod,
+        timeStamp = book.timeStamp,
+        deleteDate = book.deleteDate,
+        village = book.village,
+        delivery = book.delivery,
+        ratingsList = book.ratingsList
+    )
     db.document(key)
-        .set(book.copy(key = key))
+        // .set(book.copy(key = key))
+        .set(bookFirestore)
         .addOnSuccessListener { onSaved() }
         .addOnFailureListener { onError(it.message ?: "Error") }
    // Log.d("MyLog", "saveBookToFirestore: $book")
