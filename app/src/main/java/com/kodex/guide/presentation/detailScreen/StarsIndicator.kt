@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.presentation.detailScreen
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

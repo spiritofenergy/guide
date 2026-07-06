@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.presentation.detailScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi

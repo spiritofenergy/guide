@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.detailScreen
+package com.kodex.guide.presentation.detailScreen
 
 import android.content.Context
 import android.content.Intent
@@ -8,10 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.kodex.guide.data.repository.BooksRepo_Impl
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
-import com.kodex.guide.ui.detailScreen.states.DetailsUiState
+import com.kodex.guide.presentation.detailScreen.states.DetailsUiState
+import com.kodex.guide.presentation.events.DetailUiEvents
 import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,11 +29,11 @@ class DetailsScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailsUiState())
     val uiState = _uiState.asStateFlow()
 
-      val ratingState = mutableStateOf("0")
+  /*    val ratingState = mutableStateOf("0")
     // val commentState = mutableStateOf(emptyList<RatingData>())
      val ratingDataState = mutableStateOf<RatingData?>(RatingData())
-
-    private fun insertRating(ratingData: RatingData, bookId: String) {
+*/
+  private fun insertRating(ratingData: RatingData, bookId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = booksRepo.submitUserRating(ratingData, bookId)
             result.fold(
@@ -48,7 +49,7 @@ class DetailsScreenViewModel @Inject constructor(
         }
     }
 
-   private fun getBookComments(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
+  private fun getBookComments(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
         val result = booksRepo.getBookComments(bookId)
         result.fold(
             onSuccess = { commentsList ->
@@ -77,25 +78,25 @@ class DetailsScreenViewModel @Inject constructor(
         )
     }
 
-    fun onEvent(event: DetailUiEvent) {
+    fun onEvent(event: DetailUiEvents.DetailUiEvent) {
         when (event) {
-            is DetailUiEvent.CommentDialogEvent -> {
+            is DetailUiEvents.DetailUiEvent.CommentDialogEvent -> {
                 _uiState.value = uiState.value.copy(
                     showCommentDialog = event.show,
                     ratingDataToShow = event.ratingData ?: RatingData()
                 )
             }
-            is DetailUiEvent.ShowUserRatingDialogEvent -> {
+            is DetailUiEvents.DetailUiEvent.ShowUserRatingDialogEvent -> {
                 getUserRating(event.bookId)
             }
-            is DetailUiEvent.HideUserRatingDialog -> {
+            is DetailUiEvents.DetailUiEvent.HideUserRatingDialog -> {
                 _uiState.value = uiState.value.copy(
                     showRateDialog =true)
             }
-            is DetailUiEvent.InsertRatingDialogEvent -> {
+            is DetailUiEvents.DetailUiEvent.InsertRatingDialogEvent -> {
                 insertRating(event.ratingData, event.bookId)
             }
-            is DetailUiEvent.GetCommentsEvent -> {
+            is DetailUiEvents.DetailUiEvent.GetCommentsEvent -> {
                 getBookComments(event.bookId)
             }
         }
@@ -105,7 +106,7 @@ class DetailsScreenViewModel @Inject constructor(
     suspend fun sharePlace(
         context: Context,
         place: NavRoutes.ParallaxNavObject,
-        coroutineScope: kotlinx.coroutines.CoroutineScope
+        coroutineScope: CoroutineScope
     ) {
         withContext(Dispatchers.IO) {
             val shareText = buildString {
@@ -113,7 +114,7 @@ class DetailsScreenViewModel @Inject constructor(
                 appendLine()
                 appendLine("⭐️ Рейтинг: ${place.ratingsList.average().format(1)}/5")
                 appendLine("📍 Адрес: ${place.address}")
-                appendLine("📞 Телефон: ${place.telephone}")
+                appendLine("📞 Телефон: ${place.price}")
                 appendLine("🕐 Режим работы: ${place.telephone}")
                 if (place.title.isNotEmpty()) {
                     appendLine("🌐 Сайт: ${place.title}")

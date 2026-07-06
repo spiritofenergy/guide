@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.parallaxScreen
+package com.kodex.guide.presentation.details.parallaxScreen
 
 import android.content.Intent
 import android.net.Uri
@@ -47,10 +47,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.ui.detailScreen.CommentListItem
-import com.kodex.guide.ui.detailScreen.DetailsScreenViewModel
+import com.kodex.guide.presentation.detailScreen.CommentListItem
+import com.kodex.guide.presentation.detailScreen.DetailsScreenViewModel
 import com.kodex.guide.domain.model.RatingData
-import com.kodex.guide.ui.detailScreen.events.DetailUiEvent
+import com.kodex.guide.presentation.events.DetailUiEvents
 import com.kodex.guide.ui.dialods.DialogComments
 import com.kodex.guide.ui.dialods.DialogRating
 import com.kodex.guide.ui.theme.ButtonColorBlue
@@ -60,6 +60,7 @@ import com.kodex.guide.ui.theme.Orange
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainContent(
+    onCommentClick: (NavRoutes.CommentsNavData) -> Unit = {},
     navObject: NavRoutes.ParallaxNavObject,
     onNavigateToReviews: () -> Unit,
     viewModel: DetailsScreenViewModel = viewModel()
@@ -93,13 +94,13 @@ fun MainContent(
         ratingData = uiState.value.ratingData,
         onDismiss = {
             viewModel.onEvent(
-                DetailUiEvent.HideUserRatingDialog
+                DetailUiEvents.DetailUiEvent.HideUserRatingDialog
             )
         },
         onSubmit = {ratingData ->
             Log.d("MyLog", "BookId: ${navObject.bookId}")
             viewModel.onEvent(
-                DetailUiEvent.InsertRatingDialogEvent(
+                DetailUiEvents.DetailUiEvent.InsertRatingDialogEvent(
                     ratingData, navObject.bookId
                 )
             )
@@ -158,7 +159,16 @@ fun MainContent(
                 modifier = Modifier.clickable { onNavigateToReviews() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable{
+                        onCommentClick(
+                            NavRoutes.CommentsNavData(
+                                bookId = navObject.bookId,
+                                title = navObject.title,
+                                ratingsList = navObject.ratingsList
+                            )
+                        )
+                        Log.d("MyLog", "onCommentClick pressed ${navObject.bookId + navObject.title + navObject.ratingsList}" )
+                    },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -289,7 +299,7 @@ fun MainContent(
                     Log.d("MyLog", "onClick: ${navObject.bookId}")
 
                     viewModel.onEvent(
-                        DetailUiEvent.ShowUserRatingDialogEvent(
+                        DetailUiEvents.DetailUiEvent.ShowUserRatingDialogEvent(
                             navObject.bookId
 
                         )
@@ -352,7 +362,7 @@ fun MainContent(
                     CommentListItem(
                         onClick = { rData ->
                             viewModel.onEvent(
-                                DetailUiEvent.CommentDialogEvent(
+                                DetailUiEvents.DetailUiEvent.CommentDialogEvent(
                                     true,
                                     rData
                                 )

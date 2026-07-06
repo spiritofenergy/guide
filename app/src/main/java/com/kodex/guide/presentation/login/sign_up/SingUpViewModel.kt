@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.guide.data.model.PersonalDataDTO
 import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
 import com.kodex.guide.data.source.remote.UserSettingsDataSource
 import com.kodex.guide.domain.model.PersonalData
+import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.presentation.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,8 +18,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SingUpViewModel @Inject constructor(
-    private val authRepo : FirebaseAuthRepo_Impl,
-    private val fireStoreManager: FireStoreManagerPaging,
+    private val authRepo : AuthRepo,
     private val userSettingsDataSource: UserSettingsDataSource
 ) : ViewModel() {
     val errorState = mutableStateOf("")
@@ -36,7 +37,7 @@ class SingUpViewModel @Inject constructor(
             onSuccess = { user ->
                 // Сохраняем персональные данные в Firestore
                 val insertResult = userSettingsDataSource.insertPersonalData(
-                    personalData = PersonalData(
+                    personalData = PersonalDataDTO(
                         nameState.value,
                         phoneNumberState.value,
                     )

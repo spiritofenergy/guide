@@ -24,6 +24,7 @@ class ModerationScreenViewModel @Inject constructor(
         result.fold(
             onSuccess = {
                 commentState.value = commentState.value.filter { it.uid != ratingData.uid }
+                Log.d("MyLog", "Accept success:  ")
             },
             onFailure = {
 

@@ -15,7 +15,7 @@ class ModerationRepo_Impl @Inject constructor(
     }
 
     override suspend fun getCommentsToModerate(): Result<List<RatingData>> {
-        return moderationDataSource.getCommentsToModerate().map { list->
+        return moderationDataSource.getAllCommentsToModerate().map { list->
             list.map { ratingDataDTO ->
                 ratingDataDTO.toRatingData()
             }

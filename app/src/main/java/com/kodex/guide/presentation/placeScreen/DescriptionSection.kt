@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.placeScreen
+package com.kodex.guide.presentation.placeScreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
