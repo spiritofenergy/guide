@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
 import com.kodex.guide.domain.model.User
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.utils.StoreManager
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel@Inject constructor(
     private val authRepo: FirebaseAuthRepo_Impl,
-    private val storeManager: StoreManager
+    private val preferenceDataSource: PreferenceDataSource
 ): ViewModel() {
     val currentUser = mutableStateOf<User?>(null)
     val errorState = mutableStateOf("")
@@ -48,10 +48,10 @@ class SignInViewModel@Inject constructor(
         )
     }
     fun getEmail(){
-        emailState.value = storeManager.getString(StoreManager.Companion.EMAIL_KEY, "")
+        emailState.value = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
     }
     fun saveLastEmail(){
-        storeManager.saveString(StoreManager.Companion.EMAIL_KEY, emailState.value)
+        preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, emailState.value)
     }
      fun resetPassword() = viewModelScope.launch(Dispatchers.IO) {
         errorState.value = ""

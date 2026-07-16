@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.drawerMenu
+package com.kodex.guide.presentation.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.GrayLite
 import com.kodex.guide.domain.model.BookCategories
@@ -48,7 +47,7 @@ fun DrawerBody(
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onTrackClick: () -> Unit = {},
+    onSavedRoomClick: () -> Unit = {},
     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (BookCategories) -> Unit = {}
@@ -194,7 +193,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Attractions,
                  text = categoryAdmin[5],
                  onItemClick = {
-                     onTrackClick()
+                     onSavedRoomClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )

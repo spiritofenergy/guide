@@ -1,5 +1,8 @@
 package com.kodex.guide.presentation.room
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -37,10 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.data.images.toBitmap
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
-import com.kodex.guide.utils.toBitmap
 
 
 @Composable
@@ -54,6 +57,16 @@ fun RoomItemUi(
     onFavesClick: () -> Unit = {},
     onBookClick: (Book) -> Unit = {},
 ) {
+    var bitmap: Bitmap? = null
+    try {
+        val base64Image = Base64.decode(book.imageUrl, Base64.DEFAULT)
+        bitmap = BitmapFactory.decodeByteArray(
+            base64Image, 0,
+            base64Image.size
+        )
+    } catch (e: IllegalArgumentException){
+
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +82,8 @@ fun RoomItemUi(
         ) {
             // 1. Фоновое изображение
             AsyncImage(
-                model = book.imageUrl.toBitmap(),
+                model = bitmap,
+               // model = book.imageUrl.toBitmap(),
                 contentDescription = "Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -243,3 +257,4 @@ fun RoomItemUi(
         }
     }
 }
+

@@ -59,7 +59,7 @@ import com.kodex.guide.presentation.events.DetailUiEvents
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.Orange
-import com.kodex.guide.utils.toFormattedDate
+import com.kodex.guide.presentation.castom.toFormattedDate
 
 
 @RequiresApi(Build.VERSION_CODES.O)

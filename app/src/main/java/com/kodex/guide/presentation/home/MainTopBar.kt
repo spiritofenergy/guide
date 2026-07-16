@@ -21,12 +21,15 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -54,13 +57,22 @@ fun MainTopBar(
     var queryText by remember { mutableStateOf("") }
     var expandedState by remember { mutableStateOf(false) }
 
+    // 1. Создаем FocusRequester для управления фокусом
+    val focusRequester = remember { FocusRequester() }
 
     Crossfade(targetState) { target ->
         if (target) {
+            // 2. Запрашиваем фокус, когда SearchBar появляется в композиции
+            // Это заставит систему автоматически показать клавиатуру
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
             SearchBar(
                 modifier = Modifier.fillMaxWidth(),
                 inputField = {
                     SearchBarDefaults.InputField(
+                        // 3. Передаем FocusRequester в модификатор InputField
+                        modifier = Modifier.focusRequester(focusRequester),
                         colors = TextFieldDefaults.colors(
                             focusedTrailingIconColor = DarkBlue,
                             unfocusedTrailingIconColor = DarkBlue
@@ -72,7 +84,7 @@ fun MainTopBar(
 
                         onQueryChange = { text ->
                             queryText = text
-                           // Log.d("MyLog", "Query onQueryChange text: $text")
+                            Log.d("MyLog", "Query onQueryChange text: $text")
                         },
 
                         onSearch = {text ->

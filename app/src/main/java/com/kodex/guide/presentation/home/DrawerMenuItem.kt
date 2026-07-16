@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.drawerMenu
+package com.kodex.guide.presentation.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

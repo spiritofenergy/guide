@@ -12,7 +12,6 @@ import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.presentation.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import kotlinx.coroutines.launch
 
 

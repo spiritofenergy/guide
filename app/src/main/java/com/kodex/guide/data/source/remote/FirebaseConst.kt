@@ -1,4 +1,4 @@
-package com.kodex.guide.utils
+package com.kodex.guide.data.source.remote
 
 object FirebaseConst {
     const val POSTS = "posts"

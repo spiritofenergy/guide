@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.utils.TimeUtils
+import com.kodex.guide.presentation.settingsScreen.TimeUtils
 import kotlin.text.ifEmpty
 
 

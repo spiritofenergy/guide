@@ -1,18 +1,19 @@
-package com.kodex.guide.utils
+package com.kodex.guide.data.source.local
 
 import android.content.Context
+import androidx.core.content.edit
 import javax.inject.Singleton
 
 @Singleton
-class StoreManager(
+class PreferenceDataSource(
     context: Context
 ) {
     private val pref = context.getSharedPreferences(MAIN_PREF, Context.MODE_PRIVATE)
-    fun saveString(key: String,value: String){
-        pref.edit().putString(key, value).apply()
+    fun saveEmail(key: String, value: String){
+        pref.edit { putString(key, value) }
     }
 
-    fun getString(key: String, defValue: String): String{
+    fun getEmail(key: String, defValue: String): String{
         return pref.getString(key, defValue)?: defValue
     }
     companion object{

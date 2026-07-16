@@ -1,7 +1,7 @@
 package com.kodex.guide.data.model
 
 import com.kodex.guide.domain.model.BookCategories
-import com.kodex.guide.presentation.castom.FilterData
+import com.kodex.guide.domain.model.FilterData
 
 data class BookFilter(
     var category: BookCategories = BookCategories.ALL,

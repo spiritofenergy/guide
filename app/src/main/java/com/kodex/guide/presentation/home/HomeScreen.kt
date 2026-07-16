@@ -42,15 +42,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.ui.bottomMenu.BottomMenu
-import com.kodex.guide.ui.bottomMenu.BottomMenuItem
 import com.kodex.guide.ui.dialods.FilterDialog
 import com.kodex.guide.ui.dialods.MyDialog
-import com.kodex.guide.ui.drawerMenu.DrawerBody
-import com.kodex.guide.ui.drawerMenu.DrawerHeader
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.room.RoomFavoriteViewModel
@@ -74,7 +69,7 @@ fun HomeScreen(
     onLoginClick: () -> Unit,
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onTrackClick: () -> Unit,
+    onSavedRoomClick: () -> Unit,
 ) {
 
     val book = viewModel.postList.collectAsState(initial = emptyList())
@@ -105,7 +100,6 @@ fun HomeScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                refreshBooks(books, viewModel)
                 Log.d("MyLog", "refreshBooks")
                 viewModel.getSettings()
                 Log.d("MyLog", "getSettings MenuScreen")
@@ -133,14 +127,14 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
             if (uiState is HomeViewModel.MainUiState.Error) {
-                Toast.makeText(context, uiState.massage, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, uiState.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
     LaunchedEffect(books.loadState.refresh) {
         if (books.loadState.refresh is LoadState.Error) {
-            val errorMassage = (books.loadState.refresh as LoadState.Error).error.message
-            Toast.makeText(context, errorMassage, Toast.LENGTH_SHORT).show()
+            val errorMessage = (books.loadState.refresh as LoadState.Error).error.message
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
     LaunchedEffect(Unit) {
@@ -170,13 +164,12 @@ fun HomeScreen(
                     onCategoryClick = { categoryIndex ->
                         if (categoryIndex == BookCategories.FAVORITES) {
                             viewModel.selectedBottomItemState.intValue =
-                                BottomMenuItem.Faves.titleId
+                                BottomMenuItem.Saved.titleId
                             Log.d("MyLog", "onCategoryClick FAVORITES")
                             //savedInstanceState.value = BottomMenuItem.Favorite.titleId
                             coroutineScope.launch { drawerState.close() }
                         } else {
                             viewModel.getAllBooksFromCategory(categoryIndex)
-                            refreshBooks(books, viewModel)
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             Log.d("MyLog", "categoryIndex: $categoryIndex")
                             coroutineScope.launch { drawerState.close() }
@@ -192,8 +185,8 @@ fun HomeScreen(
                         onSettingsClick()
                         coroutineScope.launch { drawerState.close() }
                     },
-                    onTrackClick = {
-                        onTrackClick()
+                    onSavedRoomClick = {
+                        onSavedRoomClick()
                         coroutineScope.launch { drawerState.close() }
                     },
 
@@ -208,8 +201,7 @@ fun HomeScreen(
                         viewModel.categoryState.value,
                         onSearch = { searchText ->
                             viewModel.searchBook(searchText)
-                            refreshBooks(books, viewModel)
-                        },
+                         },
                         onFilter = {
                             showFilterDialog = true
                         },
@@ -226,22 +218,18 @@ fun HomeScreen(
                 if (!isLandscape)
                     BottomMenu(
                         viewModel.selectedBottomItemState.intValue,
-                        onFavesClick = {
-                            viewModel.selectedBottomItemState.intValue =
-                                BottomMenuItem.Faves.titleId
-                            viewModel.onFavesClick(
-                                Book(),
-                                BottomMenuItem.Faves.titleId,
-                                books.itemSnapshotList.items
-                            )
-                            books.refresh()
+                        onSavedRoomClick = {
+                            viewModel.selectedBottomItemState.intValue = BottomMenuItem.Saved.titleId
+                          // viewModel.getAllBooksFromCategory(BookCategories.FAVORITES)
+                          //  viewModel.onFavesClick(Book())
+                          //  books.refresh()
+                            onSavedRoomClick()
                         },
                         onHomeClick = {
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(category = BookCategories.ALL)
-                            refreshBooks(books, viewModel)
-                        },
+                         },
                         onSettingsClick = {
                             onSettingsClick()
                             viewModel.selectedBottomItemState.intValue =
@@ -277,18 +265,19 @@ fun HomeScreen(
                     onDismiss = {
                         showDeleteDialog.value = false
                     },
-                    onConfirm = {
-                        showDeleteDialog.value = false
-                        //   booksFirebaseRemoteDataSource.deleteBook(books.itemSnapshotList.items)
-                    },
+
                     title = stringResource(id = R.string.attention),
                     message = stringResource(id = R.string.want_to_delete_this_message),
+                    onConfirm = {
+                        showDeleteDialog.value = false
+                        viewModel.deleteBook()
+                    },
                 )
 
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
                     onRefresh = {
-                        refreshBooks(books, viewModel)
+                      //  refreshBooks(books, viewModel)
                     },
                     state = state,
                     modifier = Modifier.padding(),
@@ -334,27 +323,24 @@ fun HomeScreen(
                                             showDeleteDialog.value = true
                                             viewModel.bookToDelete = bookToDelete
                                         },
-                                        onFavesClick = {
-                                            viewModel.onFavesClick(
-                                                book,
-                                                viewModel.selectedBottomItemState.intValue,
-                                                books.itemSnapshotList.items
-                                            )
+                                        onSavedRoomClick = {
+                                           // viewModel.onFavesClick(
+                                            //    book, )
                                             viewModel.insertPost(book)
 
-                                            /*    if (!book.isFavorite) {
+                                                if (!book.isFavorite) {
                                             Toast.makeText(
                                                 context,
-                                                R.string.added_to_favorites,
+                                                R.string.added_to_memory,
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         } else {
                                             Toast.makeText(
                                                 context,
-                                                R.string.deleted_from_favorites,
+                                                R.string.deleted_from_memory,
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                        }*/
+                                        }
                                         }
                                     )
 
@@ -384,23 +370,21 @@ fun HomeScreen(
                                                 showDeleteDialog.value = true
                                                 viewModel.bookToDelete = bookToDelete
                                             },
-                                            onFavesClick = {
-                                                viewModel.onFavesClick(
-                                                    book,
-                                                    viewModel.selectedBottomItemState.intValue,
-                                                    books.itemSnapshotList.items
-                                                )
+                                            onSavedRoomClick = {
+                                              //  viewModel.onFavesClick(book)
+                                              //  Log.d("MyLog", "book.key ${book.key}")
+                                               // Save in Room
                                                 viewModel.insertPost(book)
                                                 if (!book.isFavorite) {
                                                     Toast.makeText(
                                                         context,
-                                                        R.string.added_to_favorites,
+                                                        R.string.added_to_memory,
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 } else {
                                                     Toast.makeText(
                                                         context,
-                                                        R.string.deleted_from_favorites,
+                                                        R.string.deleted_from_memory,
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -417,7 +401,6 @@ fun HomeScreen(
                     showDialog = showFilterDialog,
                     onConfirm = {
                         showFilterDialog = false
-                        refreshBooks(books, viewModel)
                     },
                     onDismiss = {
                         showFilterDialog = false
@@ -428,10 +411,7 @@ fun HomeScreen(
     }
 
 
-private fun refreshBooks(books: LazyPagingItems<Book>, viewModel: HomeViewModel){
-    viewModel.clearTempBookList()
-    books.refresh()
-}
+
 
 /*
  private fun getAllBooks (

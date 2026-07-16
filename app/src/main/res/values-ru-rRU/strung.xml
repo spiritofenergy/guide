@@ -13,6 +13,7 @@
 <!-- BottomMenu-->
 <string name="home">Главная</string>
 <string name="faves">Избранное</string>
+<string name="saved">Сохраненные</string>
 <string name="settings">Настройки</string>
 
 <!-- DriverMenu-->
@@ -21,8 +22,8 @@
 
 <!-- General -->
 <string name="empty_list">Список пуст</string>
-<string name="added_to_favorites">Добавлено в избранное</string>
-<string name="deleted_from_favorites">Удалено из избранного</string>
+<string name="added_to_memory">Добавлено в память</string>
+<string name="deleted_from_memory">Удалено из памяти</string>
 
 <!-- MenuScreen -->
 <string name="attention">Внимание</string>

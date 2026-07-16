@@ -9,11 +9,11 @@ import com.kodex.guide.data.model.UserSettingsDataDTO
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
-import com.kodex.guide.utils.FirebaseConst.ADDRESS_DATA
-import com.kodex.guide.utils.FirebaseConst.DATA
-import com.kodex.guide.utils.FirebaseConst.PERSONAL_DATA
-import com.kodex.guide.utils.FirebaseConst.USER_DATA
-import com.kodex.guide.utils.FirebaseConst.USER_SETTINGS
+import com.kodex.guide.data.source.remote.FirebaseConst.ADDRESS_DATA
+import com.kodex.guide.data.source.remote.FirebaseConst.DATA
+import com.kodex.guide.data.source.remote.FirebaseConst.PERSONAL_DATA
+import com.kodex.guide.data.source.remote.FirebaseConst.USER_DATA
+import com.kodex.guide.data.source.remote.FirebaseConst.USER_SETTINGS
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 

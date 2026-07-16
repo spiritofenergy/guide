@@ -18,11 +18,10 @@ import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.Favorite
-import com.kodex.guide.presentation.castom.FilterData
-import com.kodex.guide.ui.bottomMenu.BottomMenuItem
+import com.kodex.guide.domain.model.FilterData
 import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.domain.model.BookCategories
-import com.kodex.guide.utils.FirebaseConst
+import com.kodex.guide.domain.model.FilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,8 +30,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,7 +41,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val booksRepo: BooksRepo,
     private val favoritesRepo: FavoritesRepo,
-     private val mainDb: MainDb,
+    private val mainDb: MainDb,
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -55,111 +55,177 @@ class HomeViewModel @Inject constructor(
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
-    private val bookListUpdate = MutableStateFlow<List<Book>>(emptyList())
-    private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
 
-    private val favoritesKeysFlow = flow{
-        val result = favoritesRepo.getIdsFavesList()
-        result.fold(
-            onSuccess = {keysList->
-                emit(keysList)
-            },
-            onFailure ={
-                emit(emptyList())
-                sendUiState(MainUiState.Error(it.message?:"Unknown error"))
-            }
-        )
-    }
+    private val bookListUpdate = MutableStateFlow<List<ChangedTempBook>>(emptyList())
+
+    private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
+    private val searchStateFlow = MutableStateFlow("")
+    private val debounceSearchFlow = searchStateFlow
+        .debounce(500)
+        .distinctUntilChanged()
+    private val favoritesKeysFlow = MutableStateFlow<List<String>>(emptyList())
+
     val postList = mainDb.trackDao.getAllPosts()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val books: Flow<PagingData<Book>> = combine(favoritesKeysFlow, bookFilterStateFlow) { keysList, bookFilter ->
-        keysList to bookFilter
-    }.flatMapLatest {(keysList, filter) ->
-        booksRepo.getBooks( keysList, filter)
+    val books: Flow<PagingData<Book>> = combine(
+        favoritesKeysFlow,
+        bookFilterStateFlow,
+        debounceSearchFlow
+    ) { keysList, bookFilter, searchText ->
+        Triple(keysList, bookFilter, searchText)
+    }.flatMapLatest { (keysList, filter, searchText) ->
+        booksRepo.getBooks(
+            keysList, filter.copy(
+                searchText = searchText
+            )
+        )
     }.cachedIn(viewModelScope)
-        .combine(bookListUpdate) { pagingData, booksList ->
-            val pgData = pagingData.map { book ->
-                val updateBook = booksList.find {
-                    it.key == book.key
+        .combine(bookListUpdate) { pagingData, changedBookList ->
+            pagingData.filter { pData ->
+                val book = changedBookList.find { it.key == pData.key }
+                if (book != null) {
+                    !book.isDeleted
+                } else {
+                    true
                 }
-                updateBook ?: book
-            }
-            if (bookListUpdate.value.isNotEmpty()) {
-                pgData.filter { pgData ->
-                    booksList.find {
-                        it.key == pgData.key
-                    } != null
+            }.map { pData ->
+                    val book = changedBookList.find { it.key == pData.key }
+                    if (book != null) {
+                        pData.copy(
+                            isFavorite = book.isFavorite
+                        )
+                    } else {
+                        pData
+                    }
                 }
-            } else {
-                pgData
             }
-        }
 
     private val _uiState = MutableSharedFlow<MainUiState>()
     val uiState = _uiState.asSharedFlow()
-    private fun sendUiState(state: MainUiState) = viewModelScope.launch {
-        _uiState.emit(state)
-    }
 
     fun getSettings() = viewModelScope.launch {
-        favoritesKeysFlow.collect{keysList ->
+        favoritesKeysFlow.collect { keysList ->
 
         }
-    /*    booksRepo.getSettings(
-            onSettingsLoaded = { pData, aData, sData ->
-                globalSettings.personalData = pData
-                globalSettings.addressData = aData
-                globalSettings.userSettingsData = sData
+        /*    booksRepo.getSettings(
+                onSettingsLoaded = { pData, aData, sData ->
+                    globalSettings.personalData = pData
+                    globalSettings.addressData = aData
+                    globalSettings.userSettingsData = sData
+                }
+            )*/
+    }
+
+    init {
+        refreshFavoritesKeys()
+    }
+
+    private fun refreshFavoritesKeys() = viewModelScope.launch {
+        val result = favoritesRepo.getIdsFavesList()
+        result.fold(
+            onSuccess = { keysList ->
+                favoritesKeysFlow.value = keysList
+            },
+            onFailure = {
+                favoritesKeysFlow.value = emptyList()
+                sendUiState(MainUiState.Error(it.message ?: "Unknown error"))
             }
-        )*/
+        )
+    }
+
+    private fun sendUiState(state: MainUiState) = viewModelScope.launch {
+        _uiState.emit(state)
     }
 
     fun clearTempBookList() {
         bookListUpdate.value = emptyList()
     }
-/*
-    fun setPriceFilter(minPrice: Float, maxPrice: Float) {
-        booksRepo.minPrice = minPrice.toInt()
-        booksRepo.maxPrice = maxPrice.toInt()
-    }*/
+
+    private fun updateChangedBook(book: Book, isDeleted: Boolean) {
+        bookListUpdate.update { list ->
+            val changedBook = list.find { book.key == it.key }
+            if (changedBook == null) {
+                list + ChangedTempBook(
+                    key = book.key,
+                    isFavorite = book.isFavorite,
+                    isDeleted = isDeleted
+                )
+            } else {
+                list.map { tempBook ->
+                    if (tempBook.key == book.key) {
+                        tempBook.copy(
+                            isFavorite = book.isFavorite,
+                            isDeleted = isDeleted
+                        )
+                    } else {
+                        tempBook
+                    }
+                }
+            }
+        }
+    }
+    /*
+        fun setPriceFilter(minPrice: Float, maxPrice: Float) {
+            booksRepo.minPrice = minPrice.toInt()
+            booksRepo.maxPrice = maxPrice.toInt()
+        }*/
 
     fun setFilter() {
         val filterData = FilterData(
             minPrise = minPriceValue.floatValue.toInt(),
             maxPrise = maxPriceValue.floatValue.toInt(),
             filterType = if (isFilterByTitle.value) {
-                FirebaseConst.TITLE
+                FilterType.TITLE
             } else
-                FirebaseConst.PRICE
+                FilterType.PRICE
         )
-        // fireStoreManagerPaging.filterData = filterData
+        bookFilterStateFlow.update { filter ->
+            filter.copy(
+                filterData = filterData
+            )
+        }
     }
 
+    fun deleteBook() {
+        sendUiState(MainUiState.Loading)
+        if (bookToDelete == null) return
+        viewModelScope.launch {
+            val result = booksRepo.deleteBook(bookToDelete!!)
+            result.fold(
+                onSuccess = {
+                    updateChangedBook(bookToDelete!!, true ,)
+                    sendUiState(MainUiState.Success)
+                },
+                onFailure = { error ->
+                    sendUiState(MainUiState.Error(error.message ?: "Unknow error"))
+                }
+            )
+        }
+    }
 
     fun searchBook(searchText: String) {
-       // booksRepo.searchText = searchText
+        searchStateFlow.update {
+            searchText
+        }
     }
 
     fun getAllBooksFromCategory(category: BookCategories) {
         categoryState.value = category
+        clearTempBookList()
+        refreshFavoritesKeys()
         bookFilterStateFlow.update { filter ->
             filter.copy(category = category)
         }
         Log.d("MyLog", "getAllBooksFromCategory: $category")
-
     }
-    fun onFavesClick(book: Book, isFavesState: Int,
-                     bookList: List<Book>)  = viewModelScope.launch(Dispatchers.IO){
-                         val favsResult = favoritesRepo.onFavorites(Favorite(book.key),!book.isFavorite)
+
+    fun onFavesClick(book: Book) = viewModelScope.launch(Dispatchers.IO) {
+        val needDelete = selectedBottomItemState.intValue == BottomMenuItem.Saved.titleId
+        val favsResult = favoritesRepo.onFavorites(Favorite(book.key), !book.isFavorite)
         favsResult.fold(
             onSuccess = {
-                val newUpdateList = changeFavesState(bookList, book)
-                bookListUpdate.value = if (isFavesState == BottomMenuItem.Faves.titleId) {
-                    bookList.filter { it.isFavorite }
-                } else {
-                    bookList
-                }
+                updateChangedBook(book.copy(isFavorite = book.isFavorite), needDelete)
                 sendUiState(MainUiState.Success)
             },
             onFailure = {
@@ -168,22 +234,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-   private fun changeFavesState(books: List<Book>, book: Book): List<Book> {
-        return books.map { bk ->
-            if (bk.key == book.key) {
-               /* onFaves(
-                    Favorite(bk.key),
-                    !bk.isFavorite
-                )*/
-                bk.copy(isFavorite = !bk.isFavorite)
-            } else {
-                bk
-            }
-        }
-    }
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
         mainDb.trackDao.insertPost(book)
     }
+
     // Получить все сохраненные книги
     fun getAllSavedBooks(): Flow<List<Book>> {
         return mainDb.trackDao.getAllPosts()
@@ -193,22 +247,10 @@ class HomeViewModel @Inject constructor(
     sealed class MainUiState {
         data object Loading : MainUiState()
         data object Success : MainUiState()
-        data class Error(val massage: String) : MainUiState()
+        data class Error(val message: String) : MainUiState()
     }
 
-   /* private fun deleteBook(bookId: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = booksRepo.getBookComments(bookId)
-        result.fold(
-            onSuccess = { commentsList ->
-                _uiState.value = uiState.value.copy(
-                    comments = commentsList
-                )
-            },
-            onFailure = { error ->
 
-            }
-        )
-    }*/
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
         Firebase.firestore.collection("admin")

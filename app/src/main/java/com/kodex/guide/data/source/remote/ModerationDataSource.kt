@@ -4,10 +4,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.data.model.BookDTO
 import com.kodex.guide.data.model.RatingDataDTO
-import com.kodex.guide.utils.FirebaseConst.MODERATION
-import com.kodex.guide.utils.FirebaseConst.POSTS
-import com.kodex.guide.utils.FirebaseConst.RATING
-import com.kodex.guide.utils.FirebaseConst.RATING_DATA
+import com.kodex.guide.data.source.remote.FirebaseConst.MODERATION
+import com.kodex.guide.data.source.remote.FirebaseConst.POSTS
+import com.kodex.guide.data.source.remote.FirebaseConst.RATING
+import com.kodex.guide.data.source.remote.FirebaseConst.RATING_DATA
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
