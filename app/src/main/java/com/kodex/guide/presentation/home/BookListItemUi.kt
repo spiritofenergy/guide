@@ -1,6 +1,9 @@
 package com.kodex.guide.presentation.home
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,13 +37,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.utils.toBitmap
- import com.kodex.bookmarketcompose.R
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
 
@@ -53,10 +54,22 @@ fun BookListItemUi(
     book: Book = Book(),
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
-    onFavesClick: () -> Unit = {},
+    onSavedRoomClick: () -> Unit = {},
     onBookClick: (Book) -> Unit = {},
 ) {
-    Column(
+
+    var bitmap: Bitmap? = null
+    try {
+        val base64Image = Base64.decode(book.imageUrl, Base64.DEFAULT)
+        bitmap = BitmapFactory.decodeByteArray(
+            base64Image, 0,
+            base64Image.size
+        )
+    } catch (e: IllegalArgumentException){
+
+    }
+
+        Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -71,7 +84,8 @@ fun BookListItemUi(
         ) {
             // 1. Фоновое изображение
             AsyncImage(
-                model = book.imageUrl.toBitmap(),
+               // model = book.imageUrl.toBitmap(),
+                model =  bitmap,
                 contentDescription = "Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -111,7 +125,7 @@ fun BookListItemUi(
 
             // 4. Bookmark в правом нижнем углу
             IconButton(
-                onClick = { onFavesClick() },
+                onClick = { onSavedRoomClick() },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp)
@@ -213,8 +227,6 @@ fun BookListItemUi(
                 tint = Orange
 
             )
-
-            if (!showEditButton) {
                 Text(
                     modifier = Modifier
                         .padding(10.dp),
@@ -223,7 +235,7 @@ fun BookListItemUi(
                     fontWeight = FontWeight.Light,
                     fontSize = 16.sp
                 )
-            }
+
 
             if (showEditButton) IconButton(onClick = {
                 onEditClick(book)

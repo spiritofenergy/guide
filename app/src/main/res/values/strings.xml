@@ -8,6 +8,7 @@
     <!-- BottomMenu-->
     <string name="home">Home</string>
     <string name="faves">Favorite</string>
+    <string name="saved">Saved</string>
     <string name="settings">Settings</string>
     <!-- -->
     <!-- DriverMenu-->
@@ -15,8 +16,8 @@
     <string name="taman_peninsula">Taman Peninsula</string>
     <!-- -->
     <string name="empty_list">Empty_list</string>
-    <string name="added_to_favorites">Post added to Favorites</string>
-    <string name="deleted_from_favorites">Post deleted from Favorites</string>
+    <string name="added_to_memory">Post added to Memory</string>
+    <string name="deleted_from_memory">Post deleted from Memory</string>
 
     <!-- MenuScreen -->
     <string name="attention">Attention</string>

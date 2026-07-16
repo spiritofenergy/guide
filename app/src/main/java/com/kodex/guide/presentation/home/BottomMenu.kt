@@ -1,4 +1,4 @@
-package com.kodex.guide.ui.bottomMenu
+package com.kodex.guide.presentation.home
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,13 +12,13 @@ import com.kodex.guide.ui.theme.PurpleGrey80
 @Composable
 fun BottomMenu(
     selectedItem: Int,
-    onFavesClick: () -> Unit = {},
+    onSavedRoomClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     val items = listOf(
         BottomMenuItem.Home,
-        BottomMenuItem.Faves,
+        BottomMenuItem.Saved,
         BottomMenuItem.Settings
 
     )
@@ -35,7 +35,7 @@ fun BottomMenu(
                 onClick = {
                     when (item.titleId) {
                         BottomMenuItem.Home.titleId -> onHomeClick()
-                        BottomMenuItem.Faves.titleId -> onFavesClick()
+                        BottomMenuItem.Saved.titleId -> onSavedRoomClick()
                         BottomMenuItem.Settings.titleId -> onSettingsClick()
                     }
                 },

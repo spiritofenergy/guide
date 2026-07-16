@@ -1,24 +1,23 @@
 package com.kodex.guide.data.source.remote
 
+ import android.net.Uri
  import com.google.firebase.auth.FirebaseAuth
  import com.google.firebase.firestore.FieldPath
  import com.google.firebase.firestore.FirebaseFirestore
  import com.google.firebase.firestore.Query
+ import com.kodex.guide.data.mapper.toFirebaseFields
  import com.kodex.guide.data.model.BookDTO
  import com.kodex.guide.data.model.BookFilter
  import com.kodex.guide.data.model.BooksPageDTO
  import com.kodex.guide.data.model.RatingDataDTO
- import com.kodex.guide.presentation.castom.FilterData
  import com.kodex.guide.domain.model.BookCategories
- import com.kodex.guide.domain.model.BookCategories.ALL
- import com.kodex.guide.utils.FirebaseConst
- import com.kodex.guide.utils.FirebaseConst.CATEGORY_INDEX
- import com.kodex.guide.utils.FirebaseConst.KEY
- import com.kodex.guide.utils.FirebaseConst.MODERATION
- import com.kodex.guide.utils.FirebaseConst.POSTS
- import com.kodex.guide.utils.FirebaseConst.RATING
- import com.kodex.guide.utils.FirebaseConst.RATING_DATA
- import com.kodex.guide.utils.FirebaseConst.SEARCH_TITLE
+ import com.kodex.guide.data.source.remote.FirebaseConst.CATEGORY_INDEX
+ import com.kodex.guide.data.source.remote.FirebaseConst.KEY
+ import com.kodex.guide.data.source.remote.FirebaseConst.MODERATION
+ import com.kodex.guide.data.source.remote.FirebaseConst.POSTS
+ import com.kodex.guide.data.source.remote.FirebaseConst.RATING
+ import com.kodex.guide.data.source.remote.FirebaseConst.RATING_DATA
+ import com.kodex.guide.data.source.remote.FirebaseConst.SEARCH_TITLE
  import kotlinx.coroutines.tasks.await
  import javax.inject.Singleton
 
@@ -28,10 +27,6 @@ class BooksFirebaseRemoteDataSource(
     private val auth: FirebaseAuth,
 
     ) {
-   /* var category: BookCategories = ALL
-    var searchText = ""
-    var filterData = FilterData()*/
-
     suspend fun nextPage(
         keysFavesList: List<String>,
         pageSize: Long,
@@ -40,20 +35,25 @@ class BooksFirebaseRemoteDataSource(
     ): BooksPageDTO{
         var query: Query = fireStore.collection(POSTS)
             .limit(pageSize)
-            .orderBy(bookFilter.filterData.filterType)
+            .orderBy(bookFilter.filterData.filterType.toFirebaseFields())
 
         query = when (bookFilter.category) {
             BookCategories.ALL -> query
-            BookCategories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList)
+            BookCategories.FAVORITES -> query.whereIn(FieldPath.of(KEY), keysFavesList.ifEmpty { listOf("-1") })
             else -> query.whereEqualTo(CATEGORY_INDEX, bookFilter.category.id)
         }
 
-      /*  if (bookFilter.searchText.isNotEmpty()) {
+        if (bookFilter.searchText.isNotEmpty()) {
             query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, bookFilter.searchText.lowercase())
                 .whereLessThan(SEARCH_TITLE, "${bookFilter.searchText.lowercase()}\uF7FF")
+        }
+
+      /*  if (bookFilter.searchText.isNotEmpty()) {
+            query = query.whereGreaterThanOrEqualTo(SEARCH_TITLE, bookFilter.searchText)
+                .whereLessThan(SEARCH_TITLE, "${bookFilter.searchText}\uF7FF")
         }*/
 
-        if (bookFilter.filterData.filterType == FirebaseConst.PRICE
+        if (bookFilter.filterData.filterType.toFirebaseFields() == FirebaseConst.PRICE
             && bookFilter.filterData.minPrise != 0
             && bookFilter.filterData.maxPrise != 0
             && bookFilter.filterData.minPrise <= bookFilter.filterData.minPrise

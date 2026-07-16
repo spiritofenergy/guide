@@ -17,8 +17,7 @@ enum class BookCategories(
 
     companion object{
         fun fromId(id: Int): BookCategories{
-            return entries.firstOrNull{
-                entry ->
+            return entries.firstOrNull{ entry ->
                 entry.id == id
             } ?: ALL
         }

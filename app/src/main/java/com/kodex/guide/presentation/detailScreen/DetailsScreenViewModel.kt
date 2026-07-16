@@ -10,7 +10,6 @@ import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.detailScreen.states.DetailsUiState
 import com.kodex.guide.presentation.events.DetailUiEvents
-import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +21,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsScreenViewModel @Inject constructor(
-    private val fireStoreManager: FireStoreManagerPaging,
     val booksRepo: BooksRepo_Impl
 ) : ViewModel() {
 

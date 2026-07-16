@@ -43,14 +43,6 @@ class MainActivity : ComponentActivity() {
             NavHost(
                 navController = navController,
                 startDestination = NavRoutes.LoginNavObject
-                /*  startDestination = NavRoutes.TrackerDataObject(
-                   uid = "uid",
-                   email = "email"
-               )*/
-                /*  startDestination = NavRoutes.MainScreenDataObject(
-                    uid = "uid",
-                    email = "email"
-                )*/
             ) {
 
                 composable<NavRoutes.LoginNavObject> {
@@ -90,32 +82,6 @@ class MainActivity : ComponentActivity() {
                                     )
                             )
                         },
-
-
-                        /*    onBookEditClick = { book ->
-                            navController.navigate(
-                                NavRoutes.AddScreenObject(
-                                    key = book.key,
-                                    title = book.title,
-                                    description = book.description,
-                                    price = book.price,
-                                    categoryIndex = book.categoryIndex,
-                                    imageUrl = book.imageUrl,
-                                )
-                            )
-                        },*/
-                        /* onAdminClick = {
-                            navController.navigate(NavRoutes.ModerationNavObject)
-                        },*/
-                        /*   onLoginClick = {
-                            navController.navigate(NavRoutes.LoginNavObject)
-                        },*/
-                        /*     onSettingsClick = {
-                            navController.navigate(NavRoutes.SettingsNavObject)
-                        },*/
-                        /* onAddBookClick = {
-                            navController.navigate(NavRoutes.AddScreenObject())
-                        }*/
                     )
                 }
                 composable<NavRoutes.HomeDataObject> { navEntry ->
@@ -140,20 +106,6 @@ class MainActivity : ComponentActivity() {
                             )
                         },
 
-                        /*  onBookClick = { bk ->
-                            navController.navigate(
-                                NavRoutes.DetailNavObject(
-                                    bookId = bk.key,
-                                    title = bk.title,
-                                    description = bk.description,
-                                    price = bk.price.toString(),
-                                    telephone = bk.telephone,
-                                    categoryIndex = bk.categoryIndex,
-                                    imageUrl = bk.imageUrl,
-                                    ratingsList = bk.ratingsList,
-                                )
-                            )
-                        },*/
                         onBookEditClick = { book ->
                             navController.navigate(
                                 NavRoutes.AddScreenObject(
@@ -175,7 +127,7 @@ class MainActivity : ComponentActivity() {
                         onSettingsClick = {
                             navController.navigate(NavRoutes.SettingsNavObject)
                         },
-                        onTrackClick = {
+                        onSavedRoomClick = {
                             navController.navigate(NavRoutes.RoomDataObject(
                                 uid = "uid",
                                 email = "email"
@@ -195,26 +147,6 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-             /*   composable<NavRoutes.DetailNavObject> { navEntry ->
-                    val navData = navEntry.toRoute<NavRoutes.DetailNavObject>()
-                    DetailScreen(
-                        onCommentsClick = { commentsNavData ->
-                            navController.navigate(commentsNavData)
-                        },
-                        navObject = navData
-                    )
-                }*/
-
-             /*   composable<NavRoutes.PlaceNavObject> { navEntry ->
-                    val navData = navEntry.toRoute<NavRoutes.PlaceNavObject>()
-                    PlaceScreen(
-                        onCommentsClick = { commentsNavData ->
-                            navController.navigate(commentsNavData)
-                        },
-                        navObject = navData,
-                        navController = navController
-                    )
-                }*/
 
                 composable<NavRoutes.AdminPanelNavObject> {
                     AdminPanelScreen(
@@ -271,14 +203,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
-  /*  override suspend fun onDestroy() {
-        super.onDestroy()
-        destroyScope.launch {
-            viewModel.updateLastVisit()
-        }
-    }*/
 
     override fun onStop() {
         super.onStop()

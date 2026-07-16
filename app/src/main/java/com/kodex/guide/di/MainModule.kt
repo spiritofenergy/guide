@@ -1,18 +1,19 @@
 package com.kodex.guide.di
 
-import android.app.Application
+import  android.app.Application
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.data.source.remote.FavoritesDataSource
-import com.kodex.guide.utils.StoreManager
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.data.source.remote.ModerationDataSource
 import com.kodex.guide.data.source.remote.UserSettingsDataSource
-import com.kodex.guide.utils.firebase.FireStoreManagerPaging
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,6 +23,23 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object   MainModule {
+    /*@Provides
+    @Singleton
+    fun provideFirebaseFireStore(): FirebaseFirestore {
+        return Firebase.firestore
+    }*/
+   /* @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        // Возвращаем стандартный экземпляр Firebase Storage
+        return FirebaseStorage.getInstance()
+    }*/
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return Firebase.storage
+    }
     @Provides
     @Singleton
 
@@ -58,14 +76,6 @@ object   MainModule {
     ): ModerationDataSource {
         return ModerationDataSource(db, auth)
     }
-    @Provides
-    @Singleton
-    fun provideFirebaseManager (
-        db: FirebaseFirestore,
-        auth: FirebaseAuth,
-    ): FireStoreManagerPaging{
-        return FireStoreManagerPaging(db, auth)
-    }
 
     @Provides
     @Singleton
@@ -90,7 +100,7 @@ object   MainModule {
     @Singleton
     fun provideStoreManager(
         app: Application
-    ):StoreManager{
-        return StoreManager(app)
+    ):PreferenceDataSource{
+        return PreferenceDataSource(app)
     }
 }

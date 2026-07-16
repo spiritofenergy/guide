@@ -4,8 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.guide.domain.model.Favorite
-import com.kodex.guide.utils.FirebaseConst
-import com.kodex.guide.utils.FirebaseConst.USERS
+import com.kodex.guide.data.source.remote.FirebaseConst.USERS
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 import kotlin.jvm.java

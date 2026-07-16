@@ -1,9 +1,8 @@
-package com.kodex.guide.utils
+package com.kodex.guide.presentation.settingsScreen
 
 import android.annotation.SuppressLint
 import android.icu.util.Calendar
 import java.text.SimpleDateFormat
-
 
 @SuppressLint("ConstantLocale","SimpleDateFormat")
 object TimeUtils {

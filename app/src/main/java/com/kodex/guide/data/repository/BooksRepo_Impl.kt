@@ -1,14 +1,18 @@
 package com.kodex.guide.data.repository
 
+import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.android.play.core.integrity.d
+import com.kodex.guide.data.images.BitmapEncoder
 import com.kodex.guide.data.mapper.toBookDTO
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toRatingData
+import com.kodex.guide.data.model.BookDTO
 import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
+import com.kodex.guide.data.source.remote.FireBaseStorageDataSource
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.BooksRepo
@@ -16,16 +20,18 @@ import com.kodex.guide.presentation.home.BookFactoryPaging
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+const val BASE_64 = true
 class BooksRepo_Impl @Inject constructor(
     private val dataSource: BooksFirebaseRemoteDataSource,
-
-): BooksRepo{
+    //private val storageDataSource: FireBaseStorageDataSource,
+    private val bitmapEncoder: BitmapEncoder,
+    ): BooksRepo{
     override fun getBooks(favsKeysList: List<String>, bookFilter: BookFilter): Flow<PagingData<Book>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 16,
                 prefetchDistance = 3,
-                initialLoadSize = 30,
+                initialLoadSize = 26,
             ),  
             pagingSourceFactory = { BookFactoryPaging(
                 dataSource,
@@ -39,9 +45,10 @@ class BooksRepo_Impl @Inject constructor(
     override suspend fun deleteBook(book: Book): Result<Unit> {
         return dataSource.deleteBook(book.toBookDTO())
     }
-
-    override suspend fun saveBook(book: Book): Result<Unit> {
-        return dataSource.saveBook(book.toBookDTO())
+        // only BASE64 image
+    override suspend fun saveBook(book: Book, uri: Uri?): Result<Unit> {
+        val imageUrl = bitmapEncoder.imageToBase64(uri)
+        return dataSource.saveBook(book.copy(imageUrl = imageUrl).toBookDTO())
     }
 
     override suspend fun submitUserRating(

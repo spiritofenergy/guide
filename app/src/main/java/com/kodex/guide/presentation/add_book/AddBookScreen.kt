@@ -13,21 +13,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.data.images.toBitmap
+import com.kodex.guide.data.mapper.toDomain
+import com.kodex.guide.data.source.remote.FireBaseStorageDataSource
 import com.kodex.guide.presentation.add_book.AddBookViewModel
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.BookCategories
@@ -37,17 +45,15 @@ import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
 import com.kodex.guide.presentation.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
-import com.kodex.guide.utils.FirebaseConst.POSTS
-import com.kodex.guide.utils.firebase.IS_BASE_64
-import com.kodex.guide.utils.toBitmap
+import com.kodex.guide.data.source.remote.FirebaseConst.POSTS
 
+ const val IS_BASE_64 = true
 @Composable
 fun AddBookScreen(
     navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
     onSaved: () -> Unit = {},
     isDelivery: () -> Unit = {},
     viewModel: AddBookViewModel = hiltViewModel(),
-
 
     ) {
     val cv = LocalContext.current.contentResolver
@@ -56,10 +62,15 @@ fun AddBookScreen(
     val selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
     val navImageUrl = remember { mutableStateOf(navData.imageUrl) }
     val imageBase64 = remember { mutableStateOf(if (IS_BASE_64) navData.imageUrl else "") }
+
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        viewModel.selectedImageUri.value = uri
+        uri?.let {
+            navImageUrl.value = ""
+            viewModel.selectedImageUri.value = uri
+        }
+
     }
 
     LaunchedEffect(Unit) {
@@ -103,13 +114,13 @@ fun AddBookScreen(
 
 
         )
-        /*   Text(
+           Text(
             text = "Taman",
             color = Color.White,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif
-        )*/
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
         RoundedCornerDropDownMenu(
@@ -120,7 +131,7 @@ fun AddBookScreen(
             },
         )
 
-  /*      Spacer(modifier = Modifier.height(5.dp))
+        /*      Spacer(modifier = Modifier.height(5.dp))
         RoundedCornerDropDownMenuV(
             viewModel.selectedVillage.intValue,
             onOptionSelected = { selectedItemVillage ->
@@ -137,7 +148,7 @@ fun AddBookScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
 
-       /* RoundedCornerTextField(
+        /* RoundedCornerTextField(
             text = viewModel.location.value,
             label = "Location:"
         ) {
@@ -165,115 +176,33 @@ fun AddBookScreen(
         Spacer(modifier = Modifier.height(5.dp))
 
         RoundedCornerTextField(
-            text = viewModel.price.value,
+            text = viewModel.price.intValue.toString(),
             label = "Цена:"
-        ) { userInput ->
+        ) {
+            viewModel.price.intValue = it.ifEmpty { "0" }.toInt()
+        }
+        /*{ userInput ->
             // Преобразуем всё, что ввел пользователь, в String и оставляем только цифры
             val stringValue = userInput.toString()
-            val onlyDigits = stringValue.filter { it.isDigit() }
+                 val onlyDigits = stringValue.filter { it.isDigit() }
             viewModel.price.value = onlyDigits
-        }
+        }*/
 
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-
-            //viewModel.uploadBook(navData)
-            //showProgressIndicator.value = true
-          //  for(i in 1..40) {
-                saveBookToFirestore(
-                    firestore = FirebaseFirestore.getInstance(),
-                    Book(
-                        key = navData.key,
-                        title = viewModel.title.value,
-                        description = viewModel.description.value,
-                        price = viewModel.price.value.toInt(),
-                        categoryIndex = viewModel.selectedCategory.value,
-                        village = viewModel.village.value,
-
-                       /* imageUrl = if (viewModel.selectedImageUri.value != null) {
-                            imageToBase64(
-                                viewModel.selectedImageUri.value!!,
-                                cv,
-                                viewModel.globalSettings.userSettingsData
-                            )
-                        } else {
-                            navData.imageUrl
-                        }*/
-                    ),
-                    onSaved = {
-                        onSaved(
-
-                        )
-                        Log.d(
-                            "MyLog",
-                            "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"
-                        )
-
-                    },
-                    onError = { error ->
-                        Log.d("MyLog4", "Error: ${error}")
-
-                    }
-                )
-            }
-
-                // viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
-
+            navData.toDomain().copy()
+            viewModel.uploadBook(
+                navData.toDomain().copy(imageUrl = imageBase64.value)
+            )
+            onSaved()
+            Log.d(
+                "MyLog", "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"
+            )
         }
     }
-    //viewModel.uploadBook(navData.copy(imageUrl = imageBase64.value))
-
-
-
-fun saveBookToFirestore(
-    firestore: FirebaseFirestore,
-    book: Book,
-    onSaved: () -> Unit,
-    onError: (String) -> Unit
-) {
-    val db = firestore.collection(POSTS)
-    val key = book.key.ifEmpty { db.document().id }
-    val bookFirestore = BookFirestore(
-        id = book.id,
-        key = key,
-        title = book.title,
-        searchTitle = book.searchTitle,
-        description = book.description,
-        price = book.price,
-        telephone = book.telephone,
-        categoryIndex = book.categoryIndex.id, // Сохраняем ID
-        imageUrl = book.imageUrl,
-        isFavorite = book.isFavorite,
-        isAuthor = book.isAuthor,
-        authorId = book.authorId,
-        publishPeriod = book.publishPeriod,
-        timeStamp = book.timeStamp,
-        deleteDate = book.deleteDate,
-        village = book.village,
-        delivery = book.delivery,
-        ratingsList = book.ratingsList
-    )
-    db.document(key)
-        // .set(book.copy(key = key))
-        .set(bookFirestore)
-        .addOnSuccessListener { onSaved() }
-        .addOnFailureListener { onError(it.message ?: "Error") }
-   // Log.d("MyLog", "saveBookToFirestore: $book")
 }
-/*
-private fun imageToBase64(
-    uri: Uri,
-    contentResolver: ContentResolver
-): String {
-    val inputStream = contentResolver.openInputStream(uri)
-
-    val bytes = inputStream?.readBytes()
-    return bytes?.let {
-        Base64.encodeToString(it, Base64.DEFAULT)
-    } ?: ""
-}*/
 
 @Preview(showBackground = true)
 @Composable
