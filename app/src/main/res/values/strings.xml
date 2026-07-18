@@ -5,10 +5,17 @@
     <string name="email_send">Correo de restablecimiento de contraseña enviado</string>
     <string name="reset_password_dialog">Se ha enviado un enlace para restablecer la contraseña a su correo. Por favor, siga las instrucciones para restablecer la contraseña.</string>
     <!-- LoginScreen -->
+    <string name="warning">Warning</string>
+    <string name="you_want_to_delete">Do you really want to delete?</string>
+    <string name="mark_post">Mark a post</string>
+
     <!-- BottomMenu-->
     <string name="home">Home</string>
     <string name="faves">Favorite</string>
     <string name="saved">Saved</string>
+    <string name="delivery">Delivery</string>
+    <string name="card_payment">Card payment</string>
+    <string name="сreate_post">Create post</string>
     <string name="settings">Settings</string>
     <!-- -->
     <!-- DriverMenu-->
@@ -29,7 +36,7 @@
     <string name="message">Message</string>
     <string name="yes">Yes</string>
     <string name="ok">OK</string>
-    <string name="cansel">Cansel</string>
+    <string name="cancel">Cansel</string>
     <string name="comments">Comments</string>
 
     <!-- SettingsScreen -->

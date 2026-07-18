@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +46,7 @@ import com.kodex.guide.domain.model.Book
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
+import com.kodex.guide.ui.theme.Red
 
 
 @SuppressLint("DefaultLocale")
@@ -200,7 +203,7 @@ fun BookListItemUi(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             if (!showEditButton)
                 Text(
                     modifier = Modifier
@@ -212,11 +215,23 @@ fun BookListItemUi(
                     maxLines = 1,
                     fontSize = 18.sp
                 )
+            Spacer(modifier = Modifier.width(5.dp))
+
+            if(book.delivery) {
+                Icon(
+                    Icons.Default.DeliveryDining,
+                    contentDescription = "Delivery",
+                    modifier = Modifier.size(20.dp),
+                    tint = GreenSea
+                )
+            }
+            Spacer(modifier = Modifier.width(5.dp))
+            if (book.payment)
             Icon(
-                Icons.Default.DeliveryDining,
-                contentDescription = "Location",
+                Icons.Default.Payment,
+                contentDescription = "Payment",
                 modifier = Modifier.size(20.dp),
-                tint = GreenSea
+                tint = Red
 
             )
             Spacer(modifier = Modifier.width(5.dp))

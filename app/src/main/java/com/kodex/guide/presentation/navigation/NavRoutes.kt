@@ -95,6 +95,7 @@ class NavRoutes {
 
     @Serializable
     data class AddScreenObject(
+        val id: Int = 0,
         val key: String = "",
         val title: String = "",
         val description: String = "",
@@ -107,9 +108,10 @@ class NavRoutes {
         val authorId: Int = 0,
         val publishPeriod: Int = 1,
         val timeStamp: Long = System.currentTimeMillis(),
-        val deleteDate: String = "",
+        val deleteDate: Int = 0,
         val village: String = "",
         val delivery: Boolean = false,
+        val payment: Boolean = false,
         val ratingsList: List<Double> = emptyList(),
     )
 

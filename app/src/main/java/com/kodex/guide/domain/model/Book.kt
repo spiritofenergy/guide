@@ -24,6 +24,7 @@ data class Book(
     val deleteDate: Int = 0,
     val village: String = "",
     val delivery: Boolean = false,
+    val payment: Boolean = false,
     val ratingsList: List<Int> = emptyList(),
 
     )

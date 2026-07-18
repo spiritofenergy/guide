@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kodex.guide.presentation.settingsScreen.SettingsScreen
-import com.kodex.guide.ui.addscreen.AddBookScreen
+import com.kodex.guide.presentation.add_book.AddBookScreen
  import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
 import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
                         onBookEditClick = { book ->
                             navController.navigate(
                                 NavRoutes.AddScreenObject(
+                                    id = book.id,
                                     key = book.key,
                                     title = book.title,
                                     description = book.description,

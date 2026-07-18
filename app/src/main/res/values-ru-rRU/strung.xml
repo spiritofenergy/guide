@@ -14,7 +14,10 @@
 <string name="home">Главная</string>
 <string name="faves">Избранное</string>
 <string name="saved">Сохраненные</string>
-<string name="settings">Настройки</string>
+<string name="delivery">Доставка</string>
+    <string name="сreate_post">Создать объявление</string>
+    <string name="card_payment">Оплата картой</string>
+    <string name="settings">Настройки</string>
 
 <!-- DriverMenu-->
 <string name="all">Все</string>
