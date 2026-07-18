@@ -116,7 +116,7 @@ fun DialogRating(
                     onClick = {
                         onDismiss()
                     }) {
-                    Text(text = stringResource(R.string.cansel))
+                    Text(text = stringResource(R.string.cancel))
                 }
                 Spacer(modifier = Modifier.width(20.dp))
 

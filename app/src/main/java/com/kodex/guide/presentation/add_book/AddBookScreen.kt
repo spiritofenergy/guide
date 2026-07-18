@@ -1,5 +1,8 @@
-package com.kodex.guide.ui.addscreen
+package com.kodex.guide.presentation.add_book
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,11 +11,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,23 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import com.google.firebase.firestore.FirebaseFirestore
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.data.images.toBitmap
 import com.kodex.guide.data.mapper.toDomain
-import com.kodex.guide.data.source.remote.FireBaseStorageDataSource
-import com.kodex.guide.presentation.add_book.AddBookViewModel
-import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.BookCategories
-import com.kodex.guide.domain.model.BookFirestore
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
 import com.kodex.guide.presentation.login.RoundedCornerTextField
 import com.kodex.guide.ui.theme.BoxFilter
-import com.kodex.guide.data.source.remote.FirebaseConst.POSTS
+import com.kodex.guide.ui.theme.ButtonColor
 
- const val IS_BASE_64 = true
+const val IS_BASE_64 = true
 @Composable
 fun AddBookScreen(
     navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
@@ -56,6 +58,19 @@ fun AddBookScreen(
     viewModel: AddBookViewModel = hiltViewModel(),
 
     ) {
+    val imageBitMap = remember {
+        var bitMap: Bitmap? = null
+        try {
+            val base64Image = Base64.decode(navData.imageUrl, Base64.DEFAULT)
+            bitMap = BitmapFactory.decodeByteArray(
+                base64Image, 0,
+                base64Image.size
+            )
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
+        mutableStateOf(bitMap)
+    }
     val cv = LocalContext.current.contentResolver
     val context = LocalContext.current
     val categories = remember { context.resources.getStringArray(R.array.category_array) }
@@ -101,25 +116,27 @@ fun AddBookScreen(
         // Фото
         Image(
             painter = rememberAsyncImagePainter(
-                model = if (imageBase64.value.isNotEmpty()) {
+                model =
+                    imageBitMap.value ?: viewModel.selectedImageUri.value
+            /*if (imageBase64.value.isNotEmpty()) {
                     imageBase64.value.toBitmap()
                 } else {
                     navImageUrl.value.ifEmpty { viewModel.selectedImageUri.value }
-                }
+                }*/
             ),
             contentDescription = "",
             modifier = Modifier
-                .height(400.dp)
+                .height(300.dp)
                 .width(600.dp)
 
 
         )
            Text(
-            text = "Taman",
-            color = Color.White,
+            text = stringResource(R.string.сreate_post),
+            color = ButtonColor,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Serif
+            fontFamily = FontFamily.Serif,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -173,6 +190,7 @@ fun AddBookScreen(
             viewModel.village.value = it
         }
 
+
         Spacer(modifier = Modifier.height(5.dp))
 
         RoundedCornerTextField(
@@ -187,15 +205,46 @@ fun AddBookScreen(
                  val onlyDigits = stringValue.filter { it.isDigit() }
             viewModel.price.value = onlyDigits
         }*/
+        Spacer(modifier = Modifier.height(5.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                modifier = Modifier,
+                checked = viewModel.delivery.value,
+                onCheckedChange = { viewModel.delivery.value = it },
+                colors  = CheckboxDefaults.colors(checkedColor = Color(0xFF03A9F4), checkmarkColor = Color.White)
 
+            )
+            Text(stringResource(R.string.delivery),
+                color = ButtonColor,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif)
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Checkbox(
+                modifier = Modifier,
+                checked = viewModel.payment.value,
+                onCheckedChange = { viewModel.payment.value = it },
+                colors  = CheckboxDefaults.colors(checkedColor = Color(0xFF03A9F4), checkmarkColor = Color.White)
+
+            )
+            Text(stringResource(R.string.card_payment),
+                color = ButtonColor,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif)
+        }
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
         }
         LoginButton(text = "Сохранить ") {
-            navData.toDomain().copy()
             viewModel.uploadBook(
-                navData.toDomain().copy(imageUrl = imageBase64.value)
+                navData.toDomain().copy(imageUrl = imageBase64.value,
+                    delivery = viewModel.delivery.value
+                )
             )
+            Log.d("MyLogS", "delivery.value:, ${viewModel.delivery.value}")
             onSaved()
             Log.d(
                 "MyLog", "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"

@@ -40,7 +40,7 @@ fun RoomDialog(
                         postName = ""
                     }
                 ) {
-                    Text(text = stringResource(R.string.cansel))
+                    Text(text = stringResource(R.string.cancel))
                 }
                 Button(
                     onClick = {

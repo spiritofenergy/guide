@@ -22,6 +22,8 @@ fun BookDTO.toBook(): Book {
      timeStamp = timeStamp,
      deleteDate = deleteDate,
      village = village,
+     delivery = delivery,
+     payment= payment,
      ratingsList = ratingsList,
     )
 }
@@ -44,6 +46,8 @@ fun Book.toBookDTO(): BookDTO {
      timeStamp = timeStamp,
      deleteDate = deleteDate,
      village = village,
+     delivery = delivery,
+     payment= payment,
      ratingsList = ratingsList,
     )
 }
