@@ -29,6 +29,11 @@ private val bitmapEncoder: BitmapEncoder
     val description = mutableStateOf("")
     val price = mutableIntStateOf(0)
     val telephone = mutableStateOf("")
+
+    val validationError = mutableStateOf<String?>(null)
+    val isEditMode = mutableStateOf(false) // Флаг: редактирование или создание
+    var imageBase64 = mutableStateOf("")
+
     val selectedCategory = mutableStateOf(BookCategories.ALL)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
@@ -48,11 +53,44 @@ private val bitmapEncoder: BitmapEncoder
         return bitmapEncoder.imageToBase64(uri)
     }
 
+    // Функция валидации
+    fun validateBook(): Boolean {
+        val errors = mutableListOf<String>()
+
+        if (title.value.isBlank()) {
+            errors.add("• Название обязательно для заполнения")
+        }
+
+        if (description.value.isBlank()) {
+            errors.add("• Описание обязательно для заполнения")
+        }
+
+        if (village.value.isBlank()) {
+            errors.add("• Укажите станицу")
+        }
+
+        if (price.intValue <= 0) {
+            errors.add("• Укажите корректную цену")
+        }
+        // 🔍 Проверка фото
+        if (selectedImageUri.value == null && imageBase64.value.isBlank() && !isEditMode.value) {
+            errors.add("• Добавьте фото книги")
+        }
+        if (errors.isNotEmpty()) {
+            validationError.value = errors.joinToString("\n")
+            return false
+        }
+
+        validationError.value = null
+        return true
+    }
+
+    // Сброс ошибки (вызывать при закрытии диалога)
+    fun clearValidationError() {
+        validationError.value = null
+    }
     fun setDefaultData(navData: NavRoutes.AddScreenObject) {
-        Log.d("MyLogVM", "navData: title=${navData.title}," +
-                "\n  key=${navData.key}, " +
-              " \n  key=${navData.key}, " +
-                "\n imageUrl=${navData.imageUrl}")
+        Log.d("EditDebug", "Пришло на экран: village=${navData.village}, delivery=${navData.delivery}, payment=${navData.payment}")
 
         title.value = navData.title
         village.value = navData.village
@@ -62,7 +100,13 @@ private val bitmapEncoder: BitmapEncoder
         selectedCategory.value = navData.categoryIndex
         delivery.value = navData.delivery
         payment.value = navData.payment
+        // ✅ Устанавливаем флаг режима редактирования
+        isEditMode.value = navData.id != 0 && navData.key.isNotEmpty()
 
+        // ✅ Если есть фото в navData, сохраняем его
+        if (navData.imageUrl.isNotEmpty()) {
+            imageBase64.value = navData.imageUrl
+        }
     }
 
     fun uploadBook(
@@ -80,15 +124,11 @@ private val bitmapEncoder: BitmapEncoder
                     delivery = delivery.value,
                     payment = payment.value
                 ),
+
                 selectedImageUri.value)
             result.fold(
                 onSuccess = {
-                      Log.d("MyLogV", "delivery.value:  ${delivery.value}")
-                      Log.d("MyLog", "payment.value:  ${payment.value}")
                     sendUiState(HomeViewModel.MainUiState.Success) },
-
-
-
                 onFailure = { error->
                     sendUiState(HomeViewModel.MainUiState.Error(error.message ?: "Unknow error"))
                 }

@@ -100,4 +100,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    dependencies {
+        // OpenStreetMap
+        implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+        // Для HTTP-запросов к OSRM (маршруты)
+        implementation("com.squareup.okhttp3:okhttp:5.4.0")
+
+        // Для работы с JSON от OSRM
+        implementation("com.google.code.gson:gson:2.14.0")
+    }
 }

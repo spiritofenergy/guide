@@ -8,7 +8,7 @@ fun NavRoutes.AddScreenObject.toDomain(): Book {
         id = id, // <-- ДОБАВЬТЕ (иначе создается новая запись)
         key = key,
         title = title,
-        searchTitle = title.lowercase(),
+       searchTitle = title.lowercase(),
         description = description,
         price = price,
         telephone = telephone, // <-- ДОБАВЬТЕ
@@ -22,7 +22,31 @@ fun NavRoutes.AddScreenObject.toDomain(): Book {
         deleteDate = deleteDate,// <-- ДОБАВЬТЕ
         village = village, // <-- ДОБАВЬТЕ
         delivery = delivery, // <-- ДОБАВЬТЕ
+        payment = payment,
         ratingsList = ratingsList.map { it.toInt() }
-        //ratingsList = ratingsList // <-- ДОБАВЬТЕ
+    )
+}
+
+fun Book.toAddScreenObject(): NavRoutes.AddScreenObject {
+    return NavRoutes.AddScreenObject(
+        id = id,
+        key = this.key,
+        title = this.title,
+        searchTitle = searchTitle,
+        description = this.description,
+        price = this.price,
+        telephone = this.telephone,
+        categoryIndex = this.categoryIndex,
+        imageUrl = this.imageUrl,
+        isFavorite = this.isFavorite,
+        isAuthor = this.isAuthor,
+        authorId = this.authorId,
+        publishPeriod = this.publishPeriod,
+        timeStamp = this.timeStamp,
+        deleteDate = this.deleteDate,
+        village = this.village,       // ← убедитесь, что это есть
+        delivery = this.delivery,
+        payment = this.payment,// ← убедитесь, что это есть
+        ratingsList = this.ratingsList.map { it.toString() }
     )
 }
