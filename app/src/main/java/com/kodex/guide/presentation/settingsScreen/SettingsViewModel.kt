@@ -36,7 +36,7 @@ class SettingsViewModel @Inject constructor(
 
     val personalData = mutableStateOf(PersonalData())
     val addressData = mutableStateOf(AddressData())
-    // val userSettingsData = mutableStateOf(UserSettingsData())
+     val userSettingsData = mutableStateOf(UserSettingsData())
 
     private val _settingsBundleState = MutableStateFlow(
         UserSettingsBundle(

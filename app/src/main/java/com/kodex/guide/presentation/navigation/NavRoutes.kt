@@ -38,11 +38,11 @@ class NavRoutes {
         val price: Int = 0,
         val isOpenNow: Boolean = true,
         val openingHours: String = "09:00 - 20:00",
-        val address: String = "Москва, ул. Тверская, 15",
+        val address: String = "Кучугуры, ул. Ленина, 15",
         val telephone: String = "+7(495)123-45-67",
         val website: String = "coffeehouse.ru",
-        val latitude: String = "9",
-        val longitude:String = "22",
+        val latitude: String = "55.7558",   // Москва по умолчанию
+        val longitude: String = "37.6173",
         val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val author: String = "",
@@ -98,6 +98,7 @@ class NavRoutes {
         val id: Int = 0,
         val key: String = "",
         val title: String = "",
+        val searchTitle: String = title.lowercase(),
         val description: String = "",
         val price: Int = 0,
         val telephone: String = "",
@@ -112,7 +113,8 @@ class NavRoutes {
         val village: String = "",
         val delivery: Boolean = false,
         val payment: Boolean = false,
-        val ratingsList: List<Double> = emptyList(),
+        val ratingsList: List<String> = emptyList(),
+
     )
 
     @Serializable

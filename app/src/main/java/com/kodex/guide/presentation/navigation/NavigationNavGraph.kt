@@ -1,0 +1,153 @@
+package com.kodex.guide.presentation.navigation
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.kodex.guide.data.mapper.toAddScreenObject
+import com.kodex.guide.data.mapper.toParallaxNavObject
+import com.kodex.guide.presentation.add_book.AddBookScreen
+import com.kodex.guide.presentation.admin_panel.AdminPanelScreen
+import com.kodex.guide.presentation.admin_panel.ModerationScreen
+import com.kodex.guide.presentation.comments.CommentsScreen
+import com.kodex.guide.presentation.details.parallaxScreen.ParallaxScreen
+import com.kodex.guide.presentation.home.HomeScreen
+import com.kodex.guide.presentation.login.LoginScreen
+import com.kodex.guide.presentation.login.sign_up.SignUpScreen
+import com.kodex.guide.presentation.room.RoomFavoriteScreen
+import com.kodex.guide.presentation.settingsScreen.SettingsScreen
+
+ @RequiresApi(Build.VERSION_CODES.O)
+ @Composable
+fun NavigationNavGraph (navController: NavHostController){
+    NavHost(
+    navController = navController,
+    startDestination = NavRoutes.LoginNavObject
+    ) {
+
+        composable<NavRoutes.LoginNavObject> {
+            LoginScreen(
+                onNavigationToMainScreen = { navData ->
+                    navController.navigate(navData)
+                },
+                onNavigationToSignUpScreen = { navData ->
+                    navController.navigate(navData)
+                }
+            )
+        }
+        composable<NavRoutes.SingUpNavObject> {
+            SignUpScreen() { navData ->
+                navController.navigate(navData)
+            }
+        }
+
+        composable<NavRoutes.RoomDataObject> { navEntry ->
+            RoomFavoriteScreen(
+                onBookClick = { place ->
+                    navController.navigate(
+                        place.toParallaxNavObject()
+                    )
+                },
+            )
+        }
+        composable<NavRoutes.HomeDataObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
+            HomeScreen(
+                navData = navData,
+                onBookClick = { place ->
+                    navController.navigate(
+                        place.toParallaxNavObject()
+                    )
+                },
+
+                onBookEditClick = { book ->
+                    navController.navigate(book.toAddScreenObject()
+                    )
+                },
+                onAdminClick = {
+                    navController.navigate(NavRoutes.ModerationNavObject)
+                },
+                onLoginClick = {
+                    navController.navigate(NavRoutes.LoginNavObject)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.SettingsNavObject)
+                },
+                onSavedRoomClick = {
+                    navController.navigate(NavRoutes.RoomDataObject(
+                        uid = "uid",
+                        email = "email"
+                    ))
+                },
+                onAddBookClick = {
+                    navController.navigate(NavRoutes.AddScreenObject())
+                }
+            )
+        }
+        composable<NavRoutes.AddScreenObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.AddScreenObject>()
+            AddBookScreen(
+                navData = navData,
+                onSaved = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<NavRoutes.AdminPanelNavObject> {
+            AdminPanelScreen(
+                onAddBookClick = {
+                    navController.navigate(NavRoutes.AddScreenObject())
+                },
+                onModerationClick = {
+                    navController.navigate(NavRoutes.ModerationNavObject)
+                }
+            )
+        }
+        composable<NavRoutes.ModerationNavObject> {
+            ModerationScreen()
+        }
+        composable<NavRoutes.SettingsNavObject> { navEntry ->
+            SettingsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onCloseAccountClick = {
+                    navController.popBackStack(
+                        NavRoutes.LoginNavObject,
+                        inclusive = false
+                    )
+                }
+            )
+        }
+
+        composable<NavRoutes.ParallaxNavObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
+            ParallaxScreen(
+                navObject = navData,
+                onBackPressed = { navController.popBackStack() },
+                onCallTaxi = { _, _ -> /* Позвонить */ },
+                onNavigateToReviews = {},
+                onCommentClick = {
+                    navController.navigate(NavRoutes.CommentsNavData(
+                        bookId = navData.bookId,
+                        title = navData.title,
+                        ratingsList =  navData.ratingsList
+                    ))
+                }
+            )
+        }
+
+
+        composable<NavRoutes.CommentsNavData> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()
+            CommentsScreen(
+                navObject = navData
+            )
+        }
+    }
+}

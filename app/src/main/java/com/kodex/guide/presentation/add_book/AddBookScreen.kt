@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +41,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.data.images.toBitmap
 import com.kodex.guide.data.mapper.toDomain
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
@@ -84,12 +85,42 @@ fun AddBookScreen(
         uri?.let {
             navImageUrl.value = ""
             viewModel.selectedImageUri.value = uri
+            viewModel.imageBase64.value = viewModel.convertImageToBase64(uri)
         }
 
     }
 
     LaunchedEffect(Unit) {
         viewModel.setDefaultData(navData)
+    }
+
+// 🔔 Диалог с ошибкой валидации
+    viewModel.validationError.value?.let { errorMessage ->
+        AlertDialog(
+            onDismissRequest = { viewModel.clearValidationError() },
+            title = {
+                Text(
+                    text = "Проверьте данные",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Text(
+                    text = errorMessage,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearValidationError() }) {
+                    Text("Понятно", color = Color(0xFF03A9F4))
+                }
+            },
+            containerColor = Color(0xFF2C2C2E),
+            titleContentColor = Color.White,
+            textContentColor = Color.White
+        )
     }
     //фон
     Image(
@@ -118,11 +149,6 @@ fun AddBookScreen(
             painter = rememberAsyncImagePainter(
                 model =
                     imageBitMap.value ?: viewModel.selectedImageUri.value
-            /*if (imageBase64.value.isNotEmpty()) {
-                    imageBase64.value.toBitmap()
-                } else {
-                    navImageUrl.value.ifEmpty { viewModel.selectedImageUri.value }
-                }*/
             ),
             contentDescription = "",
             modifier = Modifier
@@ -133,7 +159,7 @@ fun AddBookScreen(
         )
            Text(
             text = stringResource(R.string.сreate_post),
-            color = ButtonColor,
+            color = Color.White,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif,
@@ -181,11 +207,13 @@ fun AddBookScreen(
         ) {
             viewModel.description.value = it
         }
+        Spacer(modifier = Modifier.height(5.dp))
+
         RoundedCornerTextField(
             text = viewModel.village.value,
             label = "Станица:",
             singleLine = false,
-            maxLines = 5
+            maxLines = 1
         ) {
             viewModel.village.value = it
         }
@@ -215,7 +243,7 @@ fun AddBookScreen(
 
             )
             Text(stringResource(R.string.delivery),
-                color = ButtonColor,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Serif)
@@ -230,7 +258,7 @@ fun AddBookScreen(
 
             )
             Text(stringResource(R.string.card_payment),
-                color = ButtonColor,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Serif)
@@ -238,18 +266,24 @@ fun AddBookScreen(
         LoginButton(text = "Выбрать фото") {
             imageLauncher.launch("image/*")
         }
+
         LoginButton(text = "Сохранить ") {
-            viewModel.uploadBook(
-                navData.toDomain().copy(imageUrl = imageBase64.value,
-                    delivery = viewModel.delivery.value
+            if (viewModel.validateBook()) {
+                val bookToSave = navData.toDomain().copy(
+                    imageUrl = imageBase64.value,
+                    title = viewModel.title.value,
+                    description = viewModel.description.value,
+                    price = viewModel.price.intValue,
+                    village = viewModel.village.value,
+                    categoryIndex = viewModel.selectedCategory.value,
+                    delivery = viewModel.delivery.value,
+                    payment = viewModel.payment.value
                 )
-            )
-            Log.d("MyLogS", "delivery.value:, ${viewModel.delivery.value}")
-            onSaved()
-            Log.d(
-                "MyLog", "Add image64 size: , ${navData.imageUrl.toByteArray(Charsets.UTF_8).size}"
-            )
+                viewModel.uploadBook(bookToSave)
+                onSaved()
+            }
         }
+
     }
 }
 

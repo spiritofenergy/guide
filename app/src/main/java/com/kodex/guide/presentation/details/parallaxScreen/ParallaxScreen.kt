@@ -64,6 +64,7 @@ fun ParallaxScreen(
     val collapsedHeight = 280.dp
     val expandedHeight = screenHeight * 0.5f
     var showFullScreenImage by remember { mutableStateOf(false) }
+    var showMap by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -182,7 +183,9 @@ fun ParallaxScreen(
                             onCommentClick()
                         },
                         //onCallTaxi = { onCallTaxi(navObject.latitude, navObject.longitude) },
-                        onNavigateToReviews = onNavigateToReviews
+                        onNavigateToReviews = onNavigateToReviews,
+                        onShowMapClick = { showMap = true } // <-- ВОТ ЗДЕСЬ
+
                     )
                 }
 
@@ -230,6 +233,14 @@ fun ParallaxScreen(
                 }
             }
         }
+    }
+    if (showMap) {
+        MapScreen(
+            destinationLat = navObject.latitude.toDoubleOrNull() ?: 55.7558, // Москва по умолчанию
+            destinationLng = navObject.longitude.toDoubleOrNull() ?: 37.6173,
+            destinationTitle = navObject.title,
+            onDismiss = { showMap = false }
+        )
     }
 }
 

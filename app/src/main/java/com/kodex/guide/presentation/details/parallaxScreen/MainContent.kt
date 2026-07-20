@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -39,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -63,13 +65,15 @@ fun MainContent(
     onCommentClick: (NavRoutes.CommentsNavData) -> Unit = {},
     navObject: NavRoutes.ParallaxNavObject,
     onNavigateToReviews: () -> Unit,
+    onShowMapClick: () -> Unit, // <-- 1. ДОБАВЛЯЕМ ЭТОТ ПАРАМЕТР
     viewModel: DetailsScreenViewModel = viewModel()
 ) {
-      var showRateDialog by remember { mutableStateOf(false) }
-      var showCommentDialog by remember { mutableStateOf(false) }
-      var ratingDataToShow by remember { mutableStateOf(RatingData()) }
+    var showRateDialog by remember { mutableStateOf(false) }
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var ratingDataToShow by remember { mutableStateOf(RatingData()) }
 
     val uiState = viewModel.uiState.collectAsState()
+    var showMap by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val telephone = "+79197716667"
@@ -97,7 +101,7 @@ fun MainContent(
                 DetailUiEvents.DetailUiEvent.HideUserRatingDialog
             )
         },
-        onSubmit = {ratingData ->
+        onSubmit = { ratingData ->
             Log.d("MyLog", "BookId: ${navObject.bookId}")
             viewModel.onEvent(
                 DetailUiEvents.DetailUiEvent.InsertRatingDialogEvent(
@@ -109,14 +113,14 @@ fun MainContent(
     )
 
 
-     DialogComments(
-         showDialog =  uiState.value.showCommentDialog,
-         onDismiss = {
-           //  showCommentDialog = false
-         },
-         ratingData = uiState.value.ratingDataToShow,
-         onConfirm = { showCommentDialog = false }
-     )
+    DialogComments(
+        showDialog = uiState.value.showCommentDialog,
+        onDismiss = {
+            //  showCommentDialog = false
+        },
+        ratingData = uiState.value.ratingDataToShow,
+        onConfirm = { showCommentDialog = false }
+    )
 
     Column(
         modifier = Modifier
@@ -159,7 +163,7 @@ fun MainContent(
                 modifier = Modifier.clickable { onNavigateToReviews() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable{
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
                         onCommentClick(
                             NavRoutes.CommentsNavData(
                                 bookId = navObject.bookId,
@@ -167,7 +171,10 @@ fun MainContent(
                                 ratingsList = navObject.ratingsList
                             )
                         )
-                        Log.d("MyLog", "onCommentClick pressed ${navObject.bookId + navObject.title + navObject.ratingsList}" )
+                        Log.d(
+                            "MyLog",
+                            "onCommentClick pressed ${navObject.bookId + navObject.title + navObject.ratingsList}"
+                        )
                     },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -202,25 +209,54 @@ fun MainContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Адрес
+        //  АДРЕС ТЕПЕРЬ КЛИКАБЕЛЬНЫЙ
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onShowMapClick() } // <-- Добавляем клик
+                .padding(vertical = 8.dp),      // <-- Увеличиваем область нажатия
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.LocationOn,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary // <-- Акцентный цвет
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = navObject.address,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.primary, // <-- Акцентный цвет текста
+                modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.Medium
+            )
+            Icon(
+                Icons.Default.ChevronRight, // Стрелочка вправо как подсказка
+                contentDescription = "Показать на карте",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        /* Row(
+            modifier = Modifier.fillMaxWidth()
+            .clickable { onShowMapClick() } // <-- Добавляем клик
+            .padding(vertical = 8.dp),
             verticalAlignment = Alignment.Top
         ) {
             Icon(
                 Icons.Default.LocationOn,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = navObject.address,
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
-        }
+        }*/
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -331,62 +367,54 @@ fun MainContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Описание
-        Text(
-            text = navObject.description,
-            fontSize = 16.sp
-        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Заголовок отзывов
+            Text(
+                text = stringResource(R.string.comments),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
 
-        // Заголовок отзывов
-        Text(
-            text = stringResource(R.string.comments),
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Spacer(modifier = Modifier.height(10.dp))
+            // Отзывы в виде горизонтального списка
+            if (uiState.value.comments.isNotEmpty()) {
+                LazyRow(
 
-        // Отзывы в виде горизонтального списка
-        if (uiState.value.comments.isNotEmpty()) {
-            LazyRow(
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp) // Фиксированная высота для LazyRow
-            ) {
-                items(uiState.value.comments) { ratingData ->
-                    CommentListItem(
-                        onClick = { rData ->
-                            viewModel.onEvent(
-                                DetailUiEvents.DetailUiEvent.CommentDialogEvent(
-                                    true,
-                                    rData
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp) // Фиксированная высота для LazyRow
+                ) {
+                    items(uiState.value.comments) { ratingData ->
+                        CommentListItem(
+                            onClick = { rData ->
+                                viewModel.onEvent(
+                                    DetailUiEvents.DetailUiEvent.CommentDialogEvent(
+                                        true,
+                                        rData
+                                    )
                                 )
-                            )
-                        },
-                        ratingData = ratingData
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                            },
+                            ratingData = ratingData
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                 }
-            }
-        } else {
-            // Показываем сообщение, если нет отзывов
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Нет отзывов. Будьте первым!",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 14.sp
-                )
+            } else {
+                // Показываем сообщение, если нет отзывов
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Нет отзывов. Будьте первым!",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     }
-}
