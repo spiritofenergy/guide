@@ -47,8 +47,7 @@ fun DrawerBody(
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onSavedRoomClick: () -> Unit = {},
-    onAdmin: (Boolean) -> Unit = {},
+     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (BookCategories) -> Unit = {}
 ) {
@@ -141,7 +140,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Dialpad,
                  text = categoryList[8],
                  onItemClick = {
-                     onCategoryClick(BookCategories.MISCELLANEOUS)
+                     onCategoryClick(BookCategories.SAVED)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -181,22 +180,15 @@ fun DrawerBody(
                      coroutineScope.launch { drawerState.close() }
                  }
              )
-             DrawerMenuItem(
+         /*    DrawerMenuItem(
                  iconDrawableId = Icons.Default.Settings,
                  text = categoryAdmin[5],
                  onItemClick = {
                      onSettingsClick()
                      coroutineScope.launch { drawerState.close() }
                  }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Attractions,
-                 text = categoryAdmin[5],
-                 onItemClick = {
-                     onSavedRoomClick()
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
+             )*/
+
          }
     }
 }

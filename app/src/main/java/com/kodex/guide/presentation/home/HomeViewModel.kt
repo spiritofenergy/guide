@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
     private val booksRepo: BooksRepo,
     private val favoritesRepo: FavoritesRepo,
     private val mainDb: MainDb,
+
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -64,6 +65,7 @@ class HomeViewModel @Inject constructor(
         .debounce(500)
         .distinctUntilChanged()
     private val favoritesKeysFlow = MutableStateFlow<List<String>>(emptyList())
+
 
     val postList = mainDb.trackDao.getAllPosts()
 
@@ -146,7 +148,7 @@ class HomeViewModel @Inject constructor(
         bookListUpdate.update { list ->
             val changedBook = list.find { book.key == it.key }
             if (changedBook == null) {
-                list + ChangedTempBook(
+                list +  ChangedTempBook(
                     key = book.key,
                     isFavorite = book.isFavorite,
                     isDeleted = isDeleted

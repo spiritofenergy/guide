@@ -23,7 +23,7 @@ class SignInViewModel@Inject constructor(
     val successState = mutableStateOf(false)
     val emailState = mutableStateOf(
         "" +
-                //' "nillsimon24@gmail.com" +
+                //' "nillsimon24@gmail.com " +
                 ""
     )
     val passwordState = mutableStateOf("test2401")

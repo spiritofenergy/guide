@@ -3,6 +3,7 @@ package com.kodex.guide.data.images
 import android.R.attr.bitmap
 import android.graphics.Bitmap
 import android.os.Build
+import com.kodex.guide.domain.model.UserSettingsData
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -11,7 +12,7 @@ import javax.inject.Singleton
 class BitmapCompressor @Inject constructor() {
     fun compress(bitmap: Bitmap,
                  quality: Int = 50,
-                // userSettingsData: UserSettingsData,
+               // userSettingsData: UserSettingsData,
                  imageFormat: Bitmap.CompressFormat = defaultImageFormat()): ByteArray{
         val stream = ByteArrayOutputStream()
             bitmap.compress(imageFormat, quality, stream)
@@ -23,6 +24,5 @@ class BitmapCompressor @Inject constructor() {
         }else {
             Bitmap.CompressFormat.WEBP
         }
-
     }
 }

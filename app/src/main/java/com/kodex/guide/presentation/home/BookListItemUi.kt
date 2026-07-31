@@ -52,6 +52,7 @@ import com.kodex.guide.ui.theme.Red
 @SuppressLint("DefaultLocale")
 @Composable
 fun BookListItemUi(
+    heightValue: (Int) = 0,
     titleIndex: Int,
     showEditButton: Boolean = true,
     book: Book = Book(),

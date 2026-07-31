@@ -18,7 +18,6 @@ import com.kodex.guide.presentation.details.parallaxScreen.ParallaxScreen
 import com.kodex.guide.presentation.home.HomeScreen
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.login.sign_up.SignUpScreen
-import com.kodex.guide.presentation.room.RoomFavoriteScreen
 import com.kodex.guide.presentation.settingsScreen.SettingsScreen
 
  @RequiresApi(Build.VERSION_CODES.O)
@@ -45,15 +44,6 @@ fun NavigationNavGraph (navController: NavHostController){
             }
         }
 
-        composable<NavRoutes.RoomDataObject> { navEntry ->
-            RoomFavoriteScreen(
-                onBookClick = { place ->
-                    navController.navigate(
-                        place.toParallaxNavObject()
-                    )
-                },
-            )
-        }
         composable<NavRoutes.HomeDataObject> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
             HomeScreen(
@@ -77,12 +67,10 @@ fun NavigationNavGraph (navController: NavHostController){
                 onSettingsClick = {
                     navController.navigate(NavRoutes.SettingsNavObject)
                 },
-                onSavedRoomClick = {
-                    navController.navigate(NavRoutes.RoomDataObject(
-                        uid = "uid",
-                        email = "email"
-                    ))
-                },
+               onCategoryClick = {
+                   navController.navigate(NavRoutes.HomeDataObject(
+                       uid = "", email = ""))
+               },
                 onAddBookClick = {
                     navController.navigate(NavRoutes.AddScreenObject())
                 }

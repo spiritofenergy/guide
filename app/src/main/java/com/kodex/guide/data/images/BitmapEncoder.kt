@@ -5,12 +5,15 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import javax.inject.Inject
+ import com.kodex.guide.data.model.UserSettingsDataDTO
+ import com.kodex.guide.domain.model.UserSettingsData
+ import javax.inject.Inject
 
 class BitmapEncoder @Inject constructor(
     private  val bitmapResizer: BitmapResizer,
     private val bitmapCompressor: BitmapCompressor,
-    private val imageLoader: ImageLoader
+    private val imageLoader: ImageLoader,
+    //private val settingsData: UserSettingsData
 ) {
     fun uriToByteArray(uri: Uri): ByteArray{
         val bitMap = imageLoader.loadImage(uri)

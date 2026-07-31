@@ -10,11 +10,6 @@ class NavRoutes {
         val uid: String = "",
         val email: String = ""
     )
-  @Serializable
-    data class RoomDataObject(
-        val uid: String = "",
-        val email: String = ""
-    )
 
     @Serializable
     object AdminPanelNavObject {

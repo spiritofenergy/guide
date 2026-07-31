@@ -2,10 +2,14 @@ package com.kodex.guide.presentation.add_book
 
 import android.net.Uri
 import android.util.Log
+import android.util.TimeUtils
+import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.data.images.BitmapEncoder
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
@@ -13,9 +17,11 @@ import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.domain.repository.BooksRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,18 +33,22 @@ private val bitmapEncoder: BitmapEncoder
     val title = mutableStateOf("")
     val village = mutableStateOf("")
     val description = mutableStateOf("")
-    val price = mutableIntStateOf(0)
+    val price = mutableIntStateOf(50)
     val telephone = mutableStateOf("")
+    val location = mutableStateOf(false)
+    val street = mutableStateOf("")
+    val apartment = mutableStateOf("")
+    val home = mutableStateOf("")
+    val delivery = mutableStateOf(false)
+    val payment = mutableStateOf(false)
+    var imageBase64 = mutableStateOf("")
 
     val validationError = mutableStateOf<String?>(null)
-    val isEditMode = mutableStateOf(false) // Флаг: редактирование или создание
-    var imageBase64 = mutableStateOf("")
 
     val selectedCategory = mutableStateOf(BookCategories.ALL)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
-    val delivery = mutableStateOf(false)
-    val payment = mutableStateOf(false)
+
 
 
     private val _uiState = MutableSharedFlow<HomeViewModel.MainUiState>()
@@ -52,35 +62,31 @@ private val bitmapEncoder: BitmapEncoder
     fun convertImageToBase64(uri: Uri): String {
         return bitmapEncoder.imageToBase64(uri)
     }
-
+    // ✅ НОВЫЙ МЕТОД: Асинхронная конвертация в Base64 (не блокирует UI)
+  /*  fun convertImageToBase64Async(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val base64String = bitmapEncoder.imageToBase64(uri)
+            withContext(Dispatchers.Main) {
+                imageBase64.value = base64String
+            }
+        }
+    }
+*/
     // Функция валидации
     fun validateBook(): Boolean {
         val errors = mutableListOf<String>()
-
-        if (title.value.isBlank()) {
-            errors.add("• Название обязательно для заполнения")
-        }
-
-        if (description.value.isBlank()) {
-            errors.add("• Описание обязательно для заполнения")
-        }
-
-        if (village.value.isBlank()) {
-            errors.add("• Укажите станицу")
-        }
-
-        if (price.intValue <= 0) {
-            errors.add("• Укажите корректную цену")
-        }
+        if (title.value.isBlank()) { errors.add("• Название обязательно для заполнения") }
+        if (description.value.isBlank()) { errors.add("• Описание обязательно для заполнения") }
+        if (village.value.isBlank()) { errors.add("• Укажите станицу") }
+        if (price.intValue <= 0) { errors.add("• Укажите корректную цену") }
         // 🔍 Проверка фото
-        if (selectedImageUri.value == null && imageBase64.value.isBlank() && !isEditMode.value) {
+        if (selectedImageUri.value == null && imageBase64.value.isBlank()) {
             errors.add("• Добавьте фото книги")
         }
         if (errors.isNotEmpty()) {
             validationError.value = errors.joinToString("\n")
             return false
         }
-
         validationError.value = null
         return true
     }
@@ -100,8 +106,6 @@ private val bitmapEncoder: BitmapEncoder
         selectedCategory.value = navData.categoryIndex
         delivery.value = navData.delivery
         payment.value = navData.payment
-        // ✅ Устанавливаем флаг режима редактирования
-        isEditMode.value = navData.id != 0 && navData.key.isNotEmpty()
 
         // ✅ Если есть фото в navData, сохраняем его
         if (navData.imageUrl.isNotEmpty()) {
@@ -109,9 +113,7 @@ private val bitmapEncoder: BitmapEncoder
         }
     }
 
-    fun uploadBook(
-        book: Book,
-    ) {
+    fun uploadBook(book: Book, ) {
         sendUiState(HomeViewModel.MainUiState.Loading)
         viewModelScope.launch {
             val result = booksRepo.saveBook(
@@ -122,15 +124,14 @@ private val bitmapEncoder: BitmapEncoder
                     village = village.value,
                     categoryIndex = selectedCategory.value,
                     delivery = delivery.value,
-                    payment = payment.value
+                    payment = payment.value,
+                    imageUrl = imageBase64.value // ✅ ДОБАВЛЕНО
                 ),
 
                 selectedImageUri.value)
             result.fold(
-                onSuccess = {
-                    sendUiState(HomeViewModel.MainUiState.Success) },
-                onFailure = { error->
-                    sendUiState(HomeViewModel.MainUiState.Error(error.message ?: "Unknow error"))
+                onSuccess = { sendUiState(HomeViewModel.MainUiState.Success) },
+                onFailure = { error-> sendUiState(HomeViewModel.MainUiState.Error(error.message ?: "Unknow error"))
                 }
             )
         }
