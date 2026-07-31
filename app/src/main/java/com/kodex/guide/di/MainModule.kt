@@ -23,17 +23,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object   MainModule {
-    /*@Provides
-    @Singleton
-    fun provideFirebaseFireStore(): FirebaseFirestore {
-        return Firebase.firestore
-    }*/
-   /* @Provides
-    @Singleton
-    fun provideFirebaseStorage(): FirebaseStorage {
-        // Возвращаем стандартный экземпляр Firebase Storage
-        return FirebaseStorage.getInstance()
-    }*/
+
 
     @Provides
     @Singleton

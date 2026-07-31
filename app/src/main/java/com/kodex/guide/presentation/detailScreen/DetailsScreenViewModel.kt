@@ -89,7 +89,7 @@ class DetailsScreenViewModel @Inject constructor(
             }
             is DetailUiEvents.DetailUiEvent.HideUserRatingDialog -> {
                 _uiState.value = uiState.value.copy(
-                    showRateDialog =true)
+                    showRateDialog =false)
             }
             is DetailUiEvents.DetailUiEvent.InsertRatingDialogEvent -> {
                 insertRating(event.ratingData, event.bookId)

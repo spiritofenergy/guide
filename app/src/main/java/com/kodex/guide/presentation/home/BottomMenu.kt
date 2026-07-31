@@ -1,5 +1,7 @@
 package com.kodex.guide.presentation.home
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -7,19 +9,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.ui.theme.PurpleGrey80
+import kotlinx.coroutines.launch
 
 @Composable
 fun BottomMenu(
     selectedItem: Int,
-    onSavedRoomClick: () -> Unit = {},
+    onCategoryClick: (BookCategories)-> Unit = {},
     onHomeClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     val items = listOf(
         BottomMenuItem.Home,
         BottomMenuItem.Saved,
-        BottomMenuItem.Settings
+      //  BottomMenuItem.Settings
 
     )
 
@@ -35,8 +39,9 @@ fun BottomMenu(
                 onClick = {
                     when (item.titleId) {
                         BottomMenuItem.Home.titleId -> onHomeClick()
-                        BottomMenuItem.Saved.titleId -> onSavedRoomClick()
-                        BottomMenuItem.Settings.titleId -> onSettingsClick()
+                        BottomMenuItem.Saved.titleId -> onCategoryClick(BookCategories.SAVED)
+                      //  BottomMenuItem.Settings.titleId -> onSettingsClick()
+
                     }
                 },
                 icon = {

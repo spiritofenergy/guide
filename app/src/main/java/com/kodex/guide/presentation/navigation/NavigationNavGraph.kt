@@ -1,9 +1,10 @@
 package com.kodex.guide.presentation.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,9 +17,9 @@ import com.kodex.guide.presentation.admin_panel.ModerationScreen
 import com.kodex.guide.presentation.comments.CommentsScreen
 import com.kodex.guide.presentation.details.parallaxScreen.ParallaxScreen
 import com.kodex.guide.presentation.home.HomeScreen
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.login.sign_up.SignUpScreen
-import com.kodex.guide.presentation.room.RoomFavoriteScreen
 import com.kodex.guide.presentation.settingsScreen.SettingsScreen
 
  @RequiresApi(Build.VERSION_CODES.O)
@@ -26,7 +27,12 @@ import com.kodex.guide.presentation.settingsScreen.SettingsScreen
 fun NavigationNavGraph (navController: NavHostController){
     NavHost(
     navController = navController,
-    startDestination = NavRoutes.LoginNavObject
+   // startDestination = NavRoutes.LoginNavObject,
+    startDestination = NavRoutes.HomeDataObject(
+        uid = "",
+        email = ""
+    ),
+
     ) {
 
         composable<NavRoutes.LoginNavObject> {
@@ -45,19 +51,13 @@ fun NavigationNavGraph (navController: NavHostController){
             }
         }
 
-        composable<NavRoutes.RoomDataObject> { navEntry ->
-            RoomFavoriteScreen(
-                onBookClick = { place ->
-                    navController.navigate(
-                        place.toParallaxNavObject()
-                    )
-                },
-            )
-        }
         composable<NavRoutes.HomeDataObject> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.HomeDataObject>()
+            val homeViewModel: HomeViewModel = hiltViewModel()
+
             HomeScreen(
                 navData = navData,
+                viewModel = homeViewModel, // Передаем viewModel явно
                 onBookClick = { place ->
                     navController.navigate(
                         place.toParallaxNavObject()
@@ -74,15 +74,22 @@ fun NavigationNavGraph (navController: NavHostController){
                 onLoginClick = {
                     navController.navigate(NavRoutes.LoginNavObject)
                 },
+                onAnonymousClick = {
+                    // ИЗМЕНЕНИЕ: Вместо перехода на экран логина, вызываем анонимный вход
+                    homeViewModel.loginAnonymously { isSuccess ->
+                        if (isSuccess) {
+                            Log.d("Navigation", "Гостевой вход успешен")
+                            // Можно показать Toast или обновить UI
+                        }
+                    }
+                },
                 onSettingsClick = {
                     navController.navigate(NavRoutes.SettingsNavObject)
                 },
-                onSavedRoomClick = {
-                    navController.navigate(NavRoutes.RoomDataObject(
-                        uid = "uid",
-                        email = "email"
-                    ))
-                },
+               onCategoryClick = {
+                   navController.navigate(NavRoutes.HomeDataObject(
+                       uid = "", email = ""))
+               },
                 onAddBookClick = {
                     navController.navigate(NavRoutes.AddScreenObject())
                 }
@@ -94,6 +101,11 @@ fun NavigationNavGraph (navController: NavHostController){
                 navData = navData,
                 onSaved = {
                     navController.popBackStack()
+                },onRegistrationNeeded = {
+                    // ✅ Запуск регистрации
+                    navController.navigate(NavRoutes.SingUpNavObject)
+                    // или
+                    // signUpViewModel.signUp(...)
                 }
             )
         }

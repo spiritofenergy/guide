@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
     private val booksRepo: BooksRepo,
     private val favoritesRepo: FavoritesRepo,
     private val mainDb: MainDb,
+
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
@@ -52,6 +53,9 @@ class HomeViewModel @Inject constructor(
     var showTabOneOrTo = mutableStateOf(false)
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
     val isAdminState = mutableStateOf(false)
+    // 1. НОВОЕ СОСТОЯНИЕ: Факт авторизации пользователя
+    val isAuthorized = mutableStateOf(Firebase.auth.currentUser != null)
+
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
@@ -64,6 +68,7 @@ class HomeViewModel @Inject constructor(
         .debounce(500)
         .distinctUntilChanged()
     private val favoritesKeysFlow = MutableStateFlow<List<String>>(emptyList())
+
 
     val postList = mainDb.trackDao.getAllPosts()
 
@@ -146,7 +151,7 @@ class HomeViewModel @Inject constructor(
         bookListUpdate.update { list ->
             val changedBook = list.find { book.key == it.key }
             if (changedBook == null) {
-                list + ChangedTempBook(
+                list +  ChangedTempBook(
                     key = book.key,
                     isFavorite = book.isFavorite,
                     isDeleted = isDeleted
@@ -250,8 +255,71 @@ class HomeViewModel @Inject constructor(
         data class Error(val message: String) : MainUiState()
     }
 
+    // 1. НОВАЯ ФУНКЦИЯ: Анонимный вход без регистрации
+    fun loginAnonymously(onResult: (Boolean) -> Unit) {
+        // Если уже авторизован, просто возвращаем true
+        if (Firebase.auth.currentUser != null) {
+            onResult(true)
+            return
+        }
 
+        Firebase.auth.signInAnonymously()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    isAuthorized.value = true // Обновляем состояние
+                    // При успешном входе обновляем ключи избранного
+                    refreshFavoritesKeys()
+                    onResult(true)
+                } else {
+                    sendUiState(MainUiState.Error(task.exception?.message ?: "Ошибка анонимного входа"))
+                    onResult(false)
+                }
+            }
+    }
+    // 3. НОВАЯ ФУНКЦИЯ: Выход из аккаунта
+    fun logout() {
+        Firebase.auth.signOut()
+        isAuthorized.value = false
+        isAdminState.value = false
+        refreshFavoritesKeys() // Сбрасываем избранное при выходе
+    }
+    // 2. ИСПРАВЛЕНИЕ: Убираем !! чтобы избежать краша у неавторизованных пользователей
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
+        val uid = Firebase.auth.currentUser?.uid ?: run {
+            onAdmin(false) // Если нет пользователя, он точно не админ
+            return
+        }
+
+        Firebase.firestore.collection("admin")
+            .document(uid)
+            .get()
+            .addOnSuccessListener {
+                onAdmin(it.get("isAdmin") as? Boolean ?: false)
+            }
+            .addOnFailureListener {
+                onAdmin(false)
+            }
+    }
+
+    // 3. ИСПРАВЛЕНИЕ: Аналогично для проверки регистрации
+    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
+        val uid = Firebase.auth.currentUser?.uid ?: run {
+            onRegister(false)
+            return
+        }
+
+        Firebase.firestore.collection("guide_users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener {
+                // Анонимный пользователь не пройдет эту проверку, вернется false
+                onRegister(it.get("isRegistered") as? Boolean ?: false)
+            }
+            .addOnFailureListener {
+                onRegister(false)
+            }
+    }
+  /*  fun isAdmin(onAdmin: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
         Firebase.firestore.collection("admin")
             .document(uid)
@@ -259,7 +327,8 @@ class HomeViewModel @Inject constructor(
             .addOnSuccessListener {
                 onAdmin(it.get("isAdmin") as Boolean)
             }
-    }
+    }*/
+/*
 
     fun isUserRegistered(onRegister: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
@@ -271,6 +340,7 @@ class HomeViewModel @Inject constructor(
             }
 
     }
+*/
 
 
     /*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {

@@ -47,15 +47,10 @@ fun DrawerHeader(email: String) {
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            email,
+        Text(text =
+            email.orEmpty().ifEmpty { "Anonymous" },
             color = Color.Black,
             fontSize = 16.sp)
-        /*Spacer(modifier = Modifier.height(10.dp))
-        Box(
-            modifier = Modifier.fillMaxWidth()
-                .height(1.dp).background(GrayLite)
-        )*/
 
     }
 }

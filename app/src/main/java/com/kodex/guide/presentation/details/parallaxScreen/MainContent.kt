@@ -78,22 +78,6 @@ fun MainContent(
     val context = LocalContext.current
     val telephone = "+79197716667"
 
-    /*DialogRating(
-        ratingData = viewModel.ratingDataState.value ?: RatingData(),
-        onDismiss = { showRateDialog = false },
-        onSubmit = { rating, message ->
-            val ratingData = RatingData(
-                name = "",
-                rating = rating,
-                message = message,
-                lastRating = viewModel.ratingDataState.value?.rating ?: 0
-            )
-            viewModel.insertRating(ratingData, navObject.bookId)
-            showRateDialog = false
-        },
-        show = showRateDialog
-    )*/
-
     DialogRating(
         ratingData = uiState.value.ratingData,
         onDismiss = {
@@ -102,13 +86,13 @@ fun MainContent(
             )
         },
         onSubmit = { ratingData ->
-            Log.d("MyLog", "BookId: ${navObject.bookId}")
             viewModel.onEvent(
                 DetailUiEvents.DetailUiEvent.InsertRatingDialogEvent(
                     ratingData, navObject.bookId
                 )
             )
         },
+
         show = uiState.value.showRateDialog,
     )
 
@@ -116,7 +100,7 @@ fun MainContent(
     DialogComments(
         showDialog = uiState.value.showCommentDialog,
         onDismiss = {
-            //  showCommentDialog = false
+             showCommentDialog = false
         },
         ratingData = uiState.value.ratingDataToShow,
         onConfirm = { showCommentDialog = false }

@@ -11,7 +11,7 @@ enum class BookCategories(
      AUTO (5),
      ELECTRONICS (6),
      ENTERTAINMENTS (7),
-     MISCELLANEOUS (8),
+     SAVED (8),
      ALL (9),
      FAVORITES (10);
 

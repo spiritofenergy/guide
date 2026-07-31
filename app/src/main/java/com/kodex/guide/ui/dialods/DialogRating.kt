@@ -38,14 +38,12 @@ import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.Orange
 
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun DialogRating(
     ratingData: RatingData = RatingData(),
     onDismiss: () -> Unit = {},
-    onSubmit: (RatingData) -> Unit = {_ ->},
+    onSubmit: (RatingData) -> Unit = { _ -> },
     show: Boolean = false
 ) {
     val context = LocalContext.current
@@ -61,7 +59,7 @@ fun DialogRating(
                 Toast.makeText(context, "Спасибо за оценку", Toast.LENGTH_SHORT).show()
             },
             title = {
-                Text(text = "Rate this Book")
+                Text(text = "Оценить")
             },
             text = {
                 Column(Modifier.fillMaxWidth()) {
@@ -93,11 +91,11 @@ fun DialogRating(
 
                     TextField(
                         value = messageState,
-                        onValueChange = {newValue ->
+                        onValueChange = { newValue ->
                             if (newValue.length <= 200) {
                                 messageState = newValue
                             }
-                       },
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(90.dp),
@@ -107,12 +105,13 @@ fun DialogRating(
                         maxLines = 5
                     )
                 }
-
             },
             confirmButton = {
-                Button(modifier = Modifier,
+                Button(
+                    modifier = Modifier,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonColorBlue),
+                        containerColor = ButtonColorBlue
+                    ),
                     onClick = {
                         onDismiss()
                     }) {

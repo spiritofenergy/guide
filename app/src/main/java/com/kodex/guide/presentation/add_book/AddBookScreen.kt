@@ -2,10 +2,13 @@ package com.kodex.guide.presentation.add_book
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +17,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -43,6 +49,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.data.mapper.toDomain
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
@@ -51,244 +58,285 @@ import com.kodex.guide.ui.theme.BoxFilter
 import com.kodex.guide.ui.theme.ButtonColor
 
 const val IS_BASE_64 = true
-@Composable
+// ✅ СОЗДАЁМ СОБСТВЕННЫЙ UI STATE ДЛЯ AddBook
+
+ @Composable
 fun AddBookScreen(
     navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
     onSaved: () -> Unit = {},
     isDelivery: () -> Unit = {},
+    onRegistrationNeeded: () -> Unit = {},  // ✅ НОВЫЙ ПАРАМЕТР
     viewModel: AddBookViewModel = hiltViewModel(),
-
     ) {
-    val imageBitMap = remember {
-        var bitMap: Bitmap? = null
-        try {
-            val base64Image = Base64.decode(navData.imageUrl, Base64.DEFAULT)
-            bitMap = BitmapFactory.decodeByteArray(
-                base64Image, 0,
-                base64Image.size
-            )
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
-        }
-        mutableStateOf(bitMap)
-    }
-    val cv = LocalContext.current.contentResolver
-    val context = LocalContext.current
-    val categories = remember { context.resources.getStringArray(R.array.category_array) }
-    val selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
-    val navImageUrl = remember { mutableStateOf(navData.imageUrl) }
-    val imageBase64 = remember { mutableStateOf(if (IS_BASE_64) navData.imageUrl else "") }
 
-    val imageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            navImageUrl.value = ""
-            viewModel.selectedImageUri.value = uri
-            viewModel.imageBase64.value = viewModel.convertImageToBase64(uri)
-        }
+     // ✅ Декодируем Base64 в Bitmap только один раз при старте (для режима редактирования)
+     val initialBitmap = remember(navData.imageUrl) {
+         if (navData.imageUrl.isNotEmpty()) {
+             try {
+                 val base64Image = Base64.decode(navData.imageUrl, Base64.DEFAULT)
+                 BitmapFactory.decodeByteArray(base64Image, 0, base64Image.size)
+             } catch (e: Exception) {
+                 e.printStackTrace()
+                 null
+             }
+         } else null
+     }
 
-    }
+     val context = LocalContext.current
+     val categories = remember { context.resources.getStringArray(R.array.category_array) }
+     val selectedCategory = remember { mutableStateOf(navData.categoryIndex) }
+     val navImageUrl = remember { mutableStateOf(navData.imageUrl) }
+     val scrollState = rememberScrollState()
+     val imageLauncher = rememberLauncherForActivityResult(
+         contract = ActivityResultContracts.GetContent()
+     ) { uri ->
+         uri?.let {
+             navImageUrl.value = ""
+             viewModel.selectedImageUri.value = uri // Сохраняем Uri для быстрого отображения в UI
+             // ✅ Запускаем асинхронную конвертацию в Base64, чтобы не фризило UI
+             viewModel.convertImageToBase64(uri)
+         }
+     }
 
-    LaunchedEffect(Unit) {
-        viewModel.setDefaultData(navData)
-    }
+     LaunchedEffect(Unit) {
+         viewModel.setDefaultData(navData)
+     }
+
 
 // 🔔 Диалог с ошибкой валидации
-    viewModel.validationError.value?.let { errorMessage ->
-        AlertDialog(
-            onDismissRequest = { viewModel.clearValidationError() },
-            title = {
-                Text(
-                    text = "Проверьте данные",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-            },
-            text = {
-                Text(
-                    text = errorMessage,
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearValidationError() }) {
-                    Text("Понятно", color = Color(0xFF03A9F4))
-                }
-            },
-            containerColor = Color(0xFF2C2C2E),
-            titleContentColor = Color.White,
-            textContentColor = Color.White
-        )
-    }
-    //фон
-    Image(
-        painter = painterResource(id = R.drawable.bereg),
-        contentDescription = "Logo",
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
+         viewModel.validationError.value?.let { errorMessage ->
+             AlertDialog(
+                 onDismissRequest = { viewModel.clearValidationError() },
+                 title = {
+                     Text(
+                         text = "Проверьте данные",
+                         fontWeight = FontWeight.Bold,
+                         fontSize = 20.sp
+                     )
+                 },
+                 text = {
+                     Text(
+                         text = errorMessage,
+                         fontSize = 16.sp,
+                         lineHeight = 24.sp
+                     )
+                 },
+                 confirmButton = {
+                     TextButton(onClick = { viewModel.clearValidationError() }) {
+                         Text("Понятно", color = Color(0xFF03A9F4))
+                     }
+                 },
+                 containerColor = Color(0xFF2C2C2E),
+                 titleContentColor = Color.White,
+                 textContentColor = Color.White
+             )
+         }
+         //фон
+         Image(
+             painter = painterResource(id = R.drawable.bereg),
+             contentDescription = "Logo",
+             modifier = Modifier.fillMaxSize(),
+             contentScale = ContentScale.Crop
 
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BoxFilter)
-    )
+         )
+         // Основной лист
+         Column(
+             modifier = Modifier
+                 .fillMaxSize()
+                 .padding(20.dp)
+                 .verticalScroll(scrollState),  // СКРОЛЛИНГ
+             verticalArrangement = Arrangement.Center,
+             horizontalAlignment = Alignment.CenterHorizontally
+         ) {
 
-    // Основной лист
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Фото
-        Image(
-            painter = rememberAsyncImagePainter(
-                model =
-                    imageBitMap.value ?: viewModel.selectedImageUri.value
-            ),
-            contentDescription = "",
-            modifier = Modifier
-                .height(300.dp)
-                .width(600.dp)
+             Image(
+                 painter = rememberAsyncImagePainter(
+                     model = viewModel.selectedImageUri.value ?: initialBitmap
+                 ),
+                 contentDescription = "Фото",
+                 modifier = Modifier
+                     .height(300.dp)
+                     .width(600.dp)
+             )
 
+             Text(
+                 text = stringResource(R.string.сreate_post),
+                 color = Color.White,
+                 fontSize = 30.sp,
+                 fontWeight = FontWeight.Bold,
+                 fontFamily = FontFamily.Serif,
+             )
 
-        )
-           Text(
-            text = stringResource(R.string.сreate_post),
-            color = Color.White,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Serif,
-        )
+             Spacer(modifier = Modifier.height(10.dp))
+             RoundedCornerDropDownMenu(
+                 categories.toList(),
+                 categories[viewModel.selectedCategory.value.id],
+                 onOptionSelected = { selectedItemIndex ->
+                     viewModel.selectedCategory.value = BookCategories.fromId(selectedItemIndex)
+                 },
+             )
 
-        Spacer(modifier = Modifier.height(10.dp))
-        RoundedCornerDropDownMenu(
-            categories.toList(),
-            categories[viewModel.selectedCategory.value.id],
-            onOptionSelected = { selectedItemIndex ->
-                viewModel.selectedCategory.value = BookCategories.fromId(selectedItemIndex)
-            },
-        )
+             Spacer(modifier = Modifier.height(5.dp))
+             RoundedCornerTextField(
+                 text = viewModel.title.value,
+                 label = "Название:"
+             ) {
+                 viewModel.title.value = it
+             }
+             Spacer(modifier = Modifier.height(5.dp))
 
-        /*      Spacer(modifier = Modifier.height(5.dp))
-        RoundedCornerDropDownMenuV(
-            viewModel.selectedVillage.intValue,
-            onOptionSelected = { selectedItemVillage ->
-                viewModel.selectedVillage.intValue = selectedItemVillage
-            },
-        )*/
+             RoundedCornerTextField(
+                 text = viewModel.description.value,
+                 label = "Краткое описание:",
+                 singleLine = false,
+                 maxLines = 5
+             ) {
+                 viewModel.description.value = it
+             }
+             Spacer(modifier = Modifier.height(5.dp))
 
-        Spacer(modifier = Modifier.height(5.dp))
-        RoundedCornerTextField(
-            text = viewModel.title.value,
-            label = "Название:"
-        ) {
-            viewModel.title.value = it
-        }
-        Spacer(modifier = Modifier.height(5.dp))
+             RoundedCornerTextField(
+                 text = viewModel.village.value,
+                 label = "Станица:",
+                 singleLine = false,
+                 maxLines = 1
+             ) {
+                 viewModel.village.value = it
+             }
+             Spacer(modifier = Modifier.height(5.dp))
+             //чекбокс Показывать на карте
+             Row(verticalAlignment = Alignment.CenterVertically) {
+                 Checkbox(
+                     modifier = Modifier,
+                     checked = viewModel.location.value,
+                     onCheckedChange = { viewModel.location.value = it },
+                     colors = CheckboxDefaults.colors(
+                         uncheckedColor = Color.White,     // ЦВЕТ КОНТУРА, когда НЕ отмечено (белый)
+                         checkedColor = Color(0xFF03A9F4),
+                         checkmarkColor = Color.White
+                     )
+                 )
+                 Text(
+                     stringResource(R.string.location),
+                     color = Color.White,
+                     fontSize = 18.sp,
+                     fontWeight = FontWeight.Bold,
+                     fontFamily = FontFamily.Serif
+                 )
+             }
+             Spacer(modifier = Modifier.height(5.dp))
 
-        /* RoundedCornerTextField(
-            text = viewModel.location.value,
-            label = "Location:"
-        ) {
-            viewModel.title.value = it
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-*/
-        RoundedCornerTextField(
-            text = viewModel.description.value,
-            label = "Краткое описание:",
-            singleLine = false,
-            maxLines = 5
-        ) {
-            viewModel.description.value = it
-        }
-        Spacer(modifier = Modifier.height(5.dp))
+             RoundedCornerTextField(
+                 text = viewModel.street.value,
+                 label = "Улица:",
+                 singleLine = false,
+                 maxLines = 1
+             ) {
+                 viewModel.street.value = it
+             }
+             Spacer(modifier = Modifier.height(5.dp))
 
-        RoundedCornerTextField(
-            text = viewModel.village.value,
-            label = "Станица:",
-            singleLine = false,
-            maxLines = 1
-        ) {
-            viewModel.village.value = it
-        }
+             Row(modifier = Modifier.fillMaxWidth()) {
+                 Box(modifier = Modifier.weight(1f)) {
+                     RoundedCornerTextField(
+                         text = viewModel.home.value,
+                         label = "Дом:",
+                         singleLine = true,
+                         maxLines = 1
+                     ) {
+                         viewModel.home.value = it
+                     }
+                 }
 
+                 Spacer(modifier = Modifier.width(8.dp))
 
-        Spacer(modifier = Modifier.height(5.dp))
+                 Box(modifier = Modifier.weight(1f)) {
+                     RoundedCornerTextField(
+                         text = viewModel.apartment.value,
+                         label = "Кв:",
+                         singleLine = true,
+                         maxLines = 1
+                     ) {
+                         viewModel.apartment.value = it
+                     }
+                 }
+             }
 
-        RoundedCornerTextField(
-            text = viewModel.price.intValue.toString(),
-            label = "Цена:"
-        ) {
-            viewModel.price.intValue = it.ifEmpty { "0" }.toInt()
-        }
-        /*{ userInput ->
-            // Преобразуем всё, что ввел пользователь, в String и оставляем только цифры
-            val stringValue = userInput.toString()
-                 val onlyDigits = stringValue.filter { it.isDigit() }
-            viewModel.price.value = onlyDigits
-        }*/
-        Spacer(modifier = Modifier.height(5.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                modifier = Modifier,
-                checked = viewModel.delivery.value,
-                onCheckedChange = { viewModel.delivery.value = it },
-                colors  = CheckboxDefaults.colors(checkedColor = Color(0xFF03A9F4), checkmarkColor = Color.White)
+             Spacer(modifier = Modifier.height(5.dp))
 
-            )
-            Text(stringResource(R.string.delivery),
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Serif)
+             RoundedCornerTextField(
+                 text = viewModel.price.intValue.toString(),
+                 label = "Цена:"
+             ) { userInput ->
+                 // ✅ Фильтруем только цифры и безопасно преобразуем в Int
+                 val filteredInput = userInput.filter { it.isDigit() }
+                 viewModel.price.intValue = filteredInput.toIntOrNull() ?: 0
+             }
+             Spacer(modifier = Modifier.height(5.dp))
+             Row(verticalAlignment = Alignment.CenterVertically) {
+                 Checkbox(
+                     modifier = Modifier,
+                     checked = viewModel.delivery.value,
+                     onCheckedChange = { viewModel.delivery.value = it },
+                     colors = CheckboxDefaults.colors(
+                         uncheckedColor = Color.White,
+                         checkedColor = Color(0xFF03A9F4),
+                         checkmarkColor = Color.White
+                     )
+                 )
+                 Text(
+                     stringResource(R.string.delivery),
+                     color = Color.White,
+                     fontSize = 18.sp,
+                     fontWeight = FontWeight.Bold,
+                     fontFamily = FontFamily.Serif
+                 )
 
-            Spacer(modifier = Modifier.height(5.dp))
+                 Spacer(modifier = Modifier.height(5.dp))
 
-            Checkbox(
-                modifier = Modifier,
-                checked = viewModel.payment.value,
-                onCheckedChange = { viewModel.payment.value = it },
-                colors  = CheckboxDefaults.colors(checkedColor = Color(0xFF03A9F4), checkmarkColor = Color.White)
+                 Checkbox(
+                     modifier = Modifier,
+                     checked = viewModel.payment.value,
+                     onCheckedChange = { viewModel.payment.value = it },
+                     colors = CheckboxDefaults.colors(
+                         uncheckedColor = Color.White,
+                         checkedColor = Color(0xFF03A9F4),
+                         checkmarkColor = Color.White
+                     )
 
-            )
-            Text(stringResource(R.string.card_payment),
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Serif)
-        }
-        LoginButton(text = "Выбрать фото") {
-            imageLauncher.launch("image/*")
-        }
+                 )
+                 Text(
+                     stringResource(R.string.card_payment),
+                     color = Color.White,
+                     fontSize = 18.sp,
+                     fontWeight = FontWeight.Bold,
+                     fontFamily = FontFamily.Serif
+                 )
+             }
+             LoginButton(text = "Выбрать фото") {
+                 imageLauncher.launch("image/*")
+             }
 
-        LoginButton(text = "Сохранить ") {
-            if (viewModel.validateBook()) {
-                val bookToSave = navData.toDomain().copy(
-                    imageUrl = imageBase64.value,
-                    title = viewModel.title.value,
-                    description = viewModel.description.value,
-                    price = viewModel.price.intValue,
-                    village = viewModel.village.value,
-                    categoryIndex = viewModel.selectedCategory.value,
-                    delivery = viewModel.delivery.value,
-                    payment = viewModel.payment.value
-                )
-                viewModel.uploadBook(bookToSave)
-                onSaved()
-            }
-        }
+             LoginButton(text = "Сохранить ") {
 
-    }
-}
+                 if (viewModel.validateBook()) {
+                     val bookToSave = navData.toDomain().copy(
+                         imageUrl = viewModel.imageBase64.value,
+                         title = viewModel.title.value,
+                         description = viewModel.description.value,
+                         price = viewModel.price.intValue,
+                         village = viewModel.village.value,
+                         categoryIndex = viewModel.selectedCategory.value,
+                         delivery = viewModel.delivery.value,
+                         payment = viewModel.payment.value
+                     )
+                     viewModel.uploadBook(bookToSave)
+                     // ✅ Затем запускаем регистрацию
+                     onSaved()
+                     onRegistrationNeeded()
+                 }
+             }
 
-@Preview(showBackground = true)
-@Composable
-fun AddBookScreenPreview() {
+         }
+     }
 
-}

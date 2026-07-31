@@ -46,9 +46,9 @@ fun DrawerBody(
 
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onAnonymousClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onSavedRoomClick: () -> Unit = {},
-    onAdmin: (Boolean) -> Unit = {},
+     onAdmin: (Boolean) -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCategoryClick: (BookCategories) -> Unit = {}
 ) {
@@ -141,7 +141,7 @@ fun DrawerBody(
                  iconDrawableId = Icons.Default.Dialpad,
                  text = categoryList[8],
                  onItemClick = {
-                     onCategoryClick(BookCategories.MISCELLANEOUS)
+                     onCategoryClick(BookCategories.SAVED)
                      coroutineScope.launch { drawerState.close() }
                  }
              )
@@ -172,31 +172,41 @@ fun DrawerBody(
                      coroutineScope.launch { drawerState.close() }
                  }
              )
+// ... существующий код ...
 
              DrawerMenuItem(
+                 // ИСПРАВЛЕНИЕ: Используем isAuthorized вместо isAdminState
+                 iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
+                 text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2], // Проверьте индексы в strings.xml
+                 onItemClick = {
+                   /*  // ИСПРАВЛЕНИЕ: Разделяем логику Входа и Выхода
+                     if (viewModel.isAuthorized.value) {
+                         viewModel.logout() // Если авторизован -> выходим
+                     } else {*/
+                         onLoginClick()     // Если не авторизован -> входим
+
+                     coroutineScope.launch { drawerState.close() }
+                 }
+             )
+
+// ... остальной код ...
+            /* DrawerMenuItem(
                  iconDrawableId = if (viewModel.isAdminState.value) Icons.Default.Login else Icons.Default.Logout,
                  text = if (viewModel.isAdminState.value) categoryAdmin[2] else categoryAdmin[3],
                  onItemClick = {
                      onLoginClick()
                      coroutineScope.launch { drawerState.close() }
                  }
-             )
-             DrawerMenuItem(
+             )*/
+         /*    DrawerMenuItem(
                  iconDrawableId = Icons.Default.Settings,
                  text = categoryAdmin[5],
                  onItemClick = {
                      onSettingsClick()
                      coroutineScope.launch { drawerState.close() }
                  }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Attractions,
-                 text = categoryAdmin[5],
-                 onItemClick = {
-                     onSavedRoomClick()
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
+             )*/
+
          }
     }
 }

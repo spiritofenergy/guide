@@ -52,18 +52,14 @@ import com.kodex.guide.ui.dialods.FilterDialog
 import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.presentation.room.RoomFavoriteViewModel
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.ui.theme.Orange
-import com.kodex.guide.ui.theme.PurpleGrey40
-import com.kodex.guide.ui.theme.PurpleGrey80
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModelT: RoomFavoriteViewModel = hiltViewModel(),
    // onTrackClick: (Book) -> Unit = {},
 
 
@@ -73,10 +69,11 @@ fun HomeScreen(
     onBookClick: (Book) -> Unit,
     book: Book = Book(),
     onAdminClick: () -> Unit,
+    onAnonymousClick: () -> Unit,
     onLoginClick: () -> Unit,
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onSavedRoomClick: () -> Unit,
+    onCategoryClick: () -> Unit,
 ) {
 
     val book = viewModel.postList.collectAsState(initial = emptyList())
@@ -93,7 +90,7 @@ fun HomeScreen(
     var showFilterDialog by remember { mutableStateOf(false) }
 
     val books = viewModel.books.collectAsLazyPagingItems()
-    val trackList = viewModel.postList.collectAsState(initial = emptyList())
+    val roomList = viewModel.postList.collectAsState(initial = emptyList())
 
     val booksRoomList = MutableStateFlow<List<Book>>(emptyList())
 
@@ -104,6 +101,22 @@ fun HomeScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
+   /* DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Обновляем статус авторизации при возврате на экран
+                viewModel.isAuthorized.value = Firebase.auth.currentUser != null
+
+                Log.d("MyLog", "refreshBooks")
+                viewModel.getSettings()
+                Log.d("MyLog", "getSettings MenuScreen")
+            }
+        }
+        lifecycleOwner.lifecycle.removeObserver(observer) // ИСПРАВЛЕНО: добавляем observer
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }*/
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -169,7 +182,7 @@ fun HomeScreen(
                         viewModel.isAdminState.value = isAdmin
                     },
                     onCategoryClick = { categoryIndex ->
-                        if (categoryIndex == BookCategories.FAVORITES) {
+                        if (categoryIndex == BookCategories.SAVED) {
                             viewModel.selectedBottomItemState.intValue =
                                 BottomMenuItem.Saved.titleId
                             Log.d("MyLog", "onCategoryClick FAVORITES")
@@ -188,12 +201,13 @@ fun HomeScreen(
                         coroutineScope.launch { drawerState.close() }
                     },
 
-                    onSettingsClick = {
-                        onSettingsClick()
+                    onAnonymousClick = {
+                        onAnonymousClick()
                         coroutineScope.launch { drawerState.close() }
                     },
-                    onSavedRoomClick = {
-                        onSavedRoomClick()
+
+                    onSettingsClick = {
+                        onSettingsClick()
                         coroutineScope.launch { drawerState.close() }
                     },
 
@@ -206,8 +220,9 @@ fun HomeScreen(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { onAddBookClick() },
-                    containerColor = PurpleGrey80, // Синий цвет как в вашем приложении
-                    contentColor = Color.White
+                    containerColor = Orange,
+                    contentColor = Color.White,
+
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -238,24 +253,23 @@ fun HomeScreen(
                 if (!isLandscape)
                     BottomMenu(
                         viewModel.selectedBottomItemState.intValue,
-                        onSavedRoomClick = {
+                        onCategoryClick = {
+                            viewModel.getAllBooksFromCategory(category = BookCategories.SAVED)
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Saved.titleId
-                          // viewModel.getAllBooksFromCategory(BookCategories.FAVORITES)
-                          //  viewModel.onFavesClick(Book())
-                          //  books.refresh()
-                            onSavedRoomClick()
+
+
                         },
                         onHomeClick = {
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(category = BookCategories.ALL)
                          },
-                        onSettingsClick = {
+                     /*   onSettingsClick = {
                             onSettingsClick()
                             viewModel.selectedBottomItemState.intValue =
                                 BottomMenuItem.Settings.titleId
 
-                        }
+                        }*/
                     )
             }
         ) { paddingValues ->
@@ -312,24 +326,16 @@ fun HomeScreen(
                         )
                     }
                 ) {
-                    /* if (books.loadState.refresh is LoadState.Loading) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(50.dp)
-                            )
-                        }
-                    }*/
+                    // В начале загрузка из базы данных Room
                     if (books.itemCount == 0)
                         LazyColumn(
                             Modifier
                                 .fillMaxSize()
                                 .padding( 2.dp))
                         {
-                            items(book.value) { book ->
+                            items(roomList.value) { book ->
                                     BookListItemUi(
+                                        heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
                                         titleIndex = viewModel.categoryState.value.id,
                                         viewModel.isAdminState.value,
                                         book,
@@ -363,9 +369,7 @@ fun HomeScreen(
                                         }
                                         }
                                     )
-
                                     Spacer(Modifier.padding(5.dp))
-
                             }
                         }else {
                             LazyVerticalStaggeredGrid(
@@ -377,6 +381,7 @@ fun HomeScreen(
                                     val book = books[index]
                                     if (book != null) {
                                         BookListItemUi(
+                                            heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
                                             titleIndex = viewModel.categoryState.value.id,
                                             viewModel.isAdminState.value,
                                             book,
