@@ -1,16 +1,11 @@
 package com.kodex.guide.presentation.add_book
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.util.Base64
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -49,13 +45,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.data.mapper.toDomain
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.domain.model.UserRole
 import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.ui.addscreen.data.RoundedCornerDropDownMenu
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.login.LoginButton
 import com.kodex.guide.presentation.login.RoundedCornerTextField
-import com.kodex.guide.ui.theme.BoxFilter
-import com.kodex.guide.ui.theme.ButtonColor
 
 const val IS_BASE_64 = true
 // ✅ СОЗДАЁМ СОБСТВЕННЫЙ UI STATE ДЛЯ AddBook
@@ -65,8 +60,10 @@ fun AddBookScreen(
     navData: NavRoutes.AddScreenObject = NavRoutes.AddScreenObject(),
     onSaved: () -> Unit = {},
     isDelivery: () -> Unit = {},
+    onAccessDenied: () -> Unit = {},  // ✅ НОВЫЙ ПАРАМЕТР
     onRegistrationNeeded: () -> Unit = {},  // ✅ НОВЫЙ ПАРАМЕТР
     viewModel: AddBookViewModel = hiltViewModel(),
+    viewModelHome: HomeViewModel = hiltViewModel(),
     ) {
 
      // ✅ Декодируем Base64 в Bitmap только один раз при старте (для режима редактирования)
@@ -81,6 +78,7 @@ fun AddBookScreen(
              }
          } else null
      }
+     val userRole = remember { viewModelHome.userRole.value}
 
      val context = LocalContext.current
      val categories = remember { context.resources.getStringArray(R.array.category_array) }
@@ -97,7 +95,17 @@ fun AddBookScreen(
              viewModel.convertImageToBase64(uri)
          }
      }
-
+     // ✅ ПРОВЕРКА ПРАВ ПРИ ВХОДЕ
+     LaunchedEffect(userRole) {
+         if (!userRole.hasAccessTo(UserRole.BUSINESS)) {
+             Toast.makeText(
+                 context,
+                 "Для публикации объявлений нужен статус BUSINESS",
+                 Toast.LENGTH_LONG
+             ).show()
+             onAccessDenied()  // Возврат на предыдущий экран
+         }
+     }
      LaunchedEffect(Unit) {
          viewModel.setDefaultData(navData)
      }
@@ -109,7 +117,7 @@ fun AddBookScreen(
                  onDismissRequest = { viewModel.clearValidationError() },
                  title = {
                      Text(
-                         text = "Проверьте данные",
+                         text = stringResource(R.string.check_data),
                          fontWeight = FontWeight.Bold,
                          fontSize = 20.sp
                      )
@@ -123,7 +131,7 @@ fun AddBookScreen(
                  },
                  confirmButton = {
                      TextButton(onClick = { viewModel.clearValidationError() }) {
-                         Text("Понятно", color = Color(0xFF03A9F4))
+                         Text(stringResource(R.string.clear), color = Color(0xFF03A9F4))
                      }
                  },
                  containerColor = Color(0xFF2C2C2E),
@@ -179,7 +187,7 @@ fun AddBookScreen(
              Spacer(modifier = Modifier.height(5.dp))
              RoundedCornerTextField(
                  text = viewModel.title.value,
-                 label = "Название:"
+                 label = stringResource(R.string.title)
              ) {
                  viewModel.title.value = it
              }
@@ -187,7 +195,7 @@ fun AddBookScreen(
 
              RoundedCornerTextField(
                  text = viewModel.description.value,
-                 label = "Краткое описание:",
+                 label = stringResource(R.string.description),
                  singleLine = false,
                  maxLines = 5
              ) {
@@ -197,7 +205,7 @@ fun AddBookScreen(
 
              RoundedCornerTextField(
                  text = viewModel.village.value,
-                 label = "Станица:",
+                 label = stringResource(R.string.village),
                  singleLine = false,
                  maxLines = 1
              ) {
@@ -228,7 +236,7 @@ fun AddBookScreen(
 
              RoundedCornerTextField(
                  text = viewModel.street.value,
-                 label = "Улица:",
+                 label = stringResource(R.string.street),
                  singleLine = false,
                  maxLines = 1
              ) {
@@ -239,12 +247,12 @@ fun AddBookScreen(
              Row(modifier = Modifier.fillMaxWidth()) {
                  Box(modifier = Modifier.weight(1f)) {
                      RoundedCornerTextField(
-                         text = viewModel.home.value,
-                         label = "Дом:",
+                         text = viewModel.house.value,
+                         label = stringResource(R.string.house),
                          singleLine = true,
                          maxLines = 1
                      ) {
-                         viewModel.home.value = it
+                         viewModel.house.value = it
                      }
                  }
 
@@ -252,12 +260,12 @@ fun AddBookScreen(
 
                  Box(modifier = Modifier.weight(1f)) {
                      RoundedCornerTextField(
-                         text = viewModel.apartment.value,
-                         label = "Кв:",
+                         text = viewModel.flat.value,
+                         label = stringResource(R.string.flat),
                          singleLine = true,
                          maxLines = 1
                      ) {
-                         viewModel.apartment.value = it
+                         viewModel.flat.value = it
                      }
                  }
              }
@@ -266,7 +274,7 @@ fun AddBookScreen(
 
              RoundedCornerTextField(
                  text = viewModel.price.intValue.toString(),
-                 label = "Цена:"
+                 label = stringResource(R.string.price)
              ) { userInput ->
                  // ✅ Фильтруем только цифры и безопасно преобразуем в Int
                  val filteredInput = userInput.filter { it.isDigit() }
@@ -313,19 +321,23 @@ fun AddBookScreen(
                      fontFamily = FontFamily.Serif
                  )
              }
-             LoginButton(text = "Выбрать фото") {
+             LoginButton(text = stringResource(R.string.select_photo)) {
                  imageLauncher.launch("image/*")
              }
 
-             LoginButton(text = "Сохранить ") {
+             LoginButton(text = stringResource(R.string.saved)) {
 
-                 if (viewModel.validateBook()) {
+                 if (viewModel.validateBook(context)) {
                      val bookToSave = navData.toDomain().copy(
                          imageUrl = viewModel.imageBase64.value,
                          title = viewModel.title.value,
                          description = viewModel.description.value,
                          price = viewModel.price.intValue,
                          village = viewModel.village.value,
+                         street = viewModel.street.value,
+                         house = viewModel.house.value,
+                         flat = viewModel.flat.value,
+                         location = viewModel.location.value,
                          categoryIndex = viewModel.selectedCategory.value,
                          delivery = viewModel.delivery.value,
                          payment = viewModel.payment.value
@@ -333,7 +345,8 @@ fun AddBookScreen(
                      viewModel.uploadBook(bookToSave)
                      // ✅ Затем запускаем регистрацию
                      onSaved()
-                     onRegistrationNeeded()
+                     if (viewModelHome.isAuthorized.value)
+                        onRegistrationNeeded()
                  }
              }
 

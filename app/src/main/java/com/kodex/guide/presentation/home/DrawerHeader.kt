@@ -20,14 +20,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kodex.bookmarketcompose.R
+import com.kodex.guide.domain.model.User
+import com.kodex.guide.domain.model.UserRole
 import com.kodex.guide.ui.theme.DrawerColorBlue
 
 
 @Composable
-fun DrawerHeader(email: String) {
+fun DrawerHeader(
+    email: String,
+    role: UserRole = UserRole.ANONYMOUS,
+    userName: String? = null ) {
+
     Column(
-        Modifier.fillMaxWidth()
+        Modifier
+            .fillMaxWidth()
             .height(200.dp)
             .background(DrawerColorBlue),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,7 +44,8 @@ fun DrawerHeader(email: String) {
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
-            modifier = Modifier.size(90.dp)
+            modifier = Modifier
+                .size(90.dp)
                 .padding(top = 15.dp),
             painter = painterResource(id = R.drawable.emblem),
             contentDescription = ""
@@ -47,12 +57,44 @@ fun DrawerHeader(email: String) {
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(text =
+        // ✅ Имя пользователя (показываем, только если задано)
+        if (!userName.isNullOrEmpty()) {
+            Text(
+                text = userName,
+                color = Color.White,
+                fontSize = 16.sp
+            )
+        }
+
+        // ✅ Email или Anonymous
+        Text(
+            text = email.ifEmpty { "Anonymous" },
+            color = Color.Black,
+            fontSize = 16.sp
+        )
+
+        // ✅ Роль
+        Text(
+            text = roleLabel(role),
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium
+        )
+       /* Text(text =
             email.orEmpty().ifEmpty { "Anonymous" },
             color = Color.Black,
-            fontSize = 16.sp)
+            fontSize = 16.sp)*/
+
 
     }
+}
+/** Человекочитаемая подпись роли */
+private fun roleLabel(role: UserRole): String = when (role) {
+    UserRole.ANONYMOUS -> "Гость"
+    UserRole.USER -> "Пользователь"
+    UserRole.BUSINESS -> "Бизнес"
+    UserRole.PREMIUM -> "Премиум"
+    UserRole.ADMIN -> "Администратор"
 }
 @Composable
 @Preview(showBackground = true)

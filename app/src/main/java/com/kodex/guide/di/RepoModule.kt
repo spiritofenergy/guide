@@ -20,6 +20,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepoModule {
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: FirebaseAuthRepo_Impl): AuthRepo
 
     @Binds
     @Singleton
@@ -32,12 +35,6 @@ abstract class RepoModule {
     abstract fun bindModerationPepo(
         moderationRepoInfo: ModerationRepo_Impl
     ): ModerationRepo
-
-    @Binds
-    @Singleton
-    abstract fun bindAuthPepo(
-        authRepoImpl: FirebaseAuthRepo_Impl
-    ): AuthRepo
 
     @Binds
     @Singleton

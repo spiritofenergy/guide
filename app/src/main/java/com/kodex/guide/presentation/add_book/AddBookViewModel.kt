@@ -1,33 +1,32 @@
 package com.kodex.guide.presentation.add_book
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.util.TimeUtils
-import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.data.images.BitmapEncoder
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.domain.repository.BooksRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
-private val booksRepo: BooksRepo,
-private val bitmapEncoder: BitmapEncoder
+    private val booksRepo: BooksRepo,
+    private val bitmapEncoder: BitmapEncoder,
+    private val authRepository: FirebaseAuthDataSource, // или UserSession
+
 ) : ViewModel() {
 
     val title = mutableStateOf("")
@@ -37,8 +36,8 @@ private val bitmapEncoder: BitmapEncoder
     val telephone = mutableStateOf("")
     val location = mutableStateOf(false)
     val street = mutableStateOf("")
-    val apartment = mutableStateOf("")
-    val home = mutableStateOf("")
+    val flat = mutableStateOf("")
+    val house = mutableStateOf("")
     val delivery = mutableStateOf(false)
     val payment = mutableStateOf(false)
     var imageBase64 = mutableStateOf("")
@@ -48,8 +47,6 @@ private val bitmapEncoder: BitmapEncoder
     val selectedCategory = mutableStateOf(BookCategories.ALL)
     val selectedImageUri = mutableStateOf<Uri?>(null)
     val showLoadingIndicator = mutableStateOf(false)
-
-
 
     private val _uiState = MutableSharedFlow<HomeViewModel.MainUiState>()
     val uiState = _uiState.asSharedFlow()
@@ -73,15 +70,15 @@ private val bitmapEncoder: BitmapEncoder
     }
 */
     // Функция валидации
-    fun validateBook(): Boolean {
+    fun validateBook(context: Context): Boolean {
         val errors = mutableListOf<String>()
-        if (title.value.isBlank()) { errors.add("• Название обязательно для заполнения") }
-        if (description.value.isBlank()) { errors.add("• Описание обязательно для заполнения") }
-        if (village.value.isBlank()) { errors.add("• Укажите станицу") }
-        if (price.intValue <= 0) { errors.add("• Укажите корректную цену") }
+        if (title.value.isBlank()) { errors.add(context.getString(R.string.title_is_required)) }
+        if (description.value.isBlank()) { errors.add(context.getString(R.string.description_is_required)) }
+        if (village.value.isBlank()) { errors.add(context.getString(R.string.please_specify_the_village)) }
+        if (price.intValue <= 0) { errors.add(context.getString(R.string.enter_a_valid_price)) }
         // 🔍 Проверка фото
         if (selectedImageUri.value == null && imageBase64.value.isBlank()) {
-            errors.add("• Добавьте фото книги")
+            errors.add(context.getString(R.string.please_add_a_photo))
         }
         if (errors.isNotEmpty()) {
             validationError.value = errors.joinToString("\n")
@@ -99,11 +96,15 @@ private val bitmapEncoder: BitmapEncoder
         Log.d("EditDebug", "Пришло на экран: village=${navData.village}, delivery=${navData.delivery}, payment=${navData.payment}")
 
         title.value = navData.title
-        village.value = navData.village
         description.value = navData.description
         price.intValue = navData.price
         telephone.value = navData.telephone
         selectedCategory.value = navData.categoryIndex
+        village.value = navData.village
+        street.value = navData.village
+        house.value = navData.house
+        flat.value = navData.flat
+        location.value = navData.location
         delivery.value = navData.delivery
         payment.value = navData.payment
 

@@ -75,13 +75,8 @@ fun NavigationNavGraph (navController: NavHostController){
                     navController.navigate(NavRoutes.LoginNavObject)
                 },
                 onAnonymousClick = {
-                    // ИЗМЕНЕНИЕ: Вместо перехода на экран логина, вызываем анонимный вход
-                    homeViewModel.loginAnonymously { isSuccess ->
-                        if (isSuccess) {
-                            Log.d("Navigation", "Гостевой вход успешен")
-                            // Можно показать Toast или обновить UI
-                        }
-                    }
+                    navController.navigate(NavRoutes.HomeDataObject(
+                        uid = "", email = ""))
                 },
                 onSettingsClick = {
                     navController.navigate(NavRoutes.SettingsNavObject)
@@ -92,6 +87,18 @@ fun NavigationNavGraph (navController: NavHostController){
                },
                 onAddBookClick = {
                     navController.navigate(NavRoutes.AddScreenObject())
+                },
+                onRegistrationNeeded = {
+                    // ✅ Запуск регистрации
+                    navController.navigate(NavRoutes.SingUpNavObject)
+                    // или
+                    // signUpViewModel.signUp(...)
+                },
+                onEnter = {
+                    // ✅ Запуск регистрации
+                    navController.navigate(NavRoutes.LoginNavObject)
+                    // или
+                    // signUpViewModel.signUp(...)
                 }
             )
         }
@@ -101,12 +108,17 @@ fun NavigationNavGraph (navController: NavHostController){
                 navData = navData,
                 onSaved = {
                     navController.popBackStack()
-                },onRegistrationNeeded = {
+                },
+                onAccessDenied = {
+                    navController.popBackStack()  // Возврат если нет прав
+                },
+                onRegistrationNeeded = {
                     // ✅ Запуск регистрации
                     navController.navigate(NavRoutes.SingUpNavObject)
                     // или
                     // signUpViewModel.signUp(...)
-                }
+                },
+
             )
         }
 

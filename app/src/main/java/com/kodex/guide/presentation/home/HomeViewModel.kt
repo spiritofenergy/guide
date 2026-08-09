@@ -11,9 +11,16 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
+import com.kodex.guide.data.mapper.toDTO
+import com.kodex.guide.data.mapper.toUser
 import com.kodex.guide.data.model.BookFilter
+import com.kodex.guide.data.source.local.PreferenceDataSource
+import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
@@ -22,13 +29,19 @@ import com.kodex.guide.domain.model.FilterData
 import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.domain.model.FilterType
+import com.kodex.guide.domain.model.Permission
+import com.kodex.guide.domain.model.User
+import com.kodex.guide.domain.model.UserRole
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -37,30 +50,49 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// ✅ События для UI (диалоги, навигация)
+sealed class AuthEvent {
+    data object ShowLoginDialog : AuthEvent()
+    data object ShowLogoutDialog : AuthEvent()
+    data class NavigateToRegistration(val message: String) : AuthEvent()
+}
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val booksRepo: BooksRepo,
     private val favoritesRepo: FavoritesRepo,
+    private val authDataSource: FirebaseAuthDataSource,
     private val mainDb: MainDb,
+    private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
 
 ) : ViewModel() {
 
     val isEdit = mutableStateOf(false)
-
     val minPriceValue = mutableFloatStateOf(0f)
     val maxPriceValue = mutableFloatStateOf(0f)
     val isFilterByTitle = mutableStateOf(true)
     var showTabOneOrTo = mutableStateOf(false)
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
     val isAdminState = mutableStateOf(false)
-    // 1. НОВОЕ СОСТОЯНИЕ: Факт авторизации пользователя
-    val isAuthorized = mutableStateOf(Firebase.auth.currentUser != null)
 
+    // ✅ профиль для DrawerHeader
+    val headerUser = mutableStateOf<User?>(null)
+
+
+    val isAuthorized = mutableStateOf(authDataSource.getCurrentUser() != null)
+    val userRole = mutableStateOf(UserRole.ANONYMOUS)
+
+    // Состояние для диалога
+    val showAuthDialog = mutableStateOf(false)
+    val isLogoutDialog = mutableStateOf(false)
+
+    // val isAuthorized = mutableStateOf(Firebase.auth.currentUser != null)
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
 
     private val bookListUpdate = MutableStateFlow<List<ChangedTempBook>>(emptyList())
+
 
     private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
     private val searchStateFlow = MutableStateFlow("")
@@ -95,19 +127,141 @@ class HomeViewModel @Inject constructor(
                     true
                 }
             }.map { pData ->
-                    val book = changedBookList.find { it.key == pData.key }
-                    if (book != null) {
-                        pData.copy(
-                            isFavorite = book.isFavorite
-                        )
-                    } else {
-                        pData
-                    }
+                val book = changedBookList.find { it.key == pData.key }
+                if (book != null) {
+                    pData.copy(
+                        isFavorite = book.isFavorite
+                    )
+                } else {
+                    pData
                 }
             }
+        }
+    private val _authEvents = MutableSharedFlow<AuthEvent>()
+    val authEvents = _authEvents.asSharedFlow()
 
     private val _uiState = MutableSharedFlow<MainUiState>()
     val uiState = _uiState.asSharedFlow()
+
+    // ✅ НОВОЕ: Роль текущего пользователя
+    private val _userRole = MutableStateFlow(UserRole.ANONYMOUS)
+    // val userRole: StateFlow<UserRole> = _userRole.asStateFlow()
+
+  /*  // ✅ Профиль для шапки: мгновенно из кеша, обновляется реактивно
+    val cachedUser: StateFlow<User?> = preferenceDataSource.headerUser
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+*/
+    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            Firebase.firestore.collection("users")
+                .document(currentUser.uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    if (!doc.exists()) {
+                        // ✅ Используем маппер вместо хардкода
+                        val user = currentUser.toUser(role = UserRole.USER)
+                        createUserProfile(user)
+                    }
+                    loadUserRole(currentUser.uid)
+                }
+            // ...
+        }
+    }
+
+    init {
+        // миграция: кеш пуст, но пользователь залогинен — заполняем кеш
+        if (preferenceDataSource.getUser() == null) {
+            authDataSource.getCurrentUser()?.let { preferenceDataSource.saveUser(it) }
+        }
+        refreshHeader()
+        // Загружаем роль при старте
+        authDataSource.getCurrentUser()?.let { user ->
+            userRole.value = user.role
+            isAuthorized.value = true
+        }
+
+        // ✅ ДОБАВЛЕНО: Регистрируем слушатель состояния авторизации
+        Firebase.auth.addAuthStateListener(authStateListener)
+        // Если уже авторизован - загружаем роль
+        Firebase.auth.currentUser?.uid?.let { loadUserRole(it) }
+
+        /*    loadFromRoom()
+        viewModelScope.launch {
+            delay(100)
+            checkNetworkAndSync()
+        }
+*/
+
+    }
+
+    fun refreshHeader() {
+        headerUser.value = preferenceDataSource.getUser()
+    }
+
+    private var roleListener: ListenerRegistration? = null
+
+    private fun loadUserRole(uid: String) {
+        roleListener?.remove()
+        roleListener = Firebase.firestore.collection("users")
+            .document(uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("MyLog", "Ошибка загрузки роли: ${error.message}")
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    val roleString = snapshot.getString("role") ?: "USER"
+                    val role = try {
+                        UserRole.valueOf(roleString)
+                    } catch (e: Exception) {
+                        UserRole.USER
+                    }
+                    _userRole.value = role
+                    userRole.value = role      // ← синхронизируем с Compose-состоянием
+                    isAuthorized.value = true
+                    Log.d("MyLog", "Роль пользователя: $role")
+                    // ✅ роль из Firestore синхронизируем в кеш
+                    viewModelScope.launch { preferenceDataSource.saveRole(role) }
+                }
+            }
+    }
+
+    fun createUserProfile(user: User) {
+        Firebase.firestore
+            .collection("users")
+            .document(user.uid)
+            .set(user.toDTO())
+            .addOnSuccessListener {
+                Log.d("MyLog", "Профиль создан для ${user.uid}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyLog", "Ошибка создания профиля: ${e.message}")
+            }
+    }
+
+    // Повышение до BUSINESS
+    fun upgradeToBusiness(uid: String) {
+        Firebase.firestore.collection("users")
+            .document(uid)
+            .update("role", UserRole.BUSINESS.name)
+    }
+
+    // ✅ Проверка прав
+    fun hasPermission(permission: Permission): Boolean {
+        return permission.isGrantedBy(_userRole.value)
+    }
+
+    fun canAccess(requiredRole: UserRole): Boolean {
+        return _userRole.value.hasAccessTo(requiredRole)
+    }
+
+    // ✅ ДОБАВЛЕНО: Очищаем слушатель при уничтожении ViewModel
+    override fun onCleared() {
+        super.onCleared()
+        roleListener?.remove()
+        Firebase.auth.removeAuthStateListener(authStateListener)
+    }
 
     fun getSettings() = viewModelScope.launch {
         favoritesKeysFlow.collect { keysList ->
@@ -151,7 +305,7 @@ class HomeViewModel @Inject constructor(
         bookListUpdate.update { list ->
             val changedBook = list.find { book.key == it.key }
             if (changedBook == null) {
-                list +  ChangedTempBook(
+                list + ChangedTempBook(
                     key = book.key,
                     isFavorite = book.isFavorite,
                     isDeleted = isDeleted
@@ -170,11 +324,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    /*
-        fun setPriceFilter(minPrice: Float, maxPrice: Float) {
-            booksRepo.minPrice = minPrice.toInt()
-            booksRepo.maxPrice = maxPrice.toInt()
-        }*/
 
     fun setFilter() {
         val filterData = FilterData(
@@ -199,7 +348,7 @@ class HomeViewModel @Inject constructor(
             val result = booksRepo.deleteBook(bookToDelete!!)
             result.fold(
                 onSuccess = {
-                    updateChangedBook(bookToDelete!!, true ,)
+                    updateChangedBook(bookToDelete!!, true)
                     sendUiState(MainUiState.Success)
                 },
                 onFailure = { error ->
@@ -255,34 +404,63 @@ class HomeViewModel @Inject constructor(
         data class Error(val message: String) : MainUiState()
     }
 
-    // 1. НОВАЯ ФУНКЦИЯ: Анонимный вход без регистрации
-    fun loginAnonymously(onResult: (Boolean) -> Unit) {
-        // Если уже авторизован, просто возвращаем true
-        if (Firebase.auth.currentUser != null) {
-            onResult(true)
-            return
+    // ✅ Обработка клика по кнопке входа/выхода
+    fun onAuthButtonClick() = viewModelScope.launch {
+        if (isAuthorized.value) {
+            // Пользователь авторизован — предлагаем выйти
+            _authEvents.emit(AuthEvent.ShowLogoutDialog)
+        } else {
+            // Пользователь не авторизован — предлагаем войти
+            _authEvents.emit(AuthEvent.ShowLoginDialog)
         }
-
-        Firebase.auth.signInAnonymously()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    isAuthorized.value = true // Обновляем состояние
-                    // При успешном входе обновляем ключи избранного
-                    refreshFavoritesKeys()
-                    onResult(true)
-                } else {
-                    sendUiState(MainUiState.Error(task.exception?.message ?: "Ошибка анонимного входа"))
-                    onResult(false)
-                }
-            }
     }
+
+    // ✅ Анонимный вход
+    fun loginAnonymously() = viewModelScope.launch {
+        try {
+            authDataSource.signInAnonymously()
+            Log.d("MyLog", "Анонимный вход успешен")
+            // authStateListener автоматически загрузит роль
+        } catch (e: Exception) {
+            Log.e("MyLog", "Ошибка анонимного входа: ${e.message}")
+            sendUiState(MainUiState.Error("Ошибка входа: ${e.message}"))
+        }
+    }
+
+    // ✅ Переход к регистрации
+    fun navigateToRegistration() = viewModelScope.launch {
+        _authEvents.emit(AuthEvent.NavigateToRegistration("Для доступа требуется регистрация"))
+    }
+
     // 3. НОВАЯ ФУНКЦИЯ: Выход из аккаунта
     fun logout() {
         Firebase.auth.signOut()
+        authDataSource.signOut()
+        userRole.value = UserRole.ANONYMOUS
+        _userRole.value = UserRole.ANONYMOUS
         isAuthorized.value = false
         isAdminState.value = false
-        refreshFavoritesKeys() // Сбрасываем избранное при выходе
+
+        preferenceDataSource.clearUserSession()   // ✅ шапка сразу покажет Anonymous
+        refreshHeader()
+        Log.d("MyLog", " logout isAdminState.value = false")
+       // viewModelScope.launch { preferenceDataSource.clearUser() }
+
     }
+
+    // ✅ Закрытие диалога
+    fun dismissAuthDialog() {
+        showAuthDialog.value = false
+    }
+
+    // ✅ Проверка прав
+    fun canCreatePost(): Boolean =
+        hasPermission(Permission.CREATE_POST)
+
+    fun canModerate(): Boolean =
+        hasPermission(Permission.MODERATE_CONTENT)
+
+
     // 2. ИСПРАВЛЕНИЕ: Убираем !! чтобы избежать краша у неавторизованных пользователей
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser?.uid ?: run {
@@ -319,15 +497,16 @@ class HomeViewModel @Inject constructor(
                 onRegister(false)
             }
     }
-  /*  fun isAdmin(onAdmin: (Boolean) -> Unit) {
-        val uid = Firebase.auth.currentUser!!.uid
-        Firebase.firestore.collection("admin")
-            .document(uid)
-            .get()
-            .addOnSuccessListener {
-                onAdmin(it.get("isAdmin") as Boolean)
-            }
-    }*/
+}
+/*  fun isAdmin(onAdmin: (Boolean) -> Unit) {
+      val uid = Firebase.auth.currentUser!!.uid
+      Firebase.firestore.collection("admin")
+          .document(uid)
+          .get()
+          .addOnSuccessListener {
+              onAdmin(it.get("isAdmin") as Boolean)
+          }
+  }*/
 /*
 
     fun isUserRegistered(onRegister: (Boolean) -> Unit) {
@@ -343,10 +522,9 @@ class HomeViewModel @Inject constructor(
 */
 
 
-    /*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
-            val uid = Firebase.auth.currentUser!!.uid
-            Firebase.firestore.collection("guide_users")
-                .document(uid)
-         isRegisterState = true
-        }*/
-}
+/*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
+        val uid = Firebase.auth.currentUser!!.uid
+        Firebase.firestore.collection("guide_users")
+            .document(uid)
+     isRegisterState = true
+    }*/

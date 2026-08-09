@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,12 +15,17 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -53,6 +59,8 @@ import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.domain.model.Permission
+import com.kodex.guide.domain.model.UserRole
 import com.kodex.guide.ui.theme.Orange
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -74,7 +82,19 @@ fun HomeScreen(
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onCategoryClick: () -> Unit,
+    onRegistrationNeeded: ()-> Unit,
+    onEnter: ()-> Unit,
+
 ) {
+    // Подписываемся на роль пользователя
+    val userRole by viewModel.userRole
+    val showAuthDialog by viewModel.showAuthDialog
+    val isLogoutDialog by viewModel.isLogoutDialog
+    val headerUser by viewModel.headerUser
+
+    // Вычисляем права (Compose автоматически перерисует UI при смене роли)
+    val canCreatePost = Permission.CREATE_POST.isGrantedBy(userRole)
+    val canModerate = Permission.MODERATE_CONTENT.isGrantedBy(userRole)
 
     val book = viewModel.postList.collectAsState(initial = emptyList())
     val showDialog = remember { mutableStateOf(false) }
@@ -117,6 +137,25 @@ fun HomeScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }*/
+
+    // ✅ Подписка на события авторизации
+    LaunchedEffect(Unit) {
+        viewModel.authEvents.collect { event ->
+            when (event) {
+                is AuthEvent.ShowLoginDialog -> {
+                    viewModel.showAuthDialog.value = true
+                    viewModel.isLogoutDialog.value = false
+                }
+                is AuthEvent.ShowLogoutDialog -> {
+                    viewModel.showAuthDialog.value = true
+                    viewModel.isLogoutDialog.value = true
+                }
+                is AuthEvent.NavigateToRegistration -> {
+                    onRegistrationNeeded()
+                }
+            }
+        }
+    }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -137,12 +176,12 @@ fun HomeScreen(
             viewModel.isAdminState.value = isAdmin
         }
     }
-    /*
+
         LaunchedEffect(Unit) {
             viewModel.isUserRegistered { isRegister ->
                 viewModel.isRegisterState.value = isRegister
             }
-        }*/
+        }
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
@@ -173,7 +212,10 @@ fun HomeScreen(
         drawerContent = {
             Column(modifier = Modifier.fillMaxWidth(if (!isLandscape) 0.7f else 0.3f)) {
                 if (!isLandscape) {
-                    DrawerHeader(navData.email)
+                    DrawerHeader(
+                        userName = headerUser?.userName,
+                        email = headerUser?.email.orEmpty(),
+                        role = headerUser?.role ?: UserRole.ANONYMOUS)
                 }
                 DrawerBody(
                     onAdminClick = onAdminClick,
@@ -210,6 +252,16 @@ fun HomeScreen(
                         onSettingsClick()
                         coroutineScope.launch { drawerState.close() }
                     },
+
+                    onRegistrationNeeded = {
+                        onRegistrationNeeded()
+                        coroutineScope.launch { drawerState.close() }
+                    },
+                    onEnter = {
+                        onEnter()
+                        coroutineScope.launch { drawerState.close() }
+
+                    }
 
                     )
             }
@@ -431,28 +483,76 @@ fun HomeScreen(
                         showFilterDialog = false
                     }
                 )
+            // ✅ Диалог выбора действия
+            if (showAuthDialog) {
+                if (isLogoutDialog) {
+                    // Диалог для авторизованного пользователя
+                    AlertDialog(
+                        onDismissRequest = { viewModel.dismissAuthDialog() },
+                        title = { Text("Выйти из аккаунта?") },
+                        text = { Text("Вы уверены, что хотите выйти?") },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.logout()
+                                    viewModel.dismissAuthDialog()
+                                }
+                            ) {
+                                Text("Выйти")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { viewModel.dismissAuthDialog() }
+                            ) {
+                                Text("Отмена")
+                            }
+                        }
+                    )
+                } else {
+                    // Диалог для неавторизованного пользователя
+                    AlertDialog(
+                        onDismissRequest = { viewModel.dismissAuthDialog() },
+                        title = { Text("Выберите способ входа") },
+                        text = { Text("Для продолжения выберите один из вариантов:") },
+                        confirmButton = {
+                            Column {
+                                Button(
+                                    onClick = {
+                                        viewModel.loginAnonymously()
+                                        viewModel.dismissAuthDialog()
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Войти анонимно")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        viewModel.navigateToRegistration()
+                                        viewModel.dismissAuthDialog()
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Зарегистрироваться")
+                                }
+                                Spacer(modifier = Modifier.height(5.dp))
+                            }
+                        },
+
+                        dismissButton = {
+                            TextButton(
+                                onClick = { viewModel.dismissAuthDialog() }
+                            ) {
+                                Text("Отмена")
+                            }
+                        }
+                    )
+                }
+            }
             }
         }
     }
 
 
-
-
-/*
- private fun getAllBooks (
-     db: FirebaseFirestore,
-     onBooks: (List<Book>)-> Unit
- ){
-     db.collection("guide_posts")
-    // db.collection("imajes")
-    // db.collection("users")
-         .get()
-         .addOnSuccessListener { task ->
-            // onBooks(task.toObjects(Book::class.java))
-             val bookList = task.toObjects(Book::class.java)
-             onBooks(bookList)
-         }
-         .addOnFailureListener{
-
-     }*/
 

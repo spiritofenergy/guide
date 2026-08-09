@@ -1,5 +1,6 @@
 package com.kodex.guide.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.ElectricalServices
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MiscellaneousServices
@@ -26,6 +28,9 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +42,18 @@ import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.GrayLite
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.domain.model.UserRole
+import com.kodex.guide.presentation.add_book.AddBookViewModel
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun DrawerBody(
     viewModel: HomeViewModel = hiltViewModel(),
+    viewModelAdd: AddBookViewModel = hiltViewModel(),
+    viewModelHome: HomeViewModel = hiltViewModel(),
+    onRegistrationNeeded: () -> Unit = {},  // ✅ НОВЫЙ ПАРАМЕТР
+    onEnter: () -> Unit = {},  // ✅ НОВЫЙ ПАРАМЕТР
 
     onAddBookClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
@@ -57,6 +68,12 @@ fun DrawerBody(
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val categoryAdmin = stringArrayResource(id = R.array.category_admin)
+
+
+    // ✅ Получаем роль из ViewModel
+    val userRole = remember { viewModelHome.userRole.value}
+//val userRole by viewModel.userRole.collectAsState()
+    val isAuthorized = viewModel.isAuthorized.value
 
     Box(modifier = Modifier.fillMaxSize()
         .background(ButtonColorBlue)) {
@@ -164,30 +181,80 @@ fun DrawerBody(
                          coroutineScope.launch { drawerState.close() }
                      }
                  )
+
+            // if (userRole.hasAccessTo(UserRole.BUSINESS)) {
+             /*    DrawerMenuItem(
+                     iconDrawableId = Icons.Default.Add,
+                     text = "Добавить объявление",
+                     onItemClick = {
+                         onAddBookClick()
+                     }
+                 )*/
+
+          //   }
+             // ✅ Кнопка "Модерация" - только ADMIN
+            // if (userRole.hasAccessTo(UserRole.ADMIN)) {
+              /*   DrawerMenuItem(
+                     iconDrawableId = Icons.Default.Security,
+                     text = "Модерация",
+                     onItemClick = {
+                         onAdminClick()
+                     }
+                 )*/
+          //  }
+
+             // ✅ ИСПРАВЛЕНО: Кнопка входа/выхода с чистой архитектурой
              DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Add,
-                 text = categoryAdmin[1],
+                 iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
+                 text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2],
                  onItemClick = {
-                     onAddBookClick()
+                     // ✅ Вся логика вынесена в ViewModel
+                     viewModel.onAuthButtonClick()
                      coroutineScope.launch { drawerState.close() }
                  }
              )
-// ... существующий код ...
-
+          /*   // ✅ ИСПРАВЛЕНО: Правильное переключение между входом и выходом
              DrawerMenuItem(
+                 iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
+                 text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2],
+                 onItemClick = {
+                     if (viewModel.isAuthorized.value) {
+                         // ✅ Если авторизован - выходим
+                         onEnter()
+                     }else if(!viewModel.isAuthorized.value){
+                         Log.d("MyLog", "onRegistrationNeeded")
+                       //  if(viewModel.isAuthorized.value) {
+                             onRegistrationNeeded()
+                         // ✅ Если авторизован - выходим
+                         viewModel.logout()
+                         Log.d("MyLog", "logout Anonymous ")
+                     } else {
+                         // ✅ Если не авторизован - входим
+                         viewModel.loginAnonymously { success ->
+                             Log.d("MyLog", "login Anonymous ")
+                             if (success) {
+                                 // Вход успешен
+                             }
+                         }
+                     }
+                     coroutineScope.launch { drawerState.close() }
+                 }
+             )*/
+
+           /*  DrawerMenuItem(
                  // ИСПРАВЛЕНИЕ: Используем isAuthorized вместо isAdminState
                  iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
                  text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2], // Проверьте индексы в strings.xml
                  onItemClick = {
-                   /*  // ИСПРАВЛЕНИЕ: Разделяем логику Входа и Выхода
+                   *//*  // ИСПРАВЛЕНИЕ: Разделяем логику Входа и Выхода
                      if (viewModel.isAuthorized.value) {
                          viewModel.logout() // Если авторизован -> выходим
-                     } else {*/
+                     } else {*//*
                          onLoginClick()     // Если не авторизован -> входим
 
                      coroutineScope.launch { drawerState.close() }
                  }
-             )
+             )*/
 
 // ... остальной код ...
             /* DrawerMenuItem(

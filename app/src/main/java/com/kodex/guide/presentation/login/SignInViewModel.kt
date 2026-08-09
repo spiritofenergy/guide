@@ -26,6 +26,7 @@ class SignInViewModel@Inject constructor(
                 //' "nillsimon24@gmail.com " +
                 ""
     )
+    val nameState = mutableStateOf("")
     val passwordState = mutableStateOf("test2401")
     val resetPasswordState = mutableStateOf(false)
     val showResetPasswordDialog = mutableStateOf(false)
@@ -50,9 +51,12 @@ class SignInViewModel@Inject constructor(
     fun getEmail(){
         emailState.value = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
     }
+
     fun saveLastEmail(){
         preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, emailState.value)
     }
+
+
      fun resetPassword() = viewModelScope.launch(Dispatchers.IO) {
         errorState.value = ""
          val result = authRepo.signUp(emailState.value, passwordState.value)

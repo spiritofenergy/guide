@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.material3)
     val koin_version = "4.1.0"
     implementation("io.insert-koin:koin-androidx-compose:$koin_version")
 

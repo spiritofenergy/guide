@@ -2,13 +2,14 @@ package com.kodex.guide.data.mapper
 
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.presentation.navigation.NavRoutes
+import kotlin.String
 
 fun NavRoutes.AddScreenObject.toDomain(): Book {
     return Book(
         id = id, // <-- ДОБАВЬТЕ (иначе создается новая запись)
         key = key,
         title = title,
-       searchTitle = title.lowercase(),
+        searchTitle = title.lowercase(),
         description = description,
         price = price,
         telephone = telephone, // <-- ДОБАВЬТЕ
@@ -20,7 +21,11 @@ fun NavRoutes.AddScreenObject.toDomain(): Book {
         publishPeriod = publishPeriod, // <-- ДОБАВЬТЕ
         timeStamp = timeStamp, // <-- ДОБАВЬТЕ
         deleteDate = deleteDate,// <-- ДОБАВЬТЕ
-        village = village, // <-- ДОБАВЬТЕ
+        village = village,
+        street = street,
+        house = house,
+        flat = flat,
+        location = location,
         delivery = delivery, // <-- ДОБАВЬТЕ
         payment = payment,
         ratingsList = ratingsList.map { it.toInt() }
@@ -44,7 +49,11 @@ fun Book.toAddScreenObject(): NavRoutes.AddScreenObject {
         publishPeriod = this.publishPeriod,
         timeStamp = this.timeStamp,
         deleteDate = this.deleteDate,
-        village = this.village,       // ← убедитесь, что это есть
+        village = this.village,
+        street = this.street,
+        house = this.house,
+        flat = this.flat,
+        location = this.location,// ← убедитесь, что это есть
         delivery = this.delivery,
         payment = this.payment,// ← убедитесь, что это есть
         ratingsList = this.ratingsList.map { it.toString() }

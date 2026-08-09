@@ -8,7 +8,7 @@ class NavRoutes {
     @Serializable
     data class HomeDataObject(
         val uid: String = "",
-        val email: String = ""
+        val email: String?
     )
 
     @Serializable
@@ -23,8 +23,10 @@ class NavRoutes {
 
     @Serializable
     object SingUpNavObject
+
     @Serializable
     object SettingsNavObject
+
     @Serializable
     data class ParallaxNavObject(
         val bookId: String = "",
@@ -36,6 +38,13 @@ class NavRoutes {
         val address: String = "Кучугуры, ул. Ленина, 15",
         val telephone: String = "+7(495)123-45-67",
         val website: String = "coffeehouse.ru",
+        val village: String = "",
+        val street: String = "",
+        val house: String = "",
+        val flat: String = "",
+        val location:  Boolean = false,
+        val delivery: Boolean = false,
+        val payment: Boolean = false,
         val latitude: String = "55.7558",   // Москва по умолчанию
         val longitude: String = "37.6173",
         val categoryIndex: BookCategories = BookCategories.ALL,
@@ -45,6 +54,7 @@ class NavRoutes {
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
     )
+
     @Serializable
     data class DetailNavObject(
         val bookId: String = "",
@@ -59,6 +69,7 @@ class NavRoutes {
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
     )
+
     @Serializable
     data class PlaceNavObject(
         val bookId: String = "",
@@ -79,6 +90,7 @@ class NavRoutes {
         val ratingsList: List<Int> = emptyList()
 
     )
+
     fun DetailNavObject.toCommentsNavData(): CommentsNavData {
         return CommentsNavData(
             bookId = bookId,
@@ -106,14 +118,18 @@ class NavRoutes {
         val timeStamp: Long = System.currentTimeMillis(),
         val deleteDate: Int = 0,
         val village: String = "",
+        val street: String = "",
+        val house: String = "",
+        val flat: String = "",
+        val location: Boolean = false,
         val delivery: Boolean = false,
         val payment: Boolean = false,
         val ratingsList: List<String> = emptyList(),
 
-    )
+        )
 
     @Serializable
-    data class CommentsNavData (
+    data class CommentsNavData(
         val bookId: String = "",
         val title: String = "",
         val ratingsList: List<Int> = emptyList(),

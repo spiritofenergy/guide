@@ -1,7 +1,6 @@
 package com.kodex.guide.data.repository
 
-import com.google.firebase.ktx.Firebase
-import com.kodex.guide.data.source.remote.FavoritesDataSource
+ import com.kodex.guide.data.source.remote.FavoritesDataSource
 import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.domain.repository.FavoritesRepo
 import javax.inject.Inject
