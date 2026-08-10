@@ -8,9 +8,10 @@ enum class Permission(val requiredRole: UserRole) {
 
     // комментарии - только авторизованным
     ADD_COMMENTS(UserRole.USER),
+    CREATE_POST(UserRole.BUSINESS),
 
     // Публикация - только BUSINESS
-    CREATE_POST(UserRole.BUSINESS),
+
     EDIT_OWN_POST(UserRole.BUSINESS),
     DELETE_OWN_POST(UserRole.BUSINESS),
 

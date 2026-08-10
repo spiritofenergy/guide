@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
@@ -22,6 +23,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val authRepo: AuthRepo,
     private val userSettingsRepo: UserSettingsRepo,
+    private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
+
 ) : ViewModel() {
     var newPersonalData = PersonalData()
     var oldPersonalData = PersonalData()
