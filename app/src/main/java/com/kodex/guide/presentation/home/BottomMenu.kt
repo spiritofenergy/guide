@@ -23,7 +23,7 @@ fun BottomMenu(
     val items = listOf(
         BottomMenuItem.Home,
         BottomMenuItem.Saved,
-      //  BottomMenuItem.Settings
+        BottomMenuItem.Settings
 
     )
 
@@ -40,7 +40,7 @@ fun BottomMenu(
                     when (item.titleId) {
                         BottomMenuItem.Home.titleId -> onHomeClick()
                         BottomMenuItem.Saved.titleId -> onCategoryClick(BookCategories.SAVED)
-                      //  BottomMenuItem.Settings.titleId -> onSettingsClick()
+                        BottomMenuItem.Settings.titleId -> onSettingsClick()
 
                     }
                 },

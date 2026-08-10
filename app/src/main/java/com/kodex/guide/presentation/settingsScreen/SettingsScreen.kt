@@ -42,11 +42,14 @@ import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
 import com.kodex.guide.presentation.castom.TimeUtils
+import com.kodex.guide.presentation.home.HomeViewModel
 
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
+    viewModelHome: HomeViewModel = hiltViewModel(),
+
     onBackClick: () -> Unit = {},
     onCloseAccountClick: () -> Unit = {}
 ) {
@@ -159,7 +162,9 @@ fun SettingsScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "   Email: example@gmail.com")
+                Text(text = "   Email: ${viewModelHome.headerUser}")
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "   Role: ${viewModelHome.userRole.value}")
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(text = "   Address: ${viewModel.addressData.value.toStringAddress()}")
                 Spacer(modifier = Modifier.height(2.dp))

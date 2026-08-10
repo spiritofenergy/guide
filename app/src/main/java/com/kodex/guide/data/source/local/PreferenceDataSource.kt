@@ -7,11 +7,39 @@ import com.kodex.guide.domain.model.UserRole
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+// ✅ ключи карты
+const val CARD_NUMBER_KEY = "card_number_key"
+const val CARD_EXPIRY_KEY = "card_expiry_key"
 
 @Singleton
 class PreferenceDataSource @Inject constructor(@ApplicationContext
     context: Context
 ) {
+
+    // ✅ ключи карты
+
+    // ===== ✅ Сохранение данных карты (кроме CVV!) =====
+    fun saveCardData(cardNumber: String, expiry: String) {
+        pref.edit {
+            putString(CARD_NUMBER_KEY, cardNumber)
+            putString(CARD_EXPIRY_KEY, expiry)
+        }
+    }
+
+    fun getSavedCardNumber(): String =
+        pref.getString(CARD_NUMBER_KEY, "") ?: ""
+
+    fun getSavedCardExpiry(): String =
+        pref.getString(CARD_EXPIRY_KEY, "") ?: ""
+
+    fun hasSavedCard(): Boolean = getSavedCardNumber().isNotEmpty()
+
+    fun clearCardData() {
+        pref.edit {
+            remove(CARD_NUMBER_KEY)
+            remove(CARD_EXPIRY_KEY)
+        }
+    }
     private val pref = context.getSharedPreferences(MAIN_PREF, Context.MODE_PRIVATE)
 
     fun saveEmail(key: String, value: String){

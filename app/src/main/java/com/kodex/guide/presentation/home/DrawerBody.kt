@@ -71,149 +71,155 @@ fun DrawerBody(
 
 
     // ✅ Получаем роль из ViewModel
-    val userRole = remember { viewModelHome.userRole.value}
+    val userRole = remember { viewModelHome.userRole.value }
 //val userRole by viewModel.userRole.collectAsState()
     val isAuthorized = viewModel.isAuthorized.value
 
-    Box(modifier = Modifier.fillMaxSize()
-        .background(ButtonColorBlue)) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(ButtonColorBlue)
+    ) {
         // background first Screen
-         Column (modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-             Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-             Box(modifier = Modifier
-                 .fillMaxWidth()
-                 .height(1.dp)
-                 .background(GrayLite)
-             )
-             Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(GrayLite)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.CrueltyFree,
-                 text = categoryList[0],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.ANIMALS)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Celebration,
-                 text = categoryList[1],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.PLANTS)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.CleaningServices,
-                 text = categoryList[2],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.WORK)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.MiscellaneousServices,
-                 text = categoryList[3],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.SERVICES)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.AddHomeWork,
-                 text = categoryList[4],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.REAL_ESTATE)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Agriculture,
-                 text = categoryList[5],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.AUTO)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.ElectricalServices,
-                 text = categoryList[6],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.ELECTRONICS)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.AutoAwesome,
-                 text = categoryList[7],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.ENTERTAINMENTS)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-             DrawerMenuItem(
-                 iconDrawableId = Icons.Default.Dialpad,
-                 text = categoryList[8],
-                 onItemClick = {
-                     onCategoryClick(BookCategories.SAVED)
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-
-
-             Spacer(modifier = Modifier.height(15.dp))
-             Box(modifier = Modifier
-                     .fillMaxWidth()
-                     .height(1.dp)
-                     .background(GrayLite))
-             Spacer(modifier = Modifier.height(15.dp))
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.CrueltyFree,
+                text = categoryList[0],
+                onItemClick = {
+                    onCategoryClick(BookCategories.ANIMALS)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.Celebration,
+                text = categoryList[1],
+                onItemClick = {
+                    onCategoryClick(BookCategories.PLANTS)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.CleaningServices,
+                text = categoryList[2],
+                onItemClick = {
+                    onCategoryClick(BookCategories.WORK)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.MiscellaneousServices,
+                text = categoryList[3],
+                onItemClick = {
+                    onCategoryClick(BookCategories.SERVICES)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.AddHomeWork,
+                text = categoryList[4],
+                onItemClick = {
+                    onCategoryClick(BookCategories.REAL_ESTATE)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.Agriculture,
+                text = categoryList[5],
+                onItemClick = {
+                    onCategoryClick(BookCategories.AUTO)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.ElectricalServices,
+                text = categoryList[6],
+                onItemClick = {
+                    onCategoryClick(BookCategories.ELECTRONICS)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.AutoAwesome,
+                text = categoryList[7],
+                onItemClick = {
+                    onCategoryClick(BookCategories.ENTERTAINMENTS)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+            DrawerMenuItem(
+                iconDrawableId = Icons.Default.Dialpad,
+                text = categoryList[8],
+                onItemClick = {
+                    onCategoryClick(BookCategories.SAVED)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
 
 
-             if (viewModel.isAdminState.value)
-                 DrawerMenuItem(
-                     iconDrawableId = Icons.Default.Security,
-                     text = categoryAdmin[0],
-                     onItemClick = {
-                         onAdminClick()
-                         coroutineScope.launch { drawerState.close() }
-                     }
-                 )
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(GrayLite)
+            )
+            Spacer(modifier = Modifier.height(15.dp))
 
-            // if (userRole.hasAccessTo(UserRole.BUSINESS)) {
-             /*    DrawerMenuItem(
-                     iconDrawableId = Icons.Default.Add,
-                     text = "Добавить объявление",
-                     onItemClick = {
-                         onAddBookClick()
-                     }
-                 )*/
 
-          //   }
-             // ✅ Кнопка "Модерация" - только ADMIN
-            // if (userRole.hasAccessTo(UserRole.ADMIN)) {
-              /*   DrawerMenuItem(
+            if (viewModel.isAdminState.value)
+                DrawerMenuItem(
+                    iconDrawableId = Icons.Default.Security,
+                    text = categoryAdmin[0],
+                    onItemClick = {
+                        onAdminClick()
+                        coroutineScope.launch { drawerState.close() }
+                    }
+                )
+
+            if (userRole.hasAccessTo(UserRole.ANONYMOUS)) {
+                DrawerMenuItem(
+                    iconDrawableId = Icons.Default.Add,
+                    text = "Добавить объявление",
+                    onItemClick = {
+                        onAddBookClick()
+                    }
+                )
+
+                //   }
+                // ✅ Кнопка "Модерация" - только ADMIN
+                // if (userRole.hasAccessTo(UserRole.ADMIN)) {
+                /*   DrawerMenuItem(
                      iconDrawableId = Icons.Default.Security,
                      text = "Модерация",
                      onItemClick = {
                          onAdminClick()
                      }
                  )*/
-          //  }
+                //  }
 
-             // ✅ ИСПРАВЛЕНО: Кнопка входа/выхода с чистой архитектурой
-             DrawerMenuItem(
-                 iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
-                 text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2],
-                 onItemClick = {
-                     // ✅ Вся логика вынесена в ViewModel
-                     viewModel.onAuthButtonClick()
-                     coroutineScope.launch { drawerState.close() }
-                 }
-             )
-          /*   // ✅ ИСПРАВЛЕНО: Правильное переключение между входом и выходом
+                // ✅ ИСПРАВЛЕНО: Кнопка входа/выхода с чистой архитектурой
+                DrawerMenuItem(
+                    iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
+                    text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2],
+                    onItemClick = {
+                        // ✅ Вся логика вынесена в ViewModel
+                        viewModel.onAuthButtonClick()
+                        coroutineScope.launch { drawerState.close() }
+                    }
+                )
+                /*   // ✅ ИСПРАВЛЕНО: Правильное переключение между входом и выходом
              DrawerMenuItem(
                  iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
                  text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2],
@@ -241,7 +247,7 @@ fun DrawerBody(
                  }
              )*/
 
-           /*  DrawerMenuItem(
+                /*  DrawerMenuItem(
                  // ИСПРАВЛЕНИЕ: Используем isAuthorized вместо isAdminState
                  iconDrawableId = if (viewModel.isAuthorized.value) Icons.Default.Logout else Icons.Default.Login,
                  text = if (viewModel.isAuthorized.value) categoryAdmin[3] else categoryAdmin[2], // Проверьте индексы в strings.xml
@@ -257,7 +263,7 @@ fun DrawerBody(
              )*/
 
 // ... остальной код ...
-            /* DrawerMenuItem(
+                /* DrawerMenuItem(
                  iconDrawableId = if (viewModel.isAdminState.value) Icons.Default.Login else Icons.Default.Logout,
                  text = if (viewModel.isAdminState.value) categoryAdmin[2] else categoryAdmin[3],
                  onItemClick = {
@@ -265,7 +271,7 @@ fun DrawerBody(
                      coroutineScope.launch { drawerState.close() }
                  }
              )*/
-         /*    DrawerMenuItem(
+                /*    DrawerMenuItem(
                  iconDrawableId = Icons.Default.Settings,
                  text = categoryAdmin[5],
                  onItemClick = {
@@ -274,11 +280,11 @@ fun DrawerBody(
                  }
              )*/
 
-         }
+            }
+        }
     }
+
 }
-
-
 
 
 @Preview(showBackground = true)

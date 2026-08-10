@@ -54,7 +54,7 @@ import javax.inject.Inject
 sealed class AuthEvent {
     data object ShowLoginDialog : AuthEvent()
     data object ShowLogoutDialog : AuthEvent()
-    data class NavigateToRegistration(val message: String) : AuthEvent()
+    data class  NavigateToRegistration(val message: String) : AuthEvent()
 }
 
 @HiltViewModel
@@ -66,6 +66,9 @@ class HomeViewModel @Inject constructor(
     private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
 
 ) : ViewModel() {
+
+    val showPaymentSheet = mutableStateOf(false)
+    val paymentInProgress = mutableStateOf(false)
 
     val isEdit = mutableStateOf(false)
     val minPriceValue = mutableFloatStateOf(0f)
@@ -151,6 +154,47 @@ class HomeViewModel @Inject constructor(
     val cachedUser: StateFlow<User?> = preferenceDataSource.headerUser
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 */
+
+    // ✅ НОВОЕ: решает, что показать — регистрацию или оплату
+    fun requestUpgrade(
+        currentRole: UserRole,
+        onNavigateToRegistration: () -> Unit
+    ) {
+        val nextRole = getNextRole(currentRole) ?: run {
+            Log.d("MyLog", "Уже максимальный тариф")
+            return
+        }
+        when (nextRole) {
+            // 💳 Платные тарифы
+            UserRole.BUSINESS, UserRole.PREMIUM -> {
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser == null || currentUser.isAnonymous) {
+                    // Аноним: сначала регистрация, оплата после неё
+                    desiredRole.value = nextRole
+                    onNavigateToRegistration()
+                } else {
+                    desiredRole.value = nextRole   // ✅ запоминаем, за что платим
+                    showPaymentSheet.value = true // Уже зарегистрирован — сразу оплата
+                }
+            }
+            // Бесплатное повышение
+            else -> upgradeToNextPlanViaRegistration(nextRole, onNavigateToRegistration)
+        }
+    }
+
+    // ✅ НОВОЕ: прямой переход на ПРЕМИУМ, минуя BUSINESS
+    fun requestPremiumUpgrade(onNavigateToRegistration: () -> Unit) {
+        val currentUser = Firebase.auth.currentUser
+        if (currentUser == null || currentUser.isAnonymous) {
+            // Аноним: сначала регистрация, оплата после неё
+            desiredRole.value = UserRole.PREMIUM
+            onNavigateToRegistration()
+        } else {
+            // Зарегистрирован — сразу оплата
+            desiredRole.value = UserRole.PREMIUM   // ✅ цель оплаты
+            showPaymentSheet.value = true
+        }
+    }
     private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -239,14 +283,71 @@ class HomeViewModel @Inject constructor(
                 Log.e("MyLog", "Ошибка создания профиля: ${e.message}")
             }
     }
+    // ✅ Оплата и повышение до платного тарифа (BUSINESS или PREMIUM — из desiredRole)
+    fun upgradeToBusiness(
+        uid: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        // Применяем выбранный тариф (по умолчанию BUSINESS)
+        val targetRole = desiredRole.value?.takeIf {
+            it == UserRole.BUSINESS || it == UserRole.PREMIUM
+        } ?: UserRole.BUSINESS
 
-    // Повышение до BUSINESS
-    fun upgradeToBusiness(uid: String) {
+        Firebase.firestore.collection("users")
+            .document(uid)
+            .update("role", targetRole.name)
+            .addOnSuccessListener {
+                userRole.value = targetRole
+                _userRole.value = targetRole
+                viewModelScope.launch { preferenceDataSource.saveRole(targetRole) }
+                desiredRole.value = null
+                Log.d("MyLog", "Оплата успешна: роль повышена до ${targetRole.name}")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyLog", "Ошибка повышения до ${targetRole.name}: ${e.message}")
+                onError(e.message ?: "Неизвестная ошибка")
+            }
+    }
+  /*  // Повышение до BUSINESS
+    fun upgradeToBusiness(
+        uid: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
         Firebase.firestore.collection("users")
             .document(uid)
             .update("role", UserRole.BUSINESS.name)
+            .addOnSuccessListener {
+                userRole.value = UserRole.BUSINESS
+                _userRole.value = UserRole.BUSINESS
+                viewModelScope.launch { preferenceDataSource.saveRole(UserRole.BUSINESS) }
+                desiredRole.value = null
+                Log.d("MyLog", "Оплата успешна: роль повышена до BUSINESS")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyLog", "Ошибка повышения до BUSINESS: ${e.message}")
+                onError(e.message ?: "Неизвестная ошибка")
+            }
+    }*/
+
+    // ✅ Сохранить/получить/очистить данные карты
+    fun saveCardData(cardNumber: String, expiry: String) {
+        preferenceDataSource.saveCardData(cardNumber, expiry)
+        Log.d("MyLog", "Данные карты сохранены")
     }
 
+    /** Возвращает номер и срок сохранённой карты */
+    fun getSavedCardData(): Pair<String, String> {
+        return preferenceDataSource.getSavedCardNumber() to
+                preferenceDataSource.getSavedCardExpiry()
+    }
+
+    fun clearCardData() {
+        preferenceDataSource.clearCardData()
+    }
     // ✅ Проверка прав
     fun hasPermission(permission: Permission): Boolean {
         return permission.isGrantedBy(_userRole.value)
@@ -267,18 +368,11 @@ class HomeViewModel @Inject constructor(
         favoritesKeysFlow.collect { keysList ->
 
         }
-        /*    booksRepo.getSettings(
-                onSettingsLoaded = { pData, aData, sData ->
-                    globalSettings.personalData = pData
-                    globalSettings.addressData = aData
-                    globalSettings.userSettingsData = sData
-                }
-            )*/
     }
 
-    init {
+    /*init {
         refreshFavoritesKeys()
-    }
+    }*/
 
     private fun refreshFavoritesKeys() = viewModelScope.launch {
         val result = favoritesRepo.getIdsFavesList()
@@ -403,7 +497,95 @@ class HomeViewModel @Inject constructor(
         data object Success : MainUiState()
         data class Error(val message: String) : MainUiState()
     }
+    // ✅ Желательный тариф для установки после регистрации
+    val desiredRole = mutableStateOf<UserRole?>(null)
 
+    // ✅ Переход к регистрации для повышения тарифа
+    fun upgradeToNextPlanViaRegistration(
+        nextRole: UserRole,
+        onNavigateToRegistration: () -> Unit
+    ) {
+        desiredRole.value = nextRole
+        Log.d("MyLog", "Запрошено повышение до: ${nextRole.name}")
+        onNavigateToRegistration()
+    }
+    // ✅ Применить желаемый тариф после успешной регистрации
+    fun applyDesiredRoleAfterRegistration() {
+        val role = desiredRole.value ?: return
+        val uid = Firebase.auth.currentUser?.uid ?: return
+
+        // 💳 Платный тариф: после регистрации показываем оплату
+        if (role == UserRole.BUSINESS || role == UserRole.PREMIUM) {
+            Log.d("MyLog", "Тариф $role требует оплаты — открываем платёжный экран")
+            showPaymentSheet.value = true
+            return // desiredRole НЕ сбрасываем — применим после успешной оплаты
+        }
+
+        // Бесплатный тариф — применяем сразу
+        Firebase.firestore.collection("users")
+            .document(uid)
+            .update("role", role.name)
+            .addOnSuccessListener {
+                userRole.value = role
+                _userRole.value = role
+                viewModelScope.launch { preferenceDataSource.saveRole(role) }
+                desiredRole.value = null
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyLog", "Ошибка обновления тарифа: ${e.message}")
+            }
+    }
+    // ✅ Получение следующего тарифа (цепочка: ANONYMOUS → USER → BUSINESS → PREMIUM)
+    fun getNextRole(currentRole: UserRole): UserRole? {
+        return when (currentRole) {
+            UserRole.ANONYMOUS -> UserRole.USER
+            UserRole.USER      -> UserRole.BUSINESS
+            UserRole.BUSINESS  -> UserRole.PREMIUM   // ✅ НОВОЕ
+            UserRole.PREMIUM   -> null               // ✅ максимум
+            UserRole.ADMIN     -> null
+        }
+    }
+    // ✅ Отображаемое имя тарифа
+    fun getRoleDisplayName(role: UserRole): String {
+        return when (role) {
+            UserRole.ANONYMOUS -> "Анонимный"
+            UserRole.USER      -> "Пользователь"
+            UserRole.BUSINESS  -> "Бизнес"
+            UserRole.PREMIUM   -> "Премиум"          // ✅ НОВОЕ
+            UserRole.ADMIN     -> "Администратор"
+        }
+    }
+    // ✅ Переход на следующий тариф
+    fun upgradeToNextPlan(onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        val uid = Firebase.auth.currentUser?.uid ?: run {
+            onError("Пользователь не авторизован")
+            return
+        }
+        val currentRole = userRole.value
+        val nextRole = getNextRole(currentRole) ?: run {
+            onError("У вас уже максимальный тариф")
+            return
+        }
+        Firebase.firestore.collection("users")
+            .document(uid)
+            .update("role", nextRole.name)
+            .addOnSuccessListener {
+                userRole.value = nextRole
+                _userRole.value = nextRole
+                Log.d("MyLog", "Тариф обновлён: ${currentRole.name} → ${nextRole.name}")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyLog", "Ошибка обновления тарифа: ${e.message}")
+                onError(e.message ?: "Неизвестная ошибка")
+            }
+    }
+
+    // ✅ Выход с закрытием приложения
+    fun exitApp() {
+        logout()
+        android.os.Process.killProcess(android.os.Process.myPid())
+    }
     // ✅ Обработка клика по кнопке входа/выхода
     fun onAuthButtonClick() = viewModelScope.launch {
         if (isAuthorized.value) {
@@ -498,16 +680,7 @@ class HomeViewModel @Inject constructor(
             }
     }
 }
-/*  fun isAdmin(onAdmin: (Boolean) -> Unit) {
-      val uid = Firebase.auth.currentUser!!.uid
-      Firebase.firestore.collection("admin")
-          .document(uid)
-          .get()
-          .addOnSuccessListener {
-              onAdmin(it.get("isAdmin") as Boolean)
-          }
-  }*/
-/*
+
 
     fun isUserRegistered(onRegister: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
@@ -519,12 +692,3 @@ class HomeViewModel @Inject constructor(
             }
 
     }
-*/
-
-
-/*    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
-        val uid = Firebase.auth.currentUser!!.uid
-        Firebase.firestore.collection("guide_users")
-            .document(uid)
-     isRegisterState = true
-    }*/

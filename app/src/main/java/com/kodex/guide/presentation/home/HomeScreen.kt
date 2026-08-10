@@ -4,11 +4,13 @@ import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -61,6 +63,8 @@ import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.domain.model.Permission
 import com.kodex.guide.domain.model.UserRole
+import com.kodex.guide.ui.theme.ButtonColor
+import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -68,9 +72,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-   // onTrackClick: (Book) -> Unit = {},
-
-
     viewModel: HomeViewModel = hiltViewModel(),
     navData: NavRoutes.HomeDataObject,
     onBookEditClick: (Book) -> Unit,
@@ -91,6 +92,7 @@ fun HomeScreen(
     val showAuthDialog by viewModel.showAuthDialog
     val isLogoutDialog by viewModel.isLogoutDialog
     val headerUser by viewModel.headerUser
+    val showPaymentSheet = viewModel.showPaymentSheet
 
     // Вычисляем права (Compose автоматически перерисует UI при смене роли)
     val canCreatePost = Permission.CREATE_POST.isGrantedBy(userRole)
@@ -260,10 +262,8 @@ fun HomeScreen(
                     onEnter = {
                         onEnter()
                         coroutineScope.launch { drawerState.close() }
-
-                    }
-
-                    )
+                    },
+                )
             }
         }
     ) {
@@ -316,12 +316,12 @@ fun HomeScreen(
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(category = BookCategories.ALL)
                          },
-                     /*   onSettingsClick = {
+                        onSettingsClick = {
                             onSettingsClick()
                             viewModel.selectedBottomItemState.intValue =
                                 BottomMenuItem.Settings.titleId
 
-                        }*/
+                        }
                     )
             }
         ) { paddingValues ->
@@ -330,22 +330,6 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-/*
-                if (books.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                   ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(70.dp),
-                            color = ButtonColorBlue
-                        )
-//                        Text(
-//                            text = stringResource(id = R.string.empty_list),
-//                            color = Color.LightGray
-//                        )
-                    }
-                }*/
                 MyDialog(
                     showDialog = showDeleteDialog.value,
                     onDismiss = {
@@ -483,7 +467,340 @@ fun HomeScreen(
                         showFilterDialog = false
                     }
                 )
-            // ✅ Диалог выбора действия
+            // ✅ Диалог «Ваш тариф»
+            if (showAuthDialog) {
+                val currentRole = userRole
+                val nextRole = viewModel.getNextRole(currentRole)
+                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
+
+                AlertDialog(
+                    onDismissRequest = { viewModel.dismissAuthDialog() },
+                    title = {
+                        Text(
+                            text = "Ваш тариф",
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
+                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (nextRoleName != null) {
+                                Text(
+                                    text = "Доступно повышение до: $nextRoleName",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
+                                        "Для перехода требуется оплата"
+                                    else
+                                        "Для перехода требуется регистрация",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            } else {
+                                Text(
+                                    text = "У вас максимальный тариф",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    },
+                    // ✅ Все кнопки теперь в одном Column — ничего не наезжает друг на друга
+                    confirmButton = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)          // ✅ отступ снизу диалога
+                        ) {
+                            // ===== 1. Зелёная кнопка — следующий тариф по цепочке =====
+                            if (nextRole != null && nextRoleName != null) {
+                                Button(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.requestUpgrade(currentRole) {
+                                            onRegistrationNeeded()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                        containerColor = GreenSea
+                                    )
+                                ) {
+                                    Text("Перейти на «$nextRoleName»")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            // ===== 2. Малиновая кнопка — сразу на Премиум =====
+                            if (nextRole != null && nextRole != UserRole.PREMIUM) {
+                                Button(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.requestPremiumUpgrade {
+                                            onRegistrationNeeded()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF9C27B0)   // малиновый
+                                    )
+                                ) {
+                                    Text("Перейти на «Премиум»")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            // ✅ Отступ перед нижним рядом
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            // ===== 3. Нижний ряд: «Гость» СЛЕВА, затем «Отмена» =====
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // ✅ «Гость» — слева (только для авторизованных тарифов)
+                                if (currentRole == UserRole.USER ||
+                                    currentRole == UserRole.BUSINESS ||
+                                    currentRole == UserRole.PREMIUM
+                                ) {
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.dismissAuthDialog()
+                                            viewModel.logout()   // выход → ANONYMOUS
+                                        }
+                                    ) {
+                                        Text("Гость")
+                                    }
+                                    Spacer(modifier = Modifier.width(105.dp))   // ✅ небольшой отступ
+                                }
+
+                                TextButton(onClick = { viewModel.dismissAuthDialog() }) {
+                                    Text("Отмена")
+                                }
+                            }
+                        }
+                    },
+                    // ✅ dismissButton больше не нужен — всё внутри confirmButton
+                    dismissButton = {}
+                )
+            }
+       /*     // ✅ Диалог «Ваш тариф»
+            if (showAuthDialog) {
+                val currentRole = userRole
+                val nextRole = viewModel.getNextRole(currentRole)
+                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
+
+                AlertDialog(
+                    onDismissRequest = { viewModel.dismissAuthDialog() },
+                    title = {
+                        Text(
+                            text = "Ваш тариф",
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
+                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (nextRoleName != null) {
+                                Text(
+                                    text = "Доступно повышение до: $nextRoleName",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
+                                        "Для перехода требуется оплата"
+                                    else
+                                        "Для перехода требуется регистрация",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            } else {
+                                Text(
+                                    text = "У вас максимальный тариф",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            // ===== 1. Зелёная кнопка — следующий тариф по цепочке =====
+                            if (nextRole != null && nextRoleName != null) {
+                                Button(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.requestUpgrade(currentRole) {
+                                            onRegistrationNeeded()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                        containerColor = GreenSea
+                                    )
+                                ) {
+                                    if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
+                                        Text("Перейти на «$nextRoleName»")
+                                    else
+                                        Text("Перейти на «$nextRoleName»")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            // ===== 2. ✅ Малиновая кнопка — сразу на Премиум (с оплатой) =====
+                            // Показываем, только если Премиум ещё не является следующим шагом
+                            if (nextRole != null && nextRole != UserRole.PREMIUM) {
+                                Button(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.requestPremiumUpgrade {
+                                            onRegistrationNeeded()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF9C27B0)   // ✅ малиновый (crimson)
+                                    )
+                                ) {
+                                    Text("Перейти на «Премиум»")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+                    },
+                    dismissButton = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.width(16.dp))  // отступ перед "Отмена"
+                            TextButton(onClick = { viewModel.dismissAuthDialog() }) {
+                                Text("Отмена")
+                            }
+                            // ===== 3. ✅ Кнопка «Гость» — выход в анонимный тариф =====
+                            if (currentRole == UserRole.USER ||
+                                currentRole == UserRole.BUSINESS ||
+                                currentRole == UserRole.PREMIUM
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.logout()   // ✅ выход → роль ANONYMOUS
+                                    }
+                                ) {
+                                    Text("Гость")
+                                }
+                            }
+                        }
+                    }
+                )
+            }*/
+/*// ✅ Диалог «Ваш тариф»
+            if (showAuthDialog) {
+                val currentRole = userRole
+                val nextRole = viewModel.getNextRole(currentRole)
+                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
+
+                AlertDialog(
+                    onDismissRequest = { viewModel.dismissAuthDialog() },
+                    title = {
+                        Text(
+                            text = "Ваш тариф",
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
+                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (nextRoleName != null) {
+                                Text(
+                                    text = "Доступно повышение до: $nextRoleName",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Для перехода требуется оплата",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            } else {
+                                Text(
+                                    text = "У вас максимальный тариф",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            // Кнопка перехода на следующий тариф
+                            if (nextRole != null && nextRoleName != null) {
+                                Button(
+                                    onClick = {
+                                        viewModel.dismissAuthDialog()
+                                        viewModel.requestUpgrade(currentRole) {
+                                            onRegistrationNeeded()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = GreenSea
+                                    )
+                                ) {
+                                    if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
+                                       Text( "Перейти на «$nextRoleName»")
+                                    else
+                                       Text( "Перейти на «$nextRoleName»")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+                    },
+                    dismissButton = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.width(16.dp))  // ← отступ перед "Отмена"
+                            TextButton(onClick = { viewModel.dismissAuthDialog() }) {
+                                Text("Отмена")
+                            }
+                        }
+                    }
+                )
+            }*/
+
+            // Обёртка для отображения bottom sheet
+            if (showPaymentSheet.value) {
+                PaymentBottomSheet(
+                    viewModel = viewModel,
+                    onDismiss = { showPaymentSheet.value = false },
+                    onPaymentSuccess = {
+                        // Можно показать Toast или обновить UI
+                        Toast.makeText(context, "Роль обновлена!", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+       /*     // ✅ Диалог выбора действия
             if (showAuthDialog) {
                 if (isLogoutDialog) {
                     // Диалог для авторизованного пользователя
@@ -536,20 +853,22 @@ fun HomeScreen(
                                 ) {
                                     Text("Зарегистрироваться")
                                 }
-                                Spacer(modifier = Modifier.height(5.dp))
-                            }
+                                Spacer(modifier = Modifier.height(8.dp))
+                             }
                         },
 
                         dismissButton = {
                             TextButton(
                                 onClick = { viewModel.dismissAuthDialog() }
                             ) {
+
                                 Text("Отмена")
                             }
                         }
                     )
                 }
             }
+            */
             }
         }
     }

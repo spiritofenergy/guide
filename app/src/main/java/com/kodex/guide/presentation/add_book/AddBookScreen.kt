@@ -95,9 +95,10 @@ fun AddBookScreen(
              viewModel.convertImageToBase64(uri)
          }
      }
-     // ✅ ПРОВЕРКА ПРАВ ПРИ ВХОДЕ
+/*     // ✅ ПРОВЕРКА ПРАВ ПРИ ВХОДЕ
      LaunchedEffect(userRole) {
-         if (!userRole.hasAccessTo(UserRole.BUSINESS)) {
+      //   if (!userRole.hasAccessTo(UserRole.BUSINESS)) {
+         if (!userRole.hasAccessTo(UserRole.ANONYMOUS)) {
              Toast.makeText(
                  context,
                  "Для публикации объявлений нужен статус BUSINESS",
@@ -105,7 +106,7 @@ fun AddBookScreen(
              ).show()
              onAccessDenied()  // Возврат на предыдущий экран
          }
-     }
+     }*/
      LaunchedEffect(Unit) {
          viewModel.setDefaultData(navData)
      }
