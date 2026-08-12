@@ -79,7 +79,6 @@ fun PaymentBottomSheet(
 
         },
         sheetState = rememberModalBottomSheetState(),
-              //  containerColor = PurpleGrey80,   // ✅ серый фон, как в приложении
         contentColor = Color(0xFF212121)
     ) {
         Column(

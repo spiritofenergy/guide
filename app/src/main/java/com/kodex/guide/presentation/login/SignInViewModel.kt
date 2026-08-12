@@ -21,29 +21,30 @@ class SignInViewModel@Inject constructor(
     val currentUser = mutableStateOf<User?>(null)
     val errorState = mutableStateOf("")
     val successState = mutableStateOf(false)
-    val emailState = mutableStateOf(
-        "" +
-                //' "nillsimon24@gmail.com " +
-                ""
-    )
+    val emailState = mutableStateOf("")
     val nameState = mutableStateOf("")
-    val passwordState = mutableStateOf("test2401")
+    val passwordState = mutableStateOf("")
     val resetPasswordState = mutableStateOf(false)
     val showResetPasswordDialog = mutableStateOf(false)
+
 
     fun signIn(
         onSignInSuccess: (NavRoutes.HomeDataObject)-> Unit,
     ) = viewModelScope.launch(Dispatchers.IO){
         errorState.value = ""
-        val result = authRepo.signIn(emailState.value, passwordState.value)
+        val result = authRepo.signIn(emailState.value.trim(), passwordState.value.trim())
         result.fold(
             onSuccess = { user ->
-                withContext(Dispatchers.Main){
+                // ✅ Сохраняем email только если он не null
+                // (user.email — String?, поэтому используем ?.let)
+                user.email?.let { email ->
+                    preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, email)
+                }
+                withContext(Dispatchers.Main) {
                     onSignInSuccess(NavRoutes.HomeDataObject(user.uid, user.email))
                 }
-
             },
-            onFailure = { exception->
+            onFailure = { exception ->
                 errorState.value = exception.message ?: "Unknown error"
             }
         )

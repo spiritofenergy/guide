@@ -117,9 +117,6 @@ fun SignUpScreen(
                     textAlign = TextAlign.Center
                 )
             }
-
-
-
             LoginButton(
                 text = stringResource(R.string.enter)
             ) {

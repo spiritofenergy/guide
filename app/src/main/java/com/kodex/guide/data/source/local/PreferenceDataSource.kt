@@ -16,9 +16,9 @@ class PreferenceDataSource @Inject constructor(@ApplicationContext
     context: Context
 ) {
 
-    // ✅ ключи карты
+    //  ключи карты
 
-    // ===== ✅ Сохранение данных карты (кроме CVV!) =====
+    // ===== Сохранение данных карты (кроме CVV!) =====
     fun saveCardData(cardNumber: String, expiry: String) {
         pref.edit {
             putString(CARD_NUMBER_KEY, cardNumber)
@@ -105,7 +105,6 @@ class PreferenceDataSource @Inject constructor(@ApplicationContext
         const val NAME_KEY = "name_key"
         const val PHONE_KEY = "telephone_key"
         const val PASSWORD_KEY = "password_key"
-        // ✅ новые ключи
         const val UID_KEY = "uid_key"
         const val ROLE_KEY = "role_key"
         const val IS_ANONYMOUS_KEY = "is_anonymous_key"

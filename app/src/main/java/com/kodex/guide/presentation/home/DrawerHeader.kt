@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,9 +31,12 @@ import com.kodex.guide.ui.theme.DrawerColorBlue
 
 @Composable
 fun DrawerHeader(
-    email: String,
-    role: UserRole = UserRole.ANONYMOUS,
-    userName: String? = null ) {
+    user: User?,                      // ✅ передаём весь класс User
+    modifier: Modifier = Modifier) {
+    // ✅ Все данные достаём из user уже здесь
+    val userName = user?.userName?.takeIf { it.isNotBlank() }
+    val email = user?.email.orEmpty()
+    val role = user?.role ?: UserRole.ANONYMOUS
 
     Column(
         Modifier
@@ -66,38 +70,40 @@ fun DrawerHeader(
             )
         }
 
-        // ✅ Email или Anonymous
+        // Email (показываем, только если есть)
+        if (email.isNotEmpty()) {
+            Text(
+                text = email,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+        }
+
+        // Тариф
         Text(
-            text = email.ifEmpty { "Anonymous" },
-            color = Color.Black,
-            fontSize = 16.sp
+            text = "Тариф: ${getRoleDisplayName(role)}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White
         )
+    }
 
-        // ✅ Роль
-        Text(
-            text = roleLabel(role),
-            color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
-       /* Text(text =
-            email.orEmpty().ifEmpty { "Anonymous" },
-            color = Color.Black,
-            fontSize = 16.sp)*/
-
-
+}
+// ✅ Отображаемое имя тарифа
+private fun getRoleDisplayName(role: UserRole): String {
+    return when (role) {
+        UserRole.ANONYMOUS -> "Анонимный"
+        UserRole.USER -> "Пользователь"
+        UserRole.BUSINESS -> "Бизнес"
+        UserRole.PREMIUM -> "Премиум"
+        UserRole.ADMIN -> "Администратор"
     }
 }
-/** Человекочитаемая подпись роли */
+/*
+*//** Человекочитаемая подпись роли *//*
 private fun roleLabel(role: UserRole): String = when (role) {
     UserRole.ANONYMOUS -> "Гость"
     UserRole.USER -> "Пользователь"
     UserRole.BUSINESS -> "Бизнес"
     UserRole.PREMIUM -> "Премиум"
     UserRole.ADMIN -> "Администратор"
-}
-@Composable
-@Preview(showBackground = true)
-fun ShowDrawerHeder(){
-    DrawerHeader("email")
-}
+}*/

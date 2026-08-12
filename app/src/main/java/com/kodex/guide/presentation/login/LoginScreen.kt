@@ -98,7 +98,7 @@ fun LoginScreen(
             if (viewModel.errorState.value.isNotEmpty()) {
                 Text(
                     text = viewModel.errorState.value,
-                    color = Color.Red,
+                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
             }

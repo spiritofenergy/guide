@@ -13,8 +13,6 @@ import androidx.paging.map
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toUser
@@ -32,16 +30,22 @@ import com.kodex.guide.domain.model.FilterType
 import com.kodex.guide.domain.model.Permission
 import com.kodex.guide.domain.model.User
 import com.kodex.guide.domain.model.UserRole
+import com.kodex.guide.domain.repository.UserRoleRepo
+import com.kodex.guide.domain.role.RolePermissionChecker
+import com.kodex.guide.domain.tarif.ApplyRoleResult
+import com.kodex.guide.domain.tarif.AuthStateProvider
+import com.kodex.guide.domain.tarif.TariffPolicy
+import com.kodex.guide.domain.tarif.UpgradeDecision
+import com.kodex.guide.domain.tarif.UpgradeManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,7 +58,8 @@ import javax.inject.Inject
 sealed class AuthEvent {
     data object ShowLoginDialog : AuthEvent()
     data object ShowLogoutDialog : AuthEvent()
-    data class  NavigateToRegistration(val message: String) : AuthEvent()
+    data class NavigateToRegistration(val message: String) : AuthEvent()
+    data class NavigateToSignIn(val message: String) : AuthEvent()
 }
 
 @HiltViewModel
@@ -63,49 +68,42 @@ class HomeViewModel @Inject constructor(
     private val favoritesRepo: FavoritesRepo,
     private val authDataSource: FirebaseAuthDataSource,
     private val mainDb: MainDb,
-    private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
-
+    private val preferenceDataSource: PreferenceDataSource,
+    private val userRoleRepository: UserRoleRepo,
+    private val rolePermissionChecker: RolePermissionChecker,
+    private val tariffPolicy: TariffPolicy,          // ← добавить
+    private val upgradeManager: UpgradeManager,      // ← добавить
+    private val authStateProvider: AuthStateProvider // ← добавить
 ) : ViewModel() {
 
     val showPaymentSheet = mutableStateOf(false)
     val paymentInProgress = mutableStateOf(false)
-
-    val isEdit = mutableStateOf(false)
     val minPriceValue = mutableFloatStateOf(0f)
     val maxPriceValue = mutableFloatStateOf(0f)
     val isFilterByTitle = mutableStateOf(true)
     var showTabOneOrTo = mutableStateOf(false)
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
     val isAdminState = mutableStateOf(false)
-
     // ✅ профиль для DrawerHeader
     val headerUser = mutableStateOf<User?>(null)
-
-
     val isAuthorized = mutableStateOf(authDataSource.getCurrentUser() != null)
     val userRole = mutableStateOf(UserRole.ANONYMOUS)
-
     // Состояние для диалога
     val showAuthDialog = mutableStateOf(false)
     val isLogoutDialog = mutableStateOf(false)
-
-    // val isAuthorized = mutableStateOf(Firebase.auth.currentUser != null)
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
     var bookToDelete: Book? = null
-
     private val bookListUpdate = MutableStateFlow<List<ChangedTempBook>>(emptyList())
-
-
     private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
     private val searchStateFlow = MutableStateFlow("")
     private val debounceSearchFlow = searchStateFlow
         .debounce(500)
         .distinctUntilChanged()
     private val favoritesKeysFlow = MutableStateFlow<List<String>>(emptyList())
-
-
     val postList = mainDb.trackDao.getAllPosts()
+    // ✅ Желательный тариф для установки после регистрации
+    val desiredRole = mutableStateOf<UserRole?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<Book>> = combine(
@@ -146,39 +144,49 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableSharedFlow<MainUiState>()
     val uiState = _uiState.asSharedFlow()
 
-    // ✅ НОВОЕ: Роль текущего пользователя
-    private val _userRole = MutableStateFlow(UserRole.ANONYMOUS)
-    // val userRole: StateFlow<UserRole> = _userRole.asStateFlow()
 
-  /*  // ✅ Профиль для шапки: мгновенно из кеша, обновляется реактивно
-    val cachedUser: StateFlow<User?> = preferenceDataSource.headerUser
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
-*/
+    // ✅ Есть ли сохранённый email (пользователь уже входил/регистрировался)
+    fun getSavedEmail(): String? {
+        val email = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
+        return email.ifEmpty { null }
+    }
 
-    // ✅ НОВОЕ: решает, что показать — регистрацию или оплату
-    fun requestUpgrade(
-        currentRole: UserRole,
-        onNavigateToRegistration: () -> Unit
-    ) {
-        val nextRole = getNextRole(currentRole) ?: run {
-            Log.d("MyLog", "Уже максимальный тариф")
-            return
+    fun hasSavedEmail(): Boolean = getSavedEmail() != null
+
+    // ✅ Умная навигация: email есть → SignIn, нет → SignUp
+    fun navigateToAuth() = viewModelScope.launch {
+        if (hasSavedEmail()) {
+            Log.d("MyLog", "Email найден → открываем SignIn")
+            _authEvents.emit(AuthEvent.NavigateToSignIn("Войдите в аккаунт"))
+        } else {
+            Log.d("MyLog", "Email не найден → открываем SignUp")
+            _authEvents.emit(AuthEvent.NavigateToRegistration("Для доступа требуется регистрация"))
         }
-        when (nextRole) {
-            // 💳 Платные тарифы
-            UserRole.BUSINESS, UserRole.PREMIUM -> {
-                val currentUser = Firebase.auth.currentUser
-                if (currentUser == null || currentUser.isAnonymous) {
-                    // Аноним: сначала регистрация, оплата после неё
-                    desiredRole.value = nextRole
-                    onNavigateToRegistration()
-                } else {
-                    desiredRole.value = nextRole   // ✅ запоминаем, за что платим
-                    showPaymentSheet.value = true // Уже зарегистрирован — сразу оплата
-                }
+
+        fun getSavedEmail(): String? {
+            val email = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
+            return email.ifEmpty { null }
+        }
+    }
+    // ✅ Решает, что показать — регистрацию или оплату
+    fun requestUpgrade(currentRole: UserRole, function: () -> Unit) {
+        when (val decision = upgradeManager.decideUpgrade(currentRole)) {
+            is UpgradeDecision.MaxRole -> {
+                Log.d("MyLog", "Уже максимальный тариф")
             }
-            // Бесплатное повышение
-            else -> upgradeToNextPlanViaRegistration(nextRole, onNavigateToRegistration)
+            is UpgradeDecision.AuthRequired -> navigateToAuth()
+            is UpgradeDecision.PaymentRequired -> showPaymentSheet.value = true
+        }
+    }
+
+    // ✅ Прямой переход на ПРЕМИУМ, минуя BUSINESS
+    fun requestPremiumUpgrade() {
+        when (val decision = upgradeManager.decidePremium()) {
+            is UpgradeDecision.MaxRole -> {
+                Log.d("MyLog", "Уже максимальный тариф")
+            }
+            is UpgradeDecision.AuthRequired -> navigateToAuth()
+            is UpgradeDecision.PaymentRequired -> showPaymentSheet.value = true
         }
     }
 
@@ -188,29 +196,56 @@ class HomeViewModel @Inject constructor(
         if (currentUser == null || currentUser.isAnonymous) {
             // Аноним: сначала регистрация, оплата после неё
             desiredRole.value = UserRole.PREMIUM
-            onNavigateToRegistration()
+            navigateToAuth()
         } else {
             // Зарегистрирован — сразу оплата
             desiredRole.value = UserRole.PREMIUM   // ✅ цель оплаты
             showPaymentSheet.value = true
         }
     }
+
     private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
         val currentUser = auth.currentUser
-        if (currentUser != null) {
-            Firebase.firestore.collection("users")
-                .document(currentUser.uid)
-                .get()
-                .addOnSuccessListener { doc ->
-                    if (!doc.exists()) {
-                        // ✅ Используем маппер вместо хардкода
-                        val user = currentUser.toUser(role = UserRole.USER)
-                        createUserProfile(user)
-                    }
-                    loadUserRole(currentUser.uid)
-                }
-            // ...
+        if (currentUser == null) {
+            roleJob?.cancel()
+            return@AuthStateListener
         }
+        // ✅ Сохраняем email: в следующий раз предложим SignIn вместо SignUp
+        currentUser.email?.takeIf { it.isNotEmpty() }?.let { email ->
+            preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, email)
+            Log.d("MyLog", "Email сохранён: $email")
+        }
+
+        Firebase.firestore.collection("users")
+            .document(currentUser.uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) {
+                    // ✅ Используем маппер вместо хардкода
+                    val user = currentUser.toUser(role = UserRole.USER)
+                    createUserProfile(user)
+                }
+                // ✅ НОВОЕ: имя берём из Firestore → displayName → email
+                val nameFromFirestore = doc?.getString("userName").orEmpty()
+                val nameFromAuth = currentUser.displayName.orEmpty()
+                val nameFromEmail = currentUser.email?.substringBefore("@").orEmpty()
+                val userName = nameFromFirestore
+                    .ifEmpty { nameFromAuth }
+                    .ifEmpty { nameFromEmail }
+
+                // ✅ Кеш профиля для шапки с НЕпустым именем
+                preferenceDataSource.saveUser(
+                    currentUser.toUser(role = UserRole.USER).copy(userName = userName)
+                )
+                refreshHeader()   // ✅ шапка сразу покажет имя
+
+                loadUserRole(currentUser.uid)   // внутри — saveRole + refreshHeader
+
+                // ✅ применяем отложенный тариф после входа
+                if (!currentUser.isAnonymous && desiredRole.value != null) {
+                    applyDesiredRoleAfterRegistration()
+                }
+            }
     }
 
     init {
@@ -230,45 +265,29 @@ class HomeViewModel @Inject constructor(
         // Если уже авторизован - загружаем роль
         Firebase.auth.currentUser?.uid?.let { loadUserRole(it) }
 
-        /*    loadFromRoom()
-        viewModelScope.launch {
-            delay(100)
-            checkNetworkAndSync()
-        }
-*/
-
     }
 
     fun refreshHeader() {
         headerUser.value = preferenceDataSource.getUser()
     }
 
-    private var roleListener: ListenerRegistration? = null
+    private var roleJob: Job? = null
 
     private fun loadUserRole(uid: String) {
-        roleListener?.remove()
-        roleListener = Firebase.firestore.collection("users")
-            .document(uid)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
+        roleJob?.cancel()
+        roleJob = viewModelScope.launch {
+            userRoleRepository.observeUserRole(uid)
+                .catch { error ->
                     Log.e("MyLog", "Ошибка загрузки роли: ${error.message}")
-                    return@addSnapshotListener
                 }
-                if (snapshot != null && snapshot.exists()) {
-                    val roleString = snapshot.getString("role") ?: "USER"
-                    val role = try {
-                        UserRole.valueOf(roleString)
-                    } catch (e: Exception) {
-                        UserRole.USER
-                    }
-                    _userRole.value = role
-                    userRole.value = role      // ← синхронизируем с Compose-состоянием
+                .collect { role ->
+                    userRole.value = role
                     isAuthorized.value = true
-                    Log.d("MyLog", "Роль пользователя: $role")
-                    // ✅ роль из Firestore синхронизируем в кеш
-                    viewModelScope.launch { preferenceDataSource.saveRole(role) }
+
+                    preferenceDataSource.saveRole(role)
+                    refreshHeader()
                 }
-            }
+        }
     }
 
     fun createUserProfile(user: User) {
@@ -283,55 +302,32 @@ class HomeViewModel @Inject constructor(
                 Log.e("MyLog", "Ошибка создания профиля: ${e.message}")
             }
     }
+
     // ✅ Оплата и повышение до платного тарифа (BUSINESS или PREMIUM — из desiredRole)
     fun upgradeToBusiness(
         uid: String,
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) {
-        // Применяем выбранный тариф (по умолчанию BUSINESS)
-        val targetRole = desiredRole.value?.takeIf {
-            it == UserRole.BUSINESS || it == UserRole.PREMIUM
-        } ?: UserRole.BUSINESS
+        viewModelScope.launch {
+            paymentInProgress.value = true
 
-        Firebase.firestore.collection("users")
-            .document(uid)
-            .update("role", targetRole.name)
-            .addOnSuccessListener {
-                userRole.value = targetRole
-                _userRole.value = targetRole
-                viewModelScope.launch { preferenceDataSource.saveRole(targetRole) }
-                desiredRole.value = null
-                Log.d("MyLog", "Оплата успешна: роль повышена до ${targetRole.name}")
-                onSuccess()
-            }
-            .addOnFailureListener { e ->
-                Log.e("MyLog", "Ошибка повышения до ${targetRole.name}: ${e.message}")
-                onError(e.message ?: "Неизвестная ошибка")
-            }
+            upgradeManager.applyPaidUpgrade(uid)
+                .onSuccess { role ->
+                    paymentInProgress.value = false
+                    applyRoleLocally(role)
+                    Log.d("MyLog", "Оплата успешна: роль повышена до ${role.name}")
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    paymentInProgress.value = false
+                    Log.e("MyLog", "Ошибка повышения: ${error.message}")
+                    onError(error.message ?: "Неизвестная ошибка")
+                }
+        }
     }
-  /*  // Повышение до BUSINESS
-    fun upgradeToBusiness(
-        uid: String,
-        onSuccess: () -> Unit = {},
-        onError: (String) -> Unit = {}
-    ) {
-        Firebase.firestore.collection("users")
-            .document(uid)
-            .update("role", UserRole.BUSINESS.name)
-            .addOnSuccessListener {
-                userRole.value = UserRole.BUSINESS
-                _userRole.value = UserRole.BUSINESS
-                viewModelScope.launch { preferenceDataSource.saveRole(UserRole.BUSINESS) }
-                desiredRole.value = null
-                Log.d("MyLog", "Оплата успешна: роль повышена до BUSINESS")
-                onSuccess()
-            }
-            .addOnFailureListener { e ->
-                Log.e("MyLog", "Ошибка повышения до BUSINESS: ${e.message}")
-                onError(e.message ?: "Неизвестная ошибка")
-            }
-    }*/
+
+
 
     // ✅ Сохранить/получить/очистить данные карты
     fun saveCardData(cardNumber: String, expiry: String) {
@@ -348,31 +344,29 @@ class HomeViewModel @Inject constructor(
     fun clearCardData() {
         preferenceDataSource.clearCardData()
     }
-    // ✅ Проверка прав
+
     fun hasPermission(permission: Permission): Boolean {
-        return permission.isGrantedBy(_userRole.value)
+        return rolePermissionChecker.hasPermission(userRole.value, permission)
     }
 
     fun canAccess(requiredRole: UserRole): Boolean {
-        return _userRole.value.hasAccessTo(requiredRole)
+        return rolePermissionChecker.canAccess(userRole.value, requiredRole)
+    }
+
+    fun canCreatePost(): Boolean {
+        return rolePermissionChecker.canCreatePost(userRole.value)
+    }
+
+    fun canModerate(): Boolean {
+        return rolePermissionChecker.canModerate(userRole.value)
     }
 
     // ✅ ДОБАВЛЕНО: Очищаем слушатель при уничтожении ViewModel
     override fun onCleared() {
         super.onCleared()
-        roleListener?.remove()
+        roleJob?.cancel()
         Firebase.auth.removeAuthStateListener(authStateListener)
     }
-
-    fun getSettings() = viewModelScope.launch {
-        favoritesKeysFlow.collect { keysList ->
-
-        }
-    }
-
-    /*init {
-        refreshFavoritesKeys()
-    }*/
 
     private fun refreshFavoritesKeys() = viewModelScope.launch {
         val result = favoritesRepo.getIdsFavesList()
@@ -497,64 +491,57 @@ class HomeViewModel @Inject constructor(
         data object Success : MainUiState()
         data class Error(val message: String) : MainUiState()
     }
-    // ✅ Желательный тариф для установки после регистрации
-    val desiredRole = mutableStateOf<UserRole?>(null)
 
-    // ✅ Переход к регистрации для повышения тарифа
-    fun upgradeToNextPlanViaRegistration(
-        nextRole: UserRole,
-        onNavigateToRegistration: () -> Unit
-    ) {
-        desiredRole.value = nextRole
-        Log.d("MyLog", "Запрошено повышение до: ${nextRole.name}")
-        onNavigateToRegistration()
+   fun applyDesiredRoleAfterRegistration() {
+       viewModelScope.launch {
+           when (val result = upgradeManager.applyDesiredRole()) {
+               is ApplyRoleResult.NoDesiredRole -> Unit
+
+               is ApplyRoleResult.PaymentRequired -> {
+                   Log.d("MyLog", "Тариф ${result.role} требует оплаты — открываем платёжный экран")
+                   showPaymentSheet.value = true
+               }
+
+               is ApplyRoleResult.Updated -> applyRoleLocally(result.role)
+
+               is ApplyRoleResult.Failed -> {
+                   Log.e("MyLog", "Ошибка обновления тарифа: ${result.message}")
+                   sendUiState(MainUiState.Error(result.message))
+               }
+           }
+       }
+   }
+    // ✅ Локальное применение роли: UI + кеш + шапка
+    private fun applyRoleLocally(role: UserRole) {
+        userRole.value = role
+        isAuthorized.value = true
+        viewModelScope.launch { preferenceDataSource.saveRole(role) }
+        refreshHeader()
     }
-    // ✅ Применить желаемый тариф после успешной регистрации
-    fun applyDesiredRoleAfterRegistration() {
-        val role = desiredRole.value ?: return
-        val uid = Firebase.auth.currentUser?.uid ?: return
 
-        // 💳 Платный тариф: после регистрации показываем оплату
-        if (role == UserRole.BUSINESS || role == UserRole.PREMIUM) {
-            Log.d("MyLog", "Тариф $role требует оплаты — открываем платёжный экран")
-            showPaymentSheet.value = true
-            return // desiredRole НЕ сбрасываем — применим после успешной оплаты
-        }
 
-        // Бесплатный тариф — применяем сразу
-        Firebase.firestore.collection("users")
-            .document(uid)
-            .update("role", role.name)
-            .addOnSuccessListener {
-                userRole.value = role
-                _userRole.value = role
-                viewModelScope.launch { preferenceDataSource.saveRole(role) }
-                desiredRole.value = null
-            }
-            .addOnFailureListener { e ->
-                Log.e("MyLog", "Ошибка обновления тарифа: ${e.message}")
-            }
-    }
     // ✅ Получение следующего тарифа (цепочка: ANONYMOUS → USER → BUSINESS → PREMIUM)
     fun getNextRole(currentRole: UserRole): UserRole? {
         return when (currentRole) {
             UserRole.ANONYMOUS -> UserRole.USER
-            UserRole.USER      -> UserRole.BUSINESS
-            UserRole.BUSINESS  -> UserRole.PREMIUM   // ✅ НОВОЕ
-            UserRole.PREMIUM   -> null               // ✅ максимум
-            UserRole.ADMIN     -> null
+            UserRole.USER -> UserRole.BUSINESS
+            UserRole.BUSINESS -> UserRole.PREMIUM   // ✅ НОВОЕ
+            UserRole.PREMIUM -> null               // ✅ максимум
+            UserRole.ADMIN -> null
         }
     }
+
     // ✅ Отображаемое имя тарифа
     fun getRoleDisplayName(role: UserRole): String {
         return when (role) {
             UserRole.ANONYMOUS -> "Анонимный"
-            UserRole.USER      -> "Пользователь"
-            UserRole.BUSINESS  -> "Бизнес"
-            UserRole.PREMIUM   -> "Премиум"          // ✅ НОВОЕ
-            UserRole.ADMIN     -> "Администратор"
+            UserRole.USER -> "Пользователь"
+            UserRole.BUSINESS -> "Бизнес"
+            UserRole.PREMIUM -> "Премиум"          // ✅ НОВОЕ
+            UserRole.ADMIN -> "Администратор"
         }
     }
+
     // ✅ Переход на следующий тариф
     fun upgradeToNextPlan(onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val uid = Firebase.auth.currentUser?.uid ?: run {
@@ -571,7 +558,7 @@ class HomeViewModel @Inject constructor(
             .update("role", nextRole.name)
             .addOnSuccessListener {
                 userRole.value = nextRole
-                _userRole.value = nextRole
+                //_userRole.value = nextRole
                 Log.d("MyLog", "Тариф обновлён: ${currentRole.name} → ${nextRole.name}")
                 onSuccess()
             }
@@ -586,6 +573,7 @@ class HomeViewModel @Inject constructor(
         logout()
         android.os.Process.killProcess(android.os.Process.myPid())
     }
+
     // ✅ Обработка клика по кнопке входа/выхода
     fun onAuthButtonClick() = viewModelScope.launch {
         if (isAuthorized.value) {
@@ -614,34 +602,25 @@ class HomeViewModel @Inject constructor(
         _authEvents.emit(AuthEvent.NavigateToRegistration("Для доступа требуется регистрация"))
     }
 
-    // 3. НОВАЯ ФУНКЦИЯ: Выход из аккаунта
     fun logout() {
+        roleJob?.cancel()
+
         Firebase.auth.signOut()
         authDataSource.signOut()
+
         userRole.value = UserRole.ANONYMOUS
-        _userRole.value = UserRole.ANONYMOUS
         isAuthorized.value = false
         isAdminState.value = false
 
-        preferenceDataSource.clearUserSession()   // ✅ шапка сразу покажет Anonymous
+        preferenceDataSource.clearUserSession()
         refreshHeader()
-        Log.d("MyLog", " logout isAdminState.value = false")
-       // viewModelScope.launch { preferenceDataSource.clearUser() }
 
+        Log.d("MyLog", "logout isAdminState.value = false")
     }
-
-    // ✅ Закрытие диалога
+    // ✅ Закрытие диалога «Ваш тариф»
     fun dismissAuthDialog() {
         showAuthDialog.value = false
     }
-
-    // ✅ Проверка прав
-    fun canCreatePost(): Boolean =
-        hasPermission(Permission.CREATE_POST)
-
-    fun canModerate(): Boolean =
-        hasPermission(Permission.MODERATE_CONTENT)
-
 
     // 2. ИСПРАВЛЕНИЕ: Убираем !! чтобы избежать краша у неавторизованных пользователей
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
@@ -682,13 +661,6 @@ class HomeViewModel @Inject constructor(
 }
 
 
-    fun isUserRegistered(onRegister: (Boolean) -> Unit) {
-        val uid = Firebase.auth.currentUser!!.uid
-        Firebase.firestore.collection("guide_users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener {
-                onRegister(it.get("isRegistered") as Boolean)
-            }
 
-    }
+
+

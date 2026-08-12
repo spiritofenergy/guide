@@ -24,7 +24,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,7 +32,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,8 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.domain.model.Book
@@ -61,9 +57,7 @@ import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.domain.model.BookCategories
-import com.kodex.guide.domain.model.Permission
 import com.kodex.guide.domain.model.UserRole
-import com.kodex.guide.ui.theme.ButtonColor
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,10 +77,10 @@ fun HomeScreen(
     onAddBookClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onCategoryClick: () -> Unit,
-    onRegistrationNeeded: ()-> Unit,
-    onEnter: ()-> Unit,
+    onRegistrationNeeded: () -> Unit,
+    onEnter: () -> Unit,
 
-) {
+    ) {
     // Подписываемся на роль пользователя
     val userRole by viewModel.userRole
     val showAuthDialog by viewModel.showAuthDialog
@@ -94,15 +88,7 @@ fun HomeScreen(
     val headerUser by viewModel.headerUser
     val showPaymentSheet = viewModel.showPaymentSheet
 
-    // Вычисляем права (Compose автоматически перерисует UI при смене роли)
-    val canCreatePost = Permission.CREATE_POST.isGrantedBy(userRole)
-    val canModerate = Permission.MODERATE_CONTENT.isGrantedBy(userRole)
 
-    val book = viewModel.postList.collectAsState(initial = emptyList())
-    val showDialog = remember { mutableStateOf(false) }
-
-
-    // val booksFirebaseRemoteDataSource: BooksFirebaseRemoteDataSource
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -110,11 +96,8 @@ fun HomeScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
     val isAuthorState = remember { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
-
     val books = viewModel.books.collectAsLazyPagingItems()
     val roomList = viewModel.postList.collectAsState(initial = emptyList())
-
-    val booksRoomList = MutableStateFlow<List<Book>>(emptyList())
 
     val state = rememberPullToRefreshState()
 
@@ -122,23 +105,6 @@ fun HomeScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val lifecycleOwner = LocalLifecycleOwner.current
-
-   /* DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                // Обновляем статус авторизации при возврате на экран
-                viewModel.isAuthorized.value = Firebase.auth.currentUser != null
-
-                Log.d("MyLog", "refreshBooks")
-                viewModel.getSettings()
-                Log.d("MyLog", "getSettings MenuScreen")
-            }
-        }
-        lifecycleOwner.lifecycle.removeObserver(observer) // ИСПРАВЛЕНО: добавляем observer
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }*/
 
     // ✅ Подписка на события авторизации
     LaunchedEffect(Unit) {
@@ -148,28 +114,20 @@ fun HomeScreen(
                     viewModel.showAuthDialog.value = true
                     viewModel.isLogoutDialog.value = false
                 }
+
                 is AuthEvent.ShowLogoutDialog -> {
                     viewModel.showAuthDialog.value = true
                     viewModel.isLogoutDialog.value = true
                 }
+
                 is AuthEvent.NavigateToRegistration -> {
                     onRegistrationNeeded()
                 }
-            }
-        }
-    }
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                Log.d("MyLog", "refreshBooks")
-                viewModel.getSettings()
-                Log.d("MyLog", "getSettings MenuScreen")
 
+                is AuthEvent.NavigateToSignIn -> {  // ✅ НОВОЕ
+                    onLoginClick()                  // SignIn
+                }
             }
-        }
-        lifecycleOwner.lifecycle.removeObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -179,11 +137,11 @@ fun HomeScreen(
         }
     }
 
-        LaunchedEffect(Unit) {
-            viewModel.isUserRegistered { isRegister ->
-                viewModel.isRegisterState.value = isRegister
-            }
+    LaunchedEffect(Unit) {
+        viewModel.isUserRegistered { isRegister ->
+            viewModel.isRegisterState.value = isRegister
         }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
@@ -198,15 +156,6 @@ fun HomeScreen(
             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
-    LaunchedEffect(Unit) {
-        viewModel.getAllSavedBooks().collect { booksRoom ->
-            booksRoomList.value = booksRoom
-            Log.d("SavedBooks", "Найдено ${booksRoom.size} сохраненных книг")
-            booksRoom.forEach { book ->
-                Log.d("SavedBooks", "Книга: ${book.title}, Избранная: ${book.isFavorite}")
-            }
-        }
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -214,10 +163,8 @@ fun HomeScreen(
         drawerContent = {
             Column(modifier = Modifier.fillMaxWidth(if (!isLandscape) 0.7f else 0.3f)) {
                 if (!isLandscape) {
-                    DrawerHeader(
-                        userName = headerUser?.userName,
-                        email = headerUser?.email.orEmpty(),
-                        role = headerUser?.role ?: UserRole.ANONYMOUS)
+                    DrawerHeader(user = headerUser)   // ✅ передаём весь User?
+
                 }
                 DrawerBody(
                     onAdminClick = onAdminClick,
@@ -275,7 +222,7 @@ fun HomeScreen(
                     containerColor = Orange,
                     contentColor = Color.White,
 
-                ) {
+                    ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Добавить объявление"
@@ -288,7 +235,7 @@ fun HomeScreen(
                         viewModel.categoryState.value,
                         onSearch = { searchText ->
                             viewModel.searchBook(searchText)
-                         },
+                        },
                         onFilter = {
                             showFilterDialog = true
                         },
@@ -307,7 +254,8 @@ fun HomeScreen(
                         viewModel.selectedBottomItemState.intValue,
                         onCategoryClick = {
                             viewModel.getAllBooksFromCategory(category = BookCategories.SAVED)
-                            viewModel.selectedBottomItemState.intValue = BottomMenuItem.Saved.titleId
+                            viewModel.selectedBottomItemState.intValue =
+                                BottomMenuItem.Saved.titleId
 
 
                         },
@@ -315,7 +263,7 @@ fun HomeScreen(
                             // получаем список с иыентификатором и
                             viewModel.selectedBottomItemState.intValue = BottomMenuItem.Home.titleId
                             viewModel.getAllBooksFromCategory(category = BookCategories.ALL)
-                         },
+                        },
                         onSettingsClick = {
                             onSettingsClick()
                             viewModel.selectedBottomItemState.intValue =
@@ -347,7 +295,7 @@ fun HomeScreen(
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
                     onRefresh = {
-                      //  refreshBooks(books, viewModel)
+                        //  refreshBooks(books, viewModel)
                     },
                     state = state,
                     modifier = Modifier.padding(),
@@ -367,9 +315,56 @@ fun HomeScreen(
                         LazyColumn(
                             Modifier
                                 .fillMaxSize()
-                                .padding( 2.dp))
+                                .padding(2.dp)
+                        )
                         {
                             items(roomList.value) { book ->
+                                BookListItemUi(
+                                    heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
+                                    titleIndex = viewModel.categoryState.value.id,
+                                    viewModel.isAdminState.value,
+                                    book,
+                                    onBookClick = { bk ->
+                                        onBookClick(bk)
+                                    },
+                                    onEditClick = {
+                                        onBookEditClick(it)
+                                    },
+                                    onDeleteClick = { bookToDelete ->
+                                        showDeleteDialog.value = true
+                                        viewModel.bookToDelete = bookToDelete
+                                    },
+                                    onSavedRoomClick = {
+                                        // viewModel.onFavesClick(
+                                        //    book, )
+                                        viewModel.insertPost(book)
+
+                                        if (!book.isFavorite) {
+                                            Toast.makeText(
+                                                context,
+                                                R.string.added_to_memory,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                R.string.deleted_from_memory,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                )
+                                Spacer(Modifier.padding(5.dp))
+                            }
+                        } else {
+                        LazyVerticalStaggeredGrid(
+                            columns = StaggeredGridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
+                            modifier = Modifier
+                                .fillMaxSize()
+                        ) {
+                            items(count = books.itemCount) { index ->
+                                val book = books[index]
+                                if (book != null) {
                                     BookListItemUi(
                                         heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
                                         titleIndex = viewModel.categoryState.value.id,
@@ -386,92 +381,47 @@ fun HomeScreen(
                                             viewModel.bookToDelete = bookToDelete
                                         },
                                         onSavedRoomClick = {
-                                           // viewModel.onFavesClick(
-                                            //    book, )
+                                            //  viewModel.onFavesClick(book)
+                                            //  Log.d("MyLog", "book.key ${book.key}")
+                                            // Save in Room
                                             viewModel.insertPost(book)
-
-                                                if (!book.isFavorite) {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.added_to_memory,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.deleted_from_memory,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
+                                            if (!book.isFavorite) {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.added_to_memory,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.deleted_from_memory,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
                                         }
                                     )
-                                    Spacer(Modifier.padding(5.dp))
-                            }
-                        }else {
-                            LazyVerticalStaggeredGrid(
-                                columns = StaggeredGridCells.Fixed(if (viewModel.showTabOneOrTo.value == true) 1 else 2),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            ) {
-                                items(count = books.itemCount) { index ->
-                                    val book = books[index]
-                                    if (book != null) {
-                                        BookListItemUi(
-                                            heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
-                                            titleIndex = viewModel.categoryState.value.id,
-                                            viewModel.isAdminState.value,
-                                            book,
-                                            onBookClick = { bk ->
-                                                onBookClick(bk)
-                                            },
-                                            onEditClick = {
-                                                onBookEditClick(it)
-                                            },
-                                            onDeleteClick = { bookToDelete ->
-                                                showDeleteDialog.value = true
-                                                viewModel.bookToDelete = bookToDelete
-                                            },
-                                            onSavedRoomClick = {
-                                              //  viewModel.onFavesClick(book)
-                                              //  Log.d("MyLog", "book.key ${book.key}")
-                                               // Save in Room
-                                                viewModel.insertPost(book)
-                                                if (!book.isFavorite) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        R.string.added_to_memory,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        R.string.deleted_from_memory,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            }
-                                        )
-                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                FilterDialog(
-                    showDialog = showFilterDialog,
-                    onConfirm = {
-                        showFilterDialog = false
-                    },
-                    onDismiss = {
-                        showFilterDialog = false
-                    }
-                )
+            FilterDialog(
+                showDialog = showFilterDialog,
+                onConfirm = {
+                    showFilterDialog = false
+                },
+                onDismiss = {
+                    showFilterDialog = false
+                }
+            )
             // ✅ Диалог «Ваш тариф»
             if (showAuthDialog) {
                 val currentRole = userRole
                 val nextRole = viewModel.getNextRole(currentRole)
-                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
+                val nextRoleName =
+                    if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
 
                 AlertDialog(
                     onDismissRequest = { viewModel.dismissAuthDialog() },
@@ -591,203 +541,6 @@ fun HomeScreen(
                     dismissButton = {}
                 )
             }
-       /*     // ✅ Диалог «Ваш тариф»
-            if (showAuthDialog) {
-                val currentRole = userRole
-                val nextRole = viewModel.getNextRole(currentRole)
-                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
-
-                AlertDialog(
-                    onDismissRequest = { viewModel.dismissAuthDialog() },
-                    title = {
-                        Text(
-                            text = "Ваш тариф",
-                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
-                        )
-                    },
-                    text = {
-                        Column {
-                            Text(
-                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
-                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (nextRoleName != null) {
-                                Text(
-                                    text = "Доступно повышение до: $nextRoleName",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
-                                        "Для перехода требуется оплата"
-                                    else
-                                        "Для перехода требуется регистрация",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                                    color = Color.Gray
-                                )
-                            } else {
-                                Text(
-                                    text = "У вас максимальный тариф",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            // ===== 1. Зелёная кнопка — следующий тариф по цепочке =====
-                            if (nextRole != null && nextRoleName != null) {
-                                Button(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.requestUpgrade(currentRole) {
-                                            onRegistrationNeeded()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = GreenSea
-                                    )
-                                ) {
-                                    if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
-                                        Text("Перейти на «$nextRoleName»")
-                                    else
-                                        Text("Перейти на «$nextRoleName»")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-
-                            // ===== 2. ✅ Малиновая кнопка — сразу на Премиум (с оплатой) =====
-                            // Показываем, только если Премиум ещё не является следующим шагом
-                            if (nextRole != null && nextRole != UserRole.PREMIUM) {
-                                Button(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.requestPremiumUpgrade {
-                                            onRegistrationNeeded()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF9C27B0)   // ✅ малиновый (crimson)
-                                    )
-                                ) {
-                                    Text("Перейти на «Премиум»")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                        }
-                    },
-                    dismissButton = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Spacer(modifier = Modifier.width(16.dp))  // отступ перед "Отмена"
-                            TextButton(onClick = { viewModel.dismissAuthDialog() }) {
-                                Text("Отмена")
-                            }
-                            // ===== 3. ✅ Кнопка «Гость» — выход в анонимный тариф =====
-                            if (currentRole == UserRole.USER ||
-                                currentRole == UserRole.BUSINESS ||
-                                currentRole == UserRole.PREMIUM
-                            ) {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.logout()   // ✅ выход → роль ANONYMOUS
-                                    }
-                                ) {
-                                    Text("Гость")
-                                }
-                            }
-                        }
-                    }
-                )
-            }*/
-/*// ✅ Диалог «Ваш тариф»
-            if (showAuthDialog) {
-                val currentRole = userRole
-                val nextRole = viewModel.getNextRole(currentRole)
-                val nextRoleName = if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
-
-                AlertDialog(
-                    onDismissRequest = { viewModel.dismissAuthDialog() },
-                    title = {
-                        Text(
-                            text = "Ваш тариф",
-                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
-                        )
-                    },
-                    text = {
-                        Column {
-                            Text(
-                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
-                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (nextRoleName != null) {
-                                Text(
-                                    text = "Доступно повышение до: $nextRoleName",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Для перехода требуется оплата",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                                    color = Color.Gray
-                                )
-                            } else {
-                                Text(
-                                    text = "У вас максимальный тариф",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            // Кнопка перехода на следующий тариф
-                            if (nextRole != null && nextRoleName != null) {
-                                Button(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.requestUpgrade(currentRole) {
-                                            onRegistrationNeeded()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                    containerColor = GreenSea
-                                    )
-                                ) {
-                                    if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
-                                       Text( "Перейти на «$nextRoleName»")
-                                    else
-                                       Text( "Перейти на «$nextRoleName»")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                        }
-                    },
-                    dismissButton = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Spacer(modifier = Modifier.width(16.dp))  // ← отступ перед "Отмена"
-                            TextButton(onClick = { viewModel.dismissAuthDialog() }) {
-                                Text("Отмена")
-                            }
-                        }
-                    }
-                )
-            }*/
 
             // Обёртка для отображения bottom sheet
             if (showPaymentSheet.value) {
@@ -800,78 +553,8 @@ fun HomeScreen(
                     }
                 )
             }
-       /*     // ✅ Диалог выбора действия
-            if (showAuthDialog) {
-                if (isLogoutDialog) {
-                    // Диалог для авторизованного пользователя
-                    AlertDialog(
-                        onDismissRequest = { viewModel.dismissAuthDialog() },
-                        title = { Text("Выйти из аккаунта?") },
-                        text = { Text("Вы уверены, что хотите выйти?") },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.logout()
-                                    viewModel.dismissAuthDialog()
-                                }
-                            ) {
-                                Text("Выйти")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { viewModel.dismissAuthDialog() }
-                            ) {
-                                Text("Отмена")
-                            }
-                        }
-                    )
-                } else {
-                    // Диалог для неавторизованного пользователя
-                    AlertDialog(
-                        onDismissRequest = { viewModel.dismissAuthDialog() },
-                        title = { Text("Выберите способ входа") },
-                        text = { Text("Для продолжения выберите один из вариантов:") },
-                        confirmButton = {
-                            Column {
-                                Button(
-                                    onClick = {
-                                        viewModel.loginAnonymously()
-                                        viewModel.dismissAuthDialog()
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Войти анонимно")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                OutlinedButton(
-                                    onClick = {
-                                        viewModel.navigateToRegistration()
-                                        viewModel.dismissAuthDialog()
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Зарегистрироваться")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                             }
-                        },
-
-                        dismissButton = {
-                            TextButton(
-                                onClick = { viewModel.dismissAuthDialog() }
-                            ) {
-
-                                Text("Отмена")
-                            }
-                        }
-                    )
-                }
-            }
-            */
-            }
         }
     }
-
+}
 
 
