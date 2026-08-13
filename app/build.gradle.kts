@@ -21,7 +21,7 @@ android {
         applicationId = "com.kodex.bookmarketcompose"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
+        versionCode = 3
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -49,6 +49,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime)
+    val koin_version = "4.1.0"
+    implementation("io.insert-koin:koin-androidx-compose:$koin_version")
 
     implementation(libs.androidx.paging)
 
@@ -98,4 +102,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    dependencies {
+        // OpenStreetMap
+        implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+        // Для HTTP-запросов к OSRM (маршруты)
+        implementation("com.squareup.okhttp3:okhttp:5.4.0")
+
+        // Для работы с JSON от OSRM
+        implementation("com.google.code.gson:gson:2.14.0")
+    }
 }

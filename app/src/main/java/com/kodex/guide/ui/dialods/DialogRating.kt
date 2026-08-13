@@ -33,11 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.detailScreen.RatingData
+import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.theme.ButtonColorBlue
 import com.kodex.guide.ui.theme.Orange
-
-
 
 
 @Preview(showBackground = true)
@@ -45,13 +43,13 @@ import com.kodex.guide.ui.theme.Orange
 fun DialogRating(
     ratingData: RatingData = RatingData(),
     onDismiss: () -> Unit = {},
-    onSubmit: (Int, String) -> Unit = {_, _ ->},
+    onSubmit: (RatingData) -> Unit = { _ -> },
     show: Boolean = false
 ) {
     val context = LocalContext.current
     var selectedRate by remember { mutableIntStateOf(0) }
     var messageState by remember { mutableStateOf("") }
-    selectedRate = ratingData.rating
+    selectedRate = ratingData.rating ?: 1
     messageState = ratingData.message
 
     if (show)
@@ -61,7 +59,7 @@ fun DialogRating(
                 Toast.makeText(context, "Спасибо за оценку", Toast.LENGTH_SHORT).show()
             },
             title = {
-                Text(text = "Rate this Book")
+                Text(text = "Оценить")
             },
             text = {
                 Column(Modifier.fillMaxWidth()) {
@@ -93,11 +91,11 @@ fun DialogRating(
 
                     TextField(
                         value = messageState,
-                        onValueChange = {newValue ->
+                        onValueChange = { newValue ->
                             if (newValue.length <= 200) {
                                 messageState = newValue
                             }
-                       },
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(90.dp),
@@ -107,16 +105,17 @@ fun DialogRating(
                         maxLines = 5
                     )
                 }
-
             },
             confirmButton = {
-                Button(modifier = Modifier,
+                Button(
+                    modifier = Modifier,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonColorBlue),
+                        containerColor = ButtonColorBlue
+                    ),
                     onClick = {
                         onDismiss()
                     }) {
-                    Text(text = stringResource(R.string.cansel))
+                    Text(text = stringResource(R.string.cancel))
                 }
                 Spacer(modifier = Modifier.width(20.dp))
 
@@ -126,7 +125,13 @@ fun DialogRating(
                         containerColor = ButtonColorBlue
                     ),
                     onClick = {
-                        onSubmit(selectedRate,messageState)
+                        onSubmit(
+                            ratingData.copy(
+                                rating = selectedRate,
+                                message = messageState,
+                                lastRating = ratingData.rating ?: 0
+                            )
+                        )
 
                     }
                 ) {

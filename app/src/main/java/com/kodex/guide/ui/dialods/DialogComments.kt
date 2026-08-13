@@ -17,8 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.ui.detailScreen.RatingData
-import com.kodex.guide.ui.detailScreen.StarsIndicator
+import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.ui.theme.ButtonColorBlue
 
 
@@ -46,7 +45,7 @@ import com.kodex.guide.ui.theme.ButtonColorBlue
                 },
                 title = {
                     Column(Modifier.fillMaxWidth()) {
-                        StarsIndicator(rating = ratingData.rating)
+                       // StarsIndicator(rating = ratingData.rating.id)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
@@ -79,7 +78,7 @@ fun PrevDialogComments() {
         onDismiss = {},
         onConfirm = {},
         showDialog = true,
-        confirmButtonText = "yes"
+        confirmButtonText = "Yes"
     )
 }
 

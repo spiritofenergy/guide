@@ -1,21 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Тамань</string>
+    <string name="create_account">Create account</string>
     <string name="email_send">Correo de restablecimiento de contraseña enviado</string>
     <string name="reset_password_dialog">Se ha enviado un enlace para restablecer la contraseña a su correo. Por favor, siga las instrucciones para restablecer la contraseña.</string>
-    <!-- LoginScreen -->
+
     <!-- BottomMenu-->
     <string name="home">Home</string>
     <string name="faves">Favorite</string>
+    <string name="saved">Saved</string>
+    <string name="delivery">Delivery</string>
+    <string name="location">Show of map</string>
+    <string name="card_payment">Card payment</string>
+    <string name="сreate_post">Create post</string>
     <string name="settings">Settings</string>
-    <!-- -->
+    <!--AddScreen -->
+    <string name="check_data">Check the data</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="village">Village</string>
+    <string name="street">Street</string>
+    <string name="house">House</string>
+    <string name="flat">Flat</string>
+    <string name="price">Price</string>
+    <string name="select_photo">Select photo</string>
+    <string name="clear">Clear</string>
+
+    <!-- validateBook -->
+    <string name="title_is_required">• Title is required</string>
+    <string name="description_is_required">• Description is required</string>
+    <string name="please_specify_the_village">• Please specify the village</string>
+    <string name="enter_a_valid_price">• Enter a valid price</string>
+    <string name="please_add_a_photo">• Please add a photo</string>
+     <!-- LoginScreen-->
+
+     <string name="warning">Warning</string>
+    <string name="you_want_to_delete">Do you really want to delete?</string>
+    <string name="mark_post">Mark a post</string>
+    <string name="user_name">User name: </string>
+    <string name="phone_number">Phone number: </string>
+    <string name="login">Login: </string>
+    <string name="password">Password: </string>
+    <string name="taman">Taman</string>
+    <string name="taman_peninsula">Taman Peninsula</string>
+    <string name="guide">Guide</string>
+    <string name="enter">Enter</string>
+    <string name="recover_the_password">Recover the password</string>
+    <string name="authorization">Authorization</string>
+    <string name="remind_password">Remind password"</string>
+    <string name="exit">Exit"</string>
     <!-- DriverMenu-->
     <string name="all">All</string>
-    <string name="taman_peninsula">Taman Peninsula</string>
+
     <!-- -->
     <string name="empty_list">Empty_list</string>
-    <string name="added_to_favorites">Post added to Favorites</string>
-    <string name="deleted_from_favorites">Post deleted from Favorites</string>
+    <string name="added_to_memory">Post added to Memory</string>
+    <string name="deleted_from_memory">Post deleted from Memory</string>
 
     <!-- MenuScreen -->
     <string name="attention">Attention</string>
@@ -27,10 +67,13 @@
     <string name="message">Message</string>
     <string name="yes">Yes</string>
     <string name="ok">OK</string>
-    <string name="cansel">Cansel</string>
+    <string name="cancel">Cansel</string>
     <string name="comments">Comments</string>
 
     <!-- SettingsScreen -->
+    <string name="enter_track_name">Enter Track name</string>
+    <string name="delete_dialog_massage">Are you sure you want to delete this track?</string>
+
     <string name="you_account_was_deleted">You account was deleted</string>
     <string name="deleted_account_massage">Are you sure you want to delete your account?</string>
     <string name="delete">Delete</string>

@@ -12,11 +12,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
  import com.kodex.guide.ui.theme.DrawerColorBlue
- import com.kodex.guide.ui.settingsScreen.AccountDialogData
-import com.kodex.guide.ui.settingsScreen.DialogType
+ import com.kodex.guide.presentation.settingsScreen.AccountDialogData
+import com.kodex.guide.presentation.settingsScreen.DialogType
 
 @Composable
 fun AccountDialog(

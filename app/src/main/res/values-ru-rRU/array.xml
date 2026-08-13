@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="category_array">
+        <item>Животные</item>
+        <item>Растения</item>
+        <item>Работа</item>
+        <item>Услуги</item>
+        <item>Недвижимость</item>
+        <item>Авто</item>
+        <item>Электроника</item>
+        <item>Развлечения</item>
+        <item>Сохраненные</item>
+        <item>Все</item>
+    </string-array>
+
+    <string-array name="category_admin">
+        <item>Панель администратора</item>
+        <item>Добавить</item>
+        <item>Вход</item>
+        <item>Выход</item>
+        <item>Карта</item>
+        <item>Настройки</item>
+    </string-array>
+
+    <string-array name="order_by">
+        <item>Название</item> <!-- 0 -->
+        <item>Цена</item> <!-- 1 -->
+    </string-array>
+
+    <string-array name="personal_data_array">
+        <item>Имя или никнейм</item>
+        <item>Номер телефона</item>
+    </string-array>
+
+    <string-array name="address_array">
+        <item>Город</item>
+        <item>Улица</item>
+        <item>Квартира</item>
+        <item>Почтовый индекс</item>
+    </string-array>
+
+    <string-array name="password_array">
+        <item>Email</item>
+    </string-array>
+
+    <string-array name="delete_account_array">
+        <item>Email</item>
+        <item>Пароль</item>
+    </string-array>
+
+    <string-array name="image_format_array">
+        <item>WEBP_LOSSY</item>
+        <item>WEBP_LOSSLESS</item>
+        <item>JPEG</item>
+        <item>PNG</item>
+    </string-array>
+
+    <string-array name="image_quality_array">
+        <item>LOW</item>
+        <item>NORMAL</item>
+        <item>HIGH</item>
+    </string-array>
+
+    <string-array name="image_size_array">
+        <item>100</item>
+        <item>200</item>
+        <item>300</item>
+        <item>600</item>
+    </string-array>
+
+</resources>

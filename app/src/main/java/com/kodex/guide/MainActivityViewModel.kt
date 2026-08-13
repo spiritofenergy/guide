@@ -1,15 +1,15 @@
 package com.kodex.guide
 
 import androidx.lifecycle.ViewModel
-import com.kodex.guide.ui.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.domain.repository.UserSettingsRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-        private val fireStoreManager: FireStoreManagerPaging
+        private val userSettingsRepo: UserSettingsRepo
 ): ViewModel() {
-    fun updateLastVisit(){
-        fireStoreManager.updateLastVisit()
+    suspend fun updateLastVisit(){
+        userSettingsRepo.updateLastVisit()
     }
 }

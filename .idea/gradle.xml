@@ -13,6 +13,8 @@
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
+        <option name="resolveExternalAnnotations" value="true" />
+        <option name="myGradleHome" value="E:\Gradle\gradle-8.13-bin\gradle-8.13" />
       </GradleProjectSettings>
     </option>
   </component>
