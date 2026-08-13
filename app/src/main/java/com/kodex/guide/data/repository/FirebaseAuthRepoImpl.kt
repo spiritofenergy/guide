@@ -1,7 +1,6 @@
 package com.kodex.guide.data.repository
 
 import android.util.Log
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.firestore
@@ -19,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseAuthRepo_Impl @Inject constructor(
+class FirebaseAuthRepoImpl @Inject constructor(
     private val firebaseAuthDataSource: FirebaseAuthDataSource,
     private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
 
@@ -31,26 +30,13 @@ class FirebaseAuthRepo_Impl @Inject constructor(
         result.onSuccess { preferenceDataSource.saveUser(it) }   // ✅
         return result
     }
-    /*override suspend fun signUp(
-        email: String,
-        password: String
-    ): Result<User> {
 
-        return firebaseAuthDataSource.signUp(email, password)
-    }*/
     override suspend fun signIn(email: String, password: String): Result<User> {
         val result = firebaseAuthDataSource.signIn(email, password)
         result.onSuccess { preferenceDataSource.saveUser(it) }   // ✅
         return result
     }
-    /*override suspend fun signIn(email: String, password: String): Result<User> {
-        val result = firebaseAuthDataSource.signIn(email, password)
-    result.onSuccess {
-        preferenceDataSource.saveUser(it)
-    }
-         return result
-    }
-*/
+
     override suspend fun resetPassword(email: String): Result<Unit> {
         return firebaseAuthDataSource.resetPassword(email)
     }
@@ -82,9 +68,6 @@ class FirebaseAuthRepo_Impl @Inject constructor(
         }
     }
 
-    /*  override suspend fun signInAnonymously(): Result<User> {
-
-      }*/
     override suspend fun createUserProfile(user: User) {
         Firebase.firestore
             .collection("users")
@@ -97,19 +80,6 @@ class FirebaseAuthRepo_Impl @Inject constructor(
                 Log.e("MyLog", "Ошибка создания профиля: ${e.message}")
             }
     }
-    /* override suspend fun createUserProfile(uid: String, email: String?, role: UserRole) {
-         val userDoc = hashMapOf(
-             "uid" to uid,
-             "email" to email,
-             "role" to role.name,
-             "createdAt" to FieldValue.serverTimestamp(),
-             "isAnonymous" to (Firebase.auth.currentUser?.isAnonymous ?: false)
-         )
-         Firebase.firestore.collection("users")
-             .document(uid)
-             .set(userDoc)
-             .await()
-     }*/
 
     override suspend fun getUserRole(uid: String): UserRole {
         return try {

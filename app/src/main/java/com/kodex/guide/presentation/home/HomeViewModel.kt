@@ -19,6 +19,7 @@ import com.kodex.guide.data.mapper.toUser
 import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
+import com.kodex.guide.data.repository.UserAccessRepoImpl
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
@@ -56,8 +57,8 @@ import javax.inject.Inject
 
 // ✅ События для UI (диалоги, навигация)
 sealed class AuthEvent {
-    data object ShowLoginDialog : AuthEvent()
-    data object ShowLogoutDialog : AuthEvent()
+    data object ShowLogInDialog : AuthEvent()
+    data object ShowLogOutDialog : AuthEvent()
     data class NavigateToRegistration(val message: String) : AuthEvent()
     data class NavigateToSignIn(val message: String) : AuthEvent()
 }
@@ -71,9 +72,10 @@ class HomeViewModel @Inject constructor(
     private val preferenceDataSource: PreferenceDataSource,
     private val userRoleRepository: UserRoleRepo,
     private val rolePermissionChecker: RolePermissionChecker,
-    private val tariffPolicy: TariffPolicy,          // ← добавить
-    private val upgradeManager: UpgradeManager,      // ← добавить
-    private val authStateProvider: AuthStateProvider // ← добавить
+    private val tariffPolicy: TariffPolicy,
+    private val upgradeManager: UpgradeManager,
+    private val authStateProvider: AuthStateProvider,
+    private val userAccessRepository: UserAccessRepoImpl
 ) : ViewModel() {
 
     val showPaymentSheet = mutableStateOf(false)
@@ -93,7 +95,6 @@ class HomeViewModel @Inject constructor(
     val isLogoutDialog = mutableStateOf(false)
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
-    var bookToDelete: Book? = null
     private val bookListUpdate = MutableStateFlow<List<ChangedTempBook>>(emptyList())
     private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
     private val searchStateFlow = MutableStateFlow("")
@@ -104,7 +105,13 @@ class HomeViewModel @Inject constructor(
     val postList = mainDb.trackDao.getAllPosts()
     // ✅ Желательный тариф для установки после регистрации
     val desiredRole = mutableStateOf<UserRole?>(null)
-
+    val bookToDelete = mutableStateOf<Book?>(null)
+    fun onDeleteRequested(book: Book) {
+        bookToDelete.value = book
+    }
+    fun onDeleteDialogDismissed() {
+        bookToDelete.value = null
+    }
     @OptIn(ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<Book>> = combine(
         favoritesKeysFlow,
@@ -163,13 +170,13 @@ class HomeViewModel @Inject constructor(
             _authEvents.emit(AuthEvent.NavigateToRegistration("Для доступа требуется регистрация"))
         }
 
-        fun getSavedEmail(): String? {
+       /*! fun getSavedEmail(): String? {
             val email = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
             return email.ifEmpty { null }
-        }
+        }*/
     }
     // ✅ Решает, что показать — регистрацию или оплату
-    fun requestUpgrade(currentRole: UserRole, function: () -> Unit) {
+    fun requestUpgrade(currentRole: UserRole) {
         when (val decision = upgradeManager.decideUpgrade(currentRole)) {
             is UpgradeDecision.MaxRole -> {
                 Log.d("MyLog", "Уже максимальный тариф")
@@ -190,7 +197,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // ✅ НОВОЕ: прямой переход на ПРЕМИУМ, минуя BUSINESS
+   /*! // ✅ НОВОЕ: прямой переход на ПРЕМИУМ, минуя BUSINESS
     fun requestPremiumUpgrade(onNavigateToRegistration: () -> Unit) {
         val currentUser = Firebase.auth.currentUser
         if (currentUser == null || currentUser.isAnonymous) {
@@ -202,10 +209,12 @@ class HomeViewModel @Inject constructor(
             desiredRole.value = UserRole.PREMIUM   // ✅ цель оплаты
             showPaymentSheet.value = true
         }
-    }
+    }*/
 
     private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
         val currentUser = auth.currentUser
+
+        refreshAccessFlags()
         if (currentUser == null) {
             roleJob?.cancel()
             return@AuthStateListener
@@ -240,7 +249,7 @@ class HomeViewModel @Inject constructor(
                 refreshHeader()   // ✅ шапка сразу покажет имя
 
                 loadUserRole(currentUser.uid)   // внутри — saveRole + refreshHeader
-
+                refreshAccessFlags()
                 // ✅ применяем отложенный тариф после входа
                 if (!currentUser.isAnonymous && desiredRole.value != null) {
                     applyDesiredRoleAfterRegistration()
@@ -264,7 +273,7 @@ class HomeViewModel @Inject constructor(
         Firebase.auth.addAuthStateListener(authStateListener)
         // Если уже авторизован - загружаем роль
         Firebase.auth.currentUser?.uid?.let { loadUserRole(it) }
-
+        refreshAccessFlags()
     }
 
     fun refreshHeader() {
@@ -311,7 +320,6 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             paymentInProgress.value = true
-
             upgradeManager.applyPaidUpgrade(uid)
                 .onSuccess { role ->
                     paymentInProgress.value = false
@@ -344,6 +352,7 @@ class HomeViewModel @Inject constructor(
     fun clearCardData() {
         preferenceDataSource.clearCardData()
     }
+    fun requiresPayment(role: UserRole): Boolean = tariffPolicy.requiresPayment(role)
 
     fun hasPermission(permission: Permission): Boolean {
         return rolePermissionChecker.hasPermission(userRole.value, permission)
@@ -430,17 +439,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteBook() {
+        val book = bookToDelete.value ?: return
         sendUiState(MainUiState.Loading)
-        if (bookToDelete == null) return
         viewModelScope.launch {
-            val result = booksRepo.deleteBook(bookToDelete!!)
-            result.fold(
+            booksRepo.deleteBook(book).fold(
                 onSuccess = {
-                    updateChangedBook(bookToDelete!!, true)
-                    sendUiState(MainUiState.Success)
-                },
+                    updateChangedBook(book, isDeleted = true)
+                    bookToDelete.value = null
+                    sendUiState(MainUiState.Success) },
                 onFailure = { error ->
-                    sendUiState(MainUiState.Error(error.message ?: "Unknow error"))
+                    sendUiState(MainUiState.Error(error.message ?: "Unknown error"))
                 }
             )
         }
@@ -480,11 +488,11 @@ class HomeViewModel @Inject constructor(
         mainDb.trackDao.insertPost(book)
     }
 
-    // Получить все сохраненные книги
+    /*! // Получить все сохраненные книги
     fun getAllSavedBooks(): Flow<List<Book>> {
         return mainDb.trackDao.getAllPosts()
     }
-
+*/
 
     sealed class MainUiState {
         data object Loading : MainUiState()
@@ -541,7 +549,7 @@ class HomeViewModel @Inject constructor(
             UserRole.ADMIN -> "Администратор"
         }
     }
-
+/*!
     // ✅ Переход на следующий тариф
     fun upgradeToNextPlan(onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val uid = Firebase.auth.currentUser?.uid ?: run {
@@ -566,7 +574,7 @@ class HomeViewModel @Inject constructor(
                 Log.e("MyLog", "Ошибка обновления тарифа: ${e.message}")
                 onError(e.message ?: "Неизвестная ошибка")
             }
-    }
+    }*/
 
     // ✅ Выход с закрытием приложения
     fun exitApp() {
@@ -578,14 +586,14 @@ class HomeViewModel @Inject constructor(
     fun onAuthButtonClick() = viewModelScope.launch {
         if (isAuthorized.value) {
             // Пользователь авторизован — предлагаем выйти
-            _authEvents.emit(AuthEvent.ShowLogoutDialog)
+            _authEvents.emit(AuthEvent.ShowLogOutDialog)
         } else {
             // Пользователь не авторизован — предлагаем войти
-            _authEvents.emit(AuthEvent.ShowLoginDialog)
+            _authEvents.emit(AuthEvent.ShowLogInDialog)
         }
     }
 
-    // ✅ Анонимный вход
+/*!    // ✅ Анонимный вход
     fun loginAnonymously() = viewModelScope.launch {
         try {
             authDataSource.signInAnonymously()
@@ -595,12 +603,12 @@ class HomeViewModel @Inject constructor(
             Log.e("MyLog", "Ошибка анонимного входа: ${e.message}")
             sendUiState(MainUiState.Error("Ошибка входа: ${e.message}"))
         }
-    }
+    }*/
 
-    // ✅ Переход к регистрации
+  /*!  // ✅ Переход к регистрации
     fun navigateToRegistration() = viewModelScope.launch {
         _authEvents.emit(AuthEvent.NavigateToRegistration("Для доступа требуется регистрация"))
-    }
+    }*/
 
     fun logout() {
         roleJob?.cancel()
@@ -612,6 +620,7 @@ class HomeViewModel @Inject constructor(
         isAuthorized.value = false
         isAdminState.value = false
 
+        isRegisterState.value = false
         preferenceDataSource.clearUserSession()
         refreshHeader()
 
@@ -621,8 +630,21 @@ class HomeViewModel @Inject constructor(
     fun dismissAuthDialog() {
         showAuthDialog.value = false
     }
+    fun refreshAccessFlags() {
+        val uid = authStateProvider.currentUser()?.uid
 
-    // 2. ИСПРАВЛЕНИЕ: Убираем !! чтобы избежать краша у неавторизованных пользователей
+        if (uid == null) {
+            isAdminState.value = false
+            isRegisterState.value = false
+            return
+        }
+
+        viewModelScope.launch {
+            isAdminState.value = userAccessRepository.isAdmin(uid)
+            isRegisterState.value = userAccessRepository.isRegistered(uid)
+        }
+    }
+ /*!   // 2. ИСПРАВЛЕНИЕ: Убираем !! чтобы избежать краша у неавторизованных пользователей
     fun isAdmin(onAdmin: (Boolean) -> Unit) {
         val uid = Firebase.auth.currentUser?.uid ?: run {
             onAdmin(false) // Если нет пользователя, он точно не админ
@@ -657,7 +679,7 @@ class HomeViewModel @Inject constructor(
             .addOnFailureListener {
                 onRegister(false)
             }
-    }
+    }*/
 }
 
 

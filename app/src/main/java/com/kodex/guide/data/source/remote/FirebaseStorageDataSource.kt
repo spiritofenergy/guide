@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FireBaseStorageDataSource @Inject constructor(
+class FirebaseStorageDataSource @Inject constructor(
     private val storage: FirebaseStorage,
     private val imageEncoder: BitmapEncoder
 ) {

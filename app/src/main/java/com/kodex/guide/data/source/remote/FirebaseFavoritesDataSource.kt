@@ -10,7 +10,7 @@ import javax.inject.Singleton
 import kotlin.jvm.java
 
 @Singleton
-class FavoritesDataSource (
+class FirebaseFavoritesDataSource (
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
 

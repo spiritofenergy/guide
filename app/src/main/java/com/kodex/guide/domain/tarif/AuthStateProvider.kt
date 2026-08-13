@@ -2,18 +2,12 @@ package com.kodex.guide.domain.tarif
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.kodex.guide.domain.user.AuthUser
 import javax.inject.Inject
-
-data class AuthUser(
-    val uid: String,
-    val isAnonymous: Boolean,
-    val email: String?
-)
 
 interface AuthStateProvider {
     fun currentUser(): AuthUser?
 }
-
 class FirebaseAuthStateProvider @Inject constructor() : AuthStateProvider {
 
     override fun currentUser(): AuthUser? {

@@ -1,16 +1,17 @@
 package com.kodex.guide.di
 
-import com.google.firebase.database.core.RepoInfo
 import com.kodex.guide.data.repository.BooksRepo_Impl
-import com.kodex.guide.data.repository.FavoritesFirebaseRepo_Impl
-import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
-import com.kodex.guide.data.repository.ModerationRepo_Impl
-import com.kodex.guide.data.repository.UserSettingsRepo_Impl
-import com.kodex.guide.data.source.remote.FirebaseUserRoleRepository
+import com.kodex.guide.data.repository.FavoritesFirebaseRepoImpl
+import com.kodex.guide.data.repository.FirebaseAuthRepoImpl
+import com.kodex.guide.data.repository.ModerationRepoImpl
+import com.kodex.guide.data.repository.UserSettingsRepoImpl
+import com.kodex.guide.data.repository.UserAccessRepoImpl
+import com.kodex.guide.data.repository.UserRoleRepoImpl
 import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.repository.ModerationRepo
+import com.kodex.guide.domain.repository.UserAccessRepo
 import com.kodex.guide.domain.repository.UserRoleRepo
 import com.kodex.guide.domain.repository.UserSettingsRepo
 import com.kodex.guide.domain.role.DefaultRolePermissionChecker
@@ -28,9 +29,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepoModule {
+
+    @Binds
+    abstract fun bindUserAccessRepository(
+        impl: UserAccessRepoImpl
+    ): UserAccessRepo
+
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(impl: FirebaseAuthRepo_Impl): AuthRepo
+    abstract fun bindAuthRepository(
+        impl: FirebaseAuthRepoImpl
+    ): AuthRepo
 
     @Binds
     abstract fun bindTariffPolicy(
@@ -44,7 +53,7 @@ abstract class RepoModule {
 
     @Binds
     abstract fun bindUserRoleRepository(
-        impl: FirebaseUserRoleRepository
+        impl: UserRoleRepoImpl
     ): UserRoleRepo
 
     @Binds
@@ -61,18 +70,18 @@ abstract class RepoModule {
     @Binds
     @Singleton
     abstract fun bindModerationPepo(
-        moderationRepoInfo: ModerationRepo_Impl
+        moderationRepoInfo: ModerationRepoImpl
     ): ModerationRepo
 
     @Binds
     @Singleton
     abstract fun bindFavoritesRepo(
-        favoritesRepoImpl: FavoritesFirebaseRepo_Impl
+        favoritesRepoImpl: FavoritesFirebaseRepoImpl
     ): FavoritesRepo
 
     @Binds
     @Singleton
     abstract fun bindUserSettingsRepo(
-        userSettingsRepo: UserSettingsRepo_Impl
+        userSettingsRepo: UserSettingsRepoImpl
     ): UserSettingsRepo
 }

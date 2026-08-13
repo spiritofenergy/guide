@@ -4,29 +4,22 @@ import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -45,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,14 +45,11 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.dialods.FilterDialog
-import com.kodex.guide.ui.dialods.MyDialog
 import com.kodex.bookmarketcompose.R
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.domain.model.BookCategories
 import com.kodex.guide.domain.model.UserRole
-import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +82,8 @@ fun HomeScreen(
     val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    val showDeleteDialog = remember { mutableStateOf(false) }
+   //! val showDeleteDialog = remember { mutableStateOf(false) }
+    val bookToDelete by viewModel.bookToDelete
     val isAuthorState = remember { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
     val books = viewModel.books.collectAsLazyPagingItems()
@@ -110,12 +100,12 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.authEvents.collect { event ->
             when (event) {
-                is AuthEvent.ShowLoginDialog -> {
+                is AuthEvent.ShowLogInDialog -> {
                     viewModel.showAuthDialog.value = true
                     viewModel.isLogoutDialog.value = false
                 }
 
-                is AuthEvent.ShowLogoutDialog -> {
+                is AuthEvent.ShowLogOutDialog -> {
                     viewModel.showAuthDialog.value = true
                     viewModel.isLogoutDialog.value = true
                 }
@@ -130,6 +120,7 @@ fun HomeScreen(
             }
         }
     }
+/*
 
     LaunchedEffect(Unit) {
         viewModel.isAdmin { isAdmin ->
@@ -142,6 +133,7 @@ fun HomeScreen(
             viewModel.isRegisterState.value = isRegister
         }
     }
+*/
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
@@ -278,19 +270,12 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                MyDialog(
-                    showDialog = showDeleteDialog.value,
-                    onDismiss = {
-                        showDeleteDialog.value = false
-                    },
-
-                    title = stringResource(id = R.string.attention),
-                    message = stringResource(id = R.string.want_to_delete_this_message),
-                    onConfirm = {
-                        showDeleteDialog.value = false
-                        viewModel.deleteBook()
-                    },
-                )
+                if (bookToDelete != null) {
+                    DeleteBookDialog(
+                        onDismiss = { viewModel.onDeleteDialogDismissed() },
+                        onConfirm = { viewModel.deleteBook() }
+                    )
+                }
 
                 PullToRefreshBox(
                     isRefreshing = books.loadState.refresh is LoadState.Loading,
@@ -330,15 +315,11 @@ fun HomeScreen(
                                     onEditClick = {
                                         onBookEditClick(it)
                                     },
-                                    onDeleteClick = { bookToDelete ->
-                                        showDeleteDialog.value = true
-                                        viewModel.bookToDelete = bookToDelete
+                                    onDeleteClick = { book ->
+                                        viewModel.onDeleteRequested(book)
                                     },
                                     onSavedRoomClick = {
-                                        // viewModel.onFavesClick(
-                                        //    book, )
                                         viewModel.insertPost(book)
-
                                         if (!book.isFavorite) {
                                             Toast.makeText(
                                                 context,
@@ -376,14 +357,10 @@ fun HomeScreen(
                                         onEditClick = {
                                             onBookEditClick(it)
                                         },
-                                        onDeleteClick = { bookToDelete ->
-                                            showDeleteDialog.value = true
-                                            viewModel.bookToDelete = bookToDelete
+                                        onDeleteClick = { book ->
+                                            viewModel.onDeleteRequested(book)
                                         },
                                         onSavedRoomClick = {
-                                            //  viewModel.onFavesClick(book)
-                                            //  Log.d("MyLog", "book.key ${book.key}")
-                                            // Save in Room
                                             viewModel.insertPost(book)
                                             if (!book.isFavorite) {
                                                 Toast.makeText(
@@ -416,129 +393,32 @@ fun HomeScreen(
                     showFilterDialog = false
                 }
             )
-            // ✅ Диалог «Ваш тариф»
             if (showAuthDialog) {
                 val currentRole = userRole
                 val nextRole = viewModel.getNextRole(currentRole)
-                val nextRoleName =
-                    if (nextRole != null) viewModel.getRoleDisplayName(nextRole) else null
 
-                AlertDialog(
-                    onDismissRequest = { viewModel.dismissAuthDialog() },
-                    title = {
-                        Text(
-                            text = "Ваш тариф",
-                            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
-                        )
+                TariffDialog(
+                    currentRoleName = viewModel.getRoleDisplayName(currentRole),
+                    nextRoleName = nextRole?.let { viewModel.getRoleDisplayName(it) },
+                    nextRequiresPayment = nextRole?.let { viewModel.requiresPayment(it) } ?: false,
+                    showNextButton = nextRole != null,
+                    showPremiumButton = nextRole != null && nextRole != UserRole.PREMIUM,
+                    showGuestButton = currentRole == UserRole.USER ||
+                            currentRole == UserRole.BUSINESS ||
+                            currentRole == UserRole.PREMIUM,
+                    onDismiss = { viewModel.dismissAuthDialog() },
+                    onNextTariffClick = {
+                        viewModel.dismissAuthDialog()
+                        viewModel.requestUpgrade(currentRole)
                     },
-                    text = {
-                        Column {
-                            Text(
-                                text = "Текущий тариф: ${viewModel.getRoleDisplayName(currentRole)}",
-                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (nextRoleName != null) {
-                                Text(
-                                    text = "Доступно повышение до: $nextRoleName",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = if (nextRole == UserRole.BUSINESS || nextRole == UserRole.PREMIUM)
-                                        "Для перехода требуется оплата"
-                                    else
-                                        "Для перехода требуется регистрация",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                                    color = Color.Gray
-                                )
-                            } else {
-                                Text(
-                                    text = "У вас максимальный тариф",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
+                    onPremiumClick = {
+                        viewModel.dismissAuthDialog()
+                        viewModel.requestPremiumUpgrade()
                     },
-                    // ✅ Все кнопки теперь в одном Column — ничего не наезжает друг на друга
-                    confirmButton = {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp)          // ✅ отступ снизу диалога
-                        ) {
-                            // ===== 1. Зелёная кнопка — следующий тариф по цепочке =====
-                            if (nextRole != null && nextRoleName != null) {
-                                Button(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.requestUpgrade(currentRole) {
-                                            onRegistrationNeeded()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = GreenSea
-                                    )
-                                ) {
-                                    Text("Перейти на «$nextRoleName»")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-
-                            // ===== 2. Малиновая кнопка — сразу на Премиум =====
-                            if (nextRole != null && nextRole != UserRole.PREMIUM) {
-                                Button(
-                                    onClick = {
-                                        viewModel.dismissAuthDialog()
-                                        viewModel.requestPremiumUpgrade {
-                                            onRegistrationNeeded()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF9C27B0)   // малиновый
-                                    )
-                                ) {
-                                    Text("Перейти на «Премиум»")
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-
-                            // ✅ Отступ перед нижним рядом
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            // ===== 3. Нижний ряд: «Гость» СЛЕВА, затем «Отмена» =====
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // ✅ «Гость» — слева (только для авторизованных тарифов)
-                                if (currentRole == UserRole.USER ||
-                                    currentRole == UserRole.BUSINESS ||
-                                    currentRole == UserRole.PREMIUM
-                                ) {
-                                    TextButton(
-                                        onClick = {
-                                            viewModel.dismissAuthDialog()
-                                            viewModel.logout()   // выход → ANONYMOUS
-                                        }
-                                    ) {
-                                        Text("Гость")
-                                    }
-                                    Spacer(modifier = Modifier.width(105.dp))   // ✅ небольшой отступ
-                                }
-
-                                TextButton(onClick = { viewModel.dismissAuthDialog() }) {
-                                    Text("Отмена")
-                                }
-                            }
-                        }
-                    },
-                    // ✅ dismissButton больше не нужен — всё внутри confirmButton
-                    dismissButton = {}
+                    onLogoutClick = {
+                        viewModel.dismissAuthDialog()
+                        viewModel.logout()
+                    }
                 )
             }
 

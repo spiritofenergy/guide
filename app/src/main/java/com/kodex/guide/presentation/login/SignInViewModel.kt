@@ -3,7 +3,7 @@ package com.kodex.guide.presentation.login
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
+import com.kodex.guide.data.repository.FirebaseAuthRepoImpl
 import com.kodex.guide.domain.model.User
 import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.data.source.local.PreferenceDataSource
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel@Inject constructor(
-    private val authRepo: FirebaseAuthRepo_Impl,
+    private val authRepo: FirebaseAuthRepoImpl,
     private val preferenceDataSource: PreferenceDataSource
 ): ViewModel() {
     val currentUser = mutableStateOf<User?>(null)

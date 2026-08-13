@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.ModerationRepo
 

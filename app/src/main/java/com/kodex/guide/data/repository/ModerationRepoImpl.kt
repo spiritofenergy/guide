@@ -2,20 +2,20 @@ package com.kodex.guide.data.repository
 
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toRatingData
-import com.kodex.guide.data.source.remote.ModerationDataSource
+import com.kodex.guide.data.source.remote.FirebaseModerationDataSource
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.ModerationRepo
 import javax.inject.Inject
 
-class ModerationRepo_Impl @Inject constructor(
-    private val moderationDataSource: ModerationDataSource
+class ModerationRepoImpl @Inject constructor(
+    private val firebaseModerationDataSource: FirebaseModerationDataSource
 ): ModerationRepo {
     override suspend fun acceptComment(ratingData: RatingData): Result<Unit> {
-        return moderationDataSource.acceptComment(ratingData.toDTO())
+        return firebaseModerationDataSource.acceptComment(ratingData.toDTO())
     }
 
     override suspend fun getCommentsToModerate(): Result<List<RatingData>> {
-        return moderationDataSource.getAllCommentsToModerate().map { list->
+        return firebaseModerationDataSource.getAllCommentsToModerate().map { list->
             list.map { ratingDataDTO ->
                 ratingDataDTO.toRatingData()
             }
@@ -23,6 +23,6 @@ class ModerationRepo_Impl @Inject constructor(
     }
 
     override suspend fun deleteComment(uid: String): Result<Unit> {
-        return moderationDataSource.deleteComment(uid)
+        return firebaseModerationDataSource.deleteComment(uid)
     }
 }

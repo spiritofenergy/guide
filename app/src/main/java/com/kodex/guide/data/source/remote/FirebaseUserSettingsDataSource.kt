@@ -18,7 +18,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
 @Singleton
-class UserSettingsDataSource(
+class FirebaseUserSettingsDataSource(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) {

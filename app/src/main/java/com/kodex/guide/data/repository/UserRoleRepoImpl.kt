@@ -1,4 +1,4 @@
-package com.kodex.guide.data.source.remote
+package com.kodex.guide.data.repository
 
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -12,7 +12,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
-class FirebaseUserRoleRepo @Inject constructor() : UserRoleRepo {
+class UserRoleRepoImpl @Inject constructor() : UserRoleRepo {
 
     private val firestore = Firebase.firestore
 

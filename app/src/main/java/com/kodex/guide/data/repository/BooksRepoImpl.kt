@@ -4,15 +4,12 @@ import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.google.android.play.core.integrity.d
 import com.kodex.guide.data.images.BitmapEncoder
 import com.kodex.guide.data.mapper.toBookDTO
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toRatingData
-import com.kodex.guide.data.model.BookDTO
 import com.kodex.guide.data.model.BookFilter
-import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
-import com.kodex.guide.data.source.remote.FireBaseStorageDataSource
+import com.kodex.guide.data.source.remote.FirebaseBooksDataSource
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.BooksRepo
@@ -22,7 +19,7 @@ import javax.inject.Inject
 
 const val BASE_64 = true
 class BooksRepo_Impl @Inject constructor(
-    private val dataSource: BooksFirebaseRemoteDataSource,
+    private val dataSource: FirebaseBooksDataSource,
     //private val storageDataSource: FireBaseStorageDataSource,
     private val bitmapEncoder: BitmapEncoder,
     ): BooksRepo{

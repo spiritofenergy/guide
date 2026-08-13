@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.data.model.PersonalDataDTO
 import com.kodex.guide.data.source.local.PreferenceDataSource
-import com.kodex.guide.data.source.remote.UserSettingsDataSource
+import com.kodex.guide.data.source.remote.FirebaseUserSettingsDataSource
 import com.kodex.guide.domain.model.User
 import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.presentation.navigation.NavRoutes
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class SingUpViewModel @Inject constructor(
     private val authRepo : AuthRepo,
-    private val userSettingsDataSource: UserSettingsDataSource,
+    private val firebaseUserSettingsDataSource: FirebaseUserSettingsDataSource,
     private val preferenceDataSource: PreferenceDataSource
 ) : ViewModel() {
     val currentUser = mutableStateOf<User?>(null)
@@ -40,7 +40,7 @@ class SingUpViewModel @Inject constructor(
                 val userWithName = user.copy(userName = nameState.value)
                 authRepo.createUserProfile(userWithName)
                 // Сохраняем персональные данные в Firestore
-                val insertResult = userSettingsDataSource.insertPersonalData(
+                val insertResult = firebaseUserSettingsDataSource.insertPersonalData(
                     personalData = PersonalDataDTO(
                         nameState.value,
                         phoneState.value,))

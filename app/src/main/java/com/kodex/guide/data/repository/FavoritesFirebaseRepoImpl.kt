@@ -1,12 +1,12 @@
 package com.kodex.guide.data.repository
 
- import com.kodex.guide.data.source.remote.FavoritesDataSource
+ import com.kodex.guide.data.source.remote.FirebaseFavoritesDataSource
 import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.domain.repository.FavoritesRepo
 import javax.inject.Inject
 
-class FavoritesFirebaseRepo_Impl @Inject constructor(
-    private val dataSource: FavoritesDataSource
+class FavoritesFirebaseRepoImpl @Inject constructor(
+    private val dataSource: FirebaseFavoritesDataSource
 ): FavoritesRepo {
     override suspend fun getIdsFavesList(): Result<List<String>> {
        return dataSource.getIdsFavesList()

@@ -1,6 +1,5 @@
 package com.kodex.guide.data.source.remote
 
- import android.net.Uri
  import com.google.firebase.auth.FirebaseAuth
  import com.google.firebase.firestore.FieldPath
  import com.google.firebase.firestore.FirebaseFirestore
@@ -22,7 +21,7 @@ package com.kodex.guide.data.source.remote
  import javax.inject.Singleton
 
 @Singleton
-class BooksFirebaseRemoteDataSource(
+class FirebaseBooksDataSource(
     private val fireStore: FirebaseFirestore,
     private val auth: FirebaseAuth,
 
