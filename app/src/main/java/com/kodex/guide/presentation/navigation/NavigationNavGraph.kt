@@ -148,13 +148,37 @@ fun NavigationNavGraph (navController: NavHostController){
                 }
             )
         }
-
         composable<NavRoutes.ParallaxNavObject> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
+
             ParallaxScreen(
                 navObject = navData,
                 onBackPressed = { navController.popBackStack() },
                 onCallTaxi = { _, _ -> /* Позвонить */ },
+                onNavigateToReviews = {},
+                onCommentClick = {
+                    navController.navigate(
+                        NavRoutes.CommentsNavData(
+                            bookId = navData.bookId,
+                            title = navData.title,
+                            ratingsList = navData.ratingsList
+                        )
+                    )
+                },
+                // ✅ категория ТЕКУЩЕГО поста — из navData, а не из book
+                bookCategory = navData.categoryIndex,
+                // ✅ клик по похожему посту — переход на НОВЫЙ ParallaxScreen
+                onRelatedBookClick = { relatedBook ->
+                    navController.navigate(relatedBook.toParallaxNavObject())
+                },
+            )
+        }
+     /*   composable<NavRoutes.ParallaxNavObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
+            ParallaxScreen(
+                navObject = navData,
+                onBackPressed = { navController.popBackStack() },
+                onCallTaxi = { _, _ -> *//* Позвонить *//* },
                 onNavigateToReviews = {},
                 onCommentClick = {
                     navController.navigate(NavRoutes.CommentsNavData(
@@ -162,9 +186,14 @@ fun NavigationNavGraph (navController: NavHostController){
                         title = navData.title,
                         ratingsList =  navData.ratingsList
                     ))
-                }
+                },
+                bookCategory = book.categoryIndex,
+                onRelatedBookClick = { relatedBook ->
+                    place.toParallaxNavObject()
+                    // тот же переход, что и в onBookClick из HomeScreen
+                },
             )
-        }
+        }*/
 
 
         composable<NavRoutes.CommentsNavData> { navEntry ->

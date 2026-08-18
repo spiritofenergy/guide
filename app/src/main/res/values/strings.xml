@@ -63,12 +63,14 @@
 
     <!--  DerailScreen -->
     <string name="rate_this_book">Rate this Book</string>
+    <string name="call">Call</string>
     <string name="submit">Submit</string>
     <string name="message">Message</string>
     <string name="yes">Yes</string>
     <string name="ok">OK</string>
     <string name="cancel">Cansel</string>
     <string name="comments">Comments</string>
+    <string name="estimate">Estimate</string>
 
     <!-- SettingsScreen -->
     <string name="enter_track_name">Enter Track name</string>

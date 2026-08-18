@@ -214,7 +214,7 @@ fun HomeScreen(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { onAddBookClick() },
-                    containerColor = Orange,
+                    containerColor = Orange.copy(alpha = 0.6F),
                     contentColor = Color.White,
 
                     ) {
@@ -292,7 +292,7 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.TopCenter),
                             isRefreshing = books.loadState.refresh is LoadState.Loading,
                             containerColor = Color.LightGray,
-                            color = Color.White,
+                            color = Orange,
                             state = state
 
                         )
