@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun StatusChip(isOpen: Boolean) {
+fun StatusChip1(isOpen: Boolean) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = if (isOpen) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),

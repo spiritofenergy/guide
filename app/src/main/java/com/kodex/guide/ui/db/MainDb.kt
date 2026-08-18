@@ -5,13 +5,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.kodex.guide.domain.model.Book
 
-@Database(entities = [Book::class], version = 2, exportSchema = false)
+@Database(entities = [Book::class], version = 3, exportSchema = false)
 @TypeConverters(BookConverter::class)
 abstract class MainDb: RoomDatabase() {
 
     // abstract fun bookDao(): PostDao
 
-    abstract val trackDao: RoomDao
+    abstract fun trackDao(): RoomDao
 }
 
 

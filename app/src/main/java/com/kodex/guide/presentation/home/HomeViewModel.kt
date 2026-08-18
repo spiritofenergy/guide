@@ -16,17 +16,16 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toUser
-import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
 import com.kodex.guide.data.repository.UserAccessRepoImpl
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.domain.model.Favorite
 import com.kodex.guide.domain.model.FilterData
 import com.kodex.guide.ui.db.MainDb
 import com.kodex.guide.domain.model.BookCategories
+import com.kodex.guide.domain.model.BookFilterState
 import com.kodex.guide.domain.model.FilterType
 import com.kodex.guide.domain.model.Permission
 import com.kodex.guide.domain.model.User
@@ -38,21 +37,27 @@ import com.kodex.guide.domain.tarif.AuthStateProvider
 import com.kodex.guide.domain.tarif.TariffPolicy
 import com.kodex.guide.domain.tarif.UpgradeDecision
 import com.kodex.guide.domain.tarif.UpgradeManager
+import com.kodex.guide.domain.usecase.ObserveSavedKeysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // ✅ События для UI (диалоги, навигация)
@@ -75,8 +80,10 @@ class HomeViewModel @Inject constructor(
     private val tariffPolicy: TariffPolicy,
     private val upgradeManager: UpgradeManager,
     private val authStateProvider: AuthStateProvider,
-    private val userAccessRepository: UserAccessRepoImpl
-) : ViewModel() {
+    private val userAccessRepository: UserAccessRepoImpl,
+    private val observeSavedKeysUseCase: ObserveSavedKeysUseCase,
+
+    ) : ViewModel() {
 
     val showPaymentSheet = mutableStateOf(false)
     val paymentInProgress = mutableStateOf(false)
@@ -96,13 +103,12 @@ class HomeViewModel @Inject constructor(
     var isRegisterState = mutableStateOf(false)
     val categoryState = mutableStateOf(BookCategories.ALL)
     private val bookListUpdate = MutableStateFlow<List<ChangedTempBook>>(emptyList())
-    private val bookFilterStateFlow = MutableStateFlow<BookFilter>(BookFilter())
+    private val bookFilterStateFlow = MutableStateFlow(BookFilterState())
     private val searchStateFlow = MutableStateFlow("")
     private val debounceSearchFlow = searchStateFlow
         .debounce(500)
         .distinctUntilChanged()
-    private val favoritesKeysFlow = MutableStateFlow<List<String>>(emptyList())
-    val postList = mainDb.trackDao.getAllPosts()
+
     // ✅ Желательный тариф для установки после регистрации
     val desiredRole = mutableStateOf<UserRole?>(null)
     val bookToDelete = mutableStateOf<Book?>(null)
@@ -112,19 +118,30 @@ class HomeViewModel @Inject constructor(
     fun onDeleteDialogDismissed() {
         bookToDelete.value = null
     }
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private val savedKeysFlow: StateFlow<Set<String>> = observeSavedKeysUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptySet()
+        )
     val books: Flow<PagingData<Book>> = combine(
-        favoritesKeysFlow,
+        savedKeysFlow,
         bookFilterStateFlow,
         debounceSearchFlow
-    ) { keysList, bookFilter, searchText ->
-        Triple(keysList, bookFilter, searchText)
-    }.flatMapLatest { (keysList, filter, searchText) ->
-        booksRepo.getBooks(
-            keysList, filter.copy(
-                searchText = searchText
-            )
+    ) { savedKeys, filter, searchText ->
+
+        Triple(
+            savedKeys.toList(),   // ← важно: Set<String> -> List<String>
+            filter,
+            searchText
         )
+    }.flatMapLatest { (keysList, filter, searchText) ->
+
+        booksRepo.getBooks(
+            keysList,
+            filter.copy(searchText = searchText)
+        )
+
     }.cachedIn(viewModelScope)
         .combine(bookListUpdate) { pagingData, changedBookList ->
             pagingData.filter { pData ->
@@ -377,18 +394,6 @@ class HomeViewModel @Inject constructor(
         Firebase.auth.removeAuthStateListener(authStateListener)
     }
 
-    private fun refreshFavoritesKeys() = viewModelScope.launch {
-        val result = favoritesRepo.getIdsFavesList()
-        result.fold(
-            onSuccess = { keysList ->
-                favoritesKeysFlow.value = keysList
-            },
-            onFailure = {
-                favoritesKeysFlow.value = emptyList()
-                sendUiState(MainUiState.Error(it.message ?: "Unknown error"))
-            }
-        )
-    }
 
     private fun sendUiState(state: MainUiState) = viewModelScope.launch {
         _uiState.emit(state)
@@ -459,40 +464,42 @@ class HomeViewModel @Inject constructor(
             searchText
         }
     }
-
     fun getAllBooksFromCategory(category: BookCategories) {
         categoryState.value = category
         clearTempBookList()
-        refreshFavoritesKeys()
-        bookFilterStateFlow.update { filter ->
-            filter.copy(category = category)
-        }
-        Log.d("MyLog", "getAllBooksFromCategory: $category")
+
+        bookFilterStateFlow.value = BookFilterState.Category(
+            category = category,
+            author = null
+        )
+
     }
 
-    fun onFavesClick(book: Book) = viewModelScope.launch(Dispatchers.IO) {
-        val needDelete = selectedBottomItemState.intValue == BottomMenuItem.Saved.titleId
-        val favsResult = favoritesRepo.onFavorites(Favorite(book.key), !book.isFavorite)
-        favsResult.fold(
-            onSuccess = {
-                updateChangedBook(book.copy(isFavorite = book.isFavorite), needDelete)
-                sendUiState(MainUiState.Success)
-            },
-            onFailure = {
-                sendUiState(MainUiState.Error(it.message ?: "Unknown error"))
-            }
-        )
-    }
 
     fun insertPost(book: Book) = viewModelScope.launch(Dispatchers.IO) {
-        mainDb.trackDao.insertPost(book)
-    }
+        // Проверяем, есть ли уже пост в базе
+        val existingPosts = mainDb.trackDao().getAllPosts().first()
+        val isAlreadySaved = existingPosts.any { it.key == book.key }
 
-    /*! // Получить все сохраненные книги
-    fun getAllSavedBooks(): Flow<List<Book>> {
-        return mainDb.trackDao.getAllPosts()
+        if (isAlreadySaved) {
+            // Пост уже сохранен - показываем сообщение
+            withContext(Dispatchers.Main) {
+                _uiState.emit(MainUiState.Error("Этот пост уже сохранен"))
+            }
+            return@launch
+        }
+
+        // Обновляем состояние isFavorite
+        val updatedBook = book.copy(isFavorite = true)
+        mainDb.trackDao().insertPost(updatedBook)
+
+        // Обновляем UI через bookListUpdate
+        updateChangedBook(updatedBook, isDeleted = false)
+
+        withContext(Dispatchers.Main) {
+            _uiState.emit(MainUiState.Success)
+        }
     }
-*/
 
     sealed class MainUiState {
         data object Loading : MainUiState()

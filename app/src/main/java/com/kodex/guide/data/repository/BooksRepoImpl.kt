@@ -8,9 +8,9 @@ import com.kodex.guide.data.images.BitmapEncoder
 import com.kodex.guide.data.mapper.toBookDTO
 import com.kodex.guide.data.mapper.toDTO
 import com.kodex.guide.data.mapper.toRatingData
-import com.kodex.guide.data.model.BookFilter
 import com.kodex.guide.data.source.remote.FirebaseBooksDataSource
 import com.kodex.guide.domain.model.Book
+import com.kodex.guide.domain.model.BookFilterState
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.presentation.home.BookFactoryPaging
@@ -23,7 +23,7 @@ class BooksRepo_Impl @Inject constructor(
     //private val storageDataSource: FireBaseStorageDataSource,
     private val bitmapEncoder: BitmapEncoder,
     ): BooksRepo{
-    override fun getBooks(favsKeysList: List<String>, bookFilter: BookFilter): Flow<PagingData<Book>> {
+    override fun getBooks(favsKeysList: List<String>, bookFilter: BookFilterState): Flow<PagingData<Book>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 16,

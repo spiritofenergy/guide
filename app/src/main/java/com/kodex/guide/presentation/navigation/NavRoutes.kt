@@ -35,13 +35,14 @@ class NavRoutes {
         val price: Int = 0,
         val isOpenNow: Boolean = true,
         val openingHours: String = "09:00 - 20:00",
-        val address: String = "Кучугуры, ул. Ленина, 15",
+        val address: String = "Кучугуры",
+        val apartment: String? = null,
         val telephone: String = "+7(495)123-45-67",
         val website: String = "coffeehouse.ru",
         val village: String = "",
-        val street: String = "",
-        val house: String = "",
-        val flat: String = "",
+        val street: String = "ул. Ленина",
+        val house: String = "14",
+        val flat: String = "22",
         val location:  Boolean = false,
         val delivery: Boolean = false,
         val payment: Boolean = false,
@@ -52,8 +53,32 @@ class NavRoutes {
         val author: String = "",
         val timestamp: Long = System.currentTimeMillis(),
         val isFaves: Boolean = false,
-        val ratingsList: List<Int> = emptyList()
-    )
+        val ratingsList: List<Int> = emptyList(),
+        val hasDelivery: Boolean = true,
+        val acceptsCard: Boolean = true )
+                @Serializable
+                data class ParallaxNavObject1(
+                    val bookId: String = "",
+                    val title: String = "",
+                    val address: String = "",
+                    val street: String = "",           //  Улица
+                    val house: String = "",            // 🆕 Дом
+                    val apartment: String? = null,     //  Квартира (опционально)
+                    val price: Int = 0,
+                    val imageUrl: String = "",
+                    val isOpenNow: Boolean = true,
+                    val openingHours: String = "",
+                    val telephone: String = "",
+                    val website: String = "",
+                    val latitude: String = "",
+                    val longitude: String = "",
+                    val description: String = "",
+                    val categoryIndex: BookCategories = BookCategories.ALL,
+                    val ratingsList: List<Int> = emptyList(),
+                    val hasDelivery: Boolean = false,  // 🆕 Наличие доставки
+                    val acceptsCard: Boolean = false   // 🆕 Оплата картой
+        )
+
 
     @Serializable
     data class DetailNavObject(
