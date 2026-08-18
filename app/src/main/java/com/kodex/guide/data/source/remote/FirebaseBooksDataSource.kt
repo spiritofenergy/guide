@@ -6,7 +6,6 @@ package com.kodex.guide.data.source.remote
  import com.google.firebase.firestore.Query
  import com.kodex.guide.data.mapper.toFirebaseFields
  import com.kodex.guide.data.model.BookDTO
- import com.kodex.guide.data.model.BookFilter
  import com.kodex.guide.data.model.BooksPageDTO
  import com.kodex.guide.data.model.RatingDataDTO
  import com.kodex.guide.domain.model.BookCategories
@@ -17,6 +16,7 @@ package com.kodex.guide.data.source.remote
  import com.kodex.guide.data.source.remote.FirebaseConst.RATING
  import com.kodex.guide.data.source.remote.FirebaseConst.RATING_DATA
  import com.kodex.guide.data.source.remote.FirebaseConst.SEARCH_TITLE
+ import com.kodex.guide.domain.model.BookFilterState
  import kotlinx.coroutines.tasks.await
  import javax.inject.Singleton
 
@@ -30,7 +30,7 @@ class FirebaseBooksDataSource(
         keysFavesList: List<String>,
         pageSize: Long,
         currentKey: String?,
-        bookFilter: BookFilter,
+        bookFilter: BookFilterState,
     ): BooksPageDTO{
         var query: Query = fireStore.collection(POSTS)
             .limit(pageSize)

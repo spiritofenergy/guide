@@ -49,8 +49,14 @@ android {
 }
 
 dependencies {
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.remote.creation.core)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.constraintlayout)
     val koin_version = "4.1.0"
     implementation("io.insert-koin:koin-androidx-compose:$koin_version")
 

@@ -56,6 +56,7 @@ fun BookListItemUi(
     titleIndex: Int,
     showEditButton: Boolean = true,
     book: Book = Book(),
+    isSaved: Boolean = false,
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
     onSavedRoomClick: () -> Unit = {},
@@ -135,12 +136,12 @@ fun BookListItemUi(
                     .padding(10.dp)
             ) {
                 Icon(
-                    if (book.isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     contentDescription = "",
                     modifier = Modifier
                         .background(Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
                         .padding(8.dp),
-                    tint = if (book.isFavorite) colorResource(R.color.orang) else Color.White
+                    tint = if (isSaved) Orange else Color.White
                 )
             }
 
@@ -227,14 +228,14 @@ fun BookListItemUi(
                 )
             }
             Spacer(modifier = Modifier.width(5.dp))
-            if (book.payment)
-            Icon(
-                Icons.Default.Payment,
-                contentDescription = "Payment",
-                modifier = Modifier.size(20.dp),
-                tint = Red
-
-            )
+            if (book.payment) {
+                Icon(
+                    Icons.Default.Payment,
+                    contentDescription = "Payment",
+                    modifier = Modifier.size(20.dp),
+                    tint = Red
+                )
+            }
             Spacer(modifier = Modifier.width(5.dp))
             Icon(
                 Icons.Default.LocationOn,
@@ -275,11 +276,4 @@ fun BookListItemUi(
         }
     }
 }
-/*
-@Composable
-@Preview(showBackground = true)
-fun BookListItemUiPreview() {
-    BookListItemUi(
-        titleIndex = 0,
-    )
-}*/
+

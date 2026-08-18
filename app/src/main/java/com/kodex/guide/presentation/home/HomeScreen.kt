@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kodex.guide.domain.model.Book
 import com.kodex.guide.ui.dialods.FilterDialog
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    //savedViewModel: SavedPostsViewModel = hiltViewModel(),
     viewModel: HomeViewModel = hiltViewModel(),
     navData: NavRoutes.HomeDataObject,
     onBookEditClick: (Book) -> Unit,
@@ -77,17 +79,18 @@ fun HomeScreen(
     val headerUser by viewModel.headerUser
     val showPaymentSheet = viewModel.showPaymentSheet
 
+    val savedViewModel: SavedPostsViewModel = hiltViewModel()
+    val savedPosts by savedViewModel.savedPosts.collectAsStateWithLifecycle()
+    val savedKeys by savedViewModel.savedKeys.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val categoryList = stringArrayResource(id = R.array.category_array)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-   //! val showDeleteDialog = remember { mutableStateOf(false) }
     val bookToDelete by viewModel.bookToDelete
     val isAuthorState = remember { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
     val books = viewModel.books.collectAsLazyPagingItems()
-    val roomList = viewModel.postList.collectAsState(initial = emptyList())
 
     val state = rememberPullToRefreshState()
 
@@ -120,21 +123,21 @@ fun HomeScreen(
             }
         }
     }
-/*
+
 
     LaunchedEffect(Unit) {
-        viewModel.isAdmin { isAdmin ->
-            viewModel.isAdminState.value = isAdmin
+        savedViewModel.events.collect { event ->
+            when (event) {
+                is SavedUiEvent.ShowToast -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
-
-    LaunchedEffect(Unit) {
-        viewModel.isUserRegistered { isRegister ->
-            viewModel.isRegisterState.value = isRegister
-        }
-    }
-*/
-
     LaunchedEffect(Unit) {
         viewModel.uiState.collect { uiState ->
             if (uiState is HomeViewModel.MainUiState.Error) {
@@ -301,41 +304,29 @@ fun HomeScreen(
                             Modifier
                                 .fillMaxSize()
                                 .padding(2.dp)
-                        )
-                        {
-                            items(roomList.value) { book ->
-                                BookListItemUi(
-                                    heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
-                                    titleIndex = viewModel.categoryState.value.id,
-                                    viewModel.isAdminState.value,
-                                    book,
-                                    onBookClick = { bk ->
-                                        onBookClick(bk)
-                                    },
-                                    onEditClick = {
-                                        onBookEditClick(it)
-                                    },
-                                    onDeleteClick = { book ->
-                                        viewModel.onDeleteRequested(book)
-                                    },
-                                    onSavedRoomClick = {
-                                        viewModel.insertPost(book)
-                                        if (!book.isFavorite) {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.added_to_memory,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.deleted_from_memory,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                        ) {
+                            items(savedPosts) { book ->
+                                    val isSaved = savedKeys.contains(book.key)
+                                    BookListItemUi(
+                                        heightValue = if (viewModel.showTabOneOrTo.value) 1 else 2,
+                                        titleIndex = viewModel.categoryState.value.id,
+                                        showEditButton = viewModel.isAdminState.value,
+                                        book = book,
+                                        isSaved = isSaved,
+                                        onBookClick = { bk ->
+                                            onBookClick(bk)
+                                        },
+                                        onEditClick = {
+                                            onBookEditClick(it)
+                                        },
+                                        onDeleteClick = { bookToDelete ->
+                                            viewModel.onDeleteRequested(bookToDelete)
+                                        },
+                                        onSavedRoomClick = {
+                                            savedViewModel.toggle(book)
                                         }
-                                    }
-                                )
-                                Spacer(Modifier.padding(5.dp))
+                                    )
+                                    Spacer(Modifier.padding(5.dp))
                             }
                         } else {
                         LazyVerticalStaggeredGrid(
@@ -346,35 +337,25 @@ fun HomeScreen(
                             items(count = books.itemCount) { index ->
                                 val book = books[index]
                                 if (book != null) {
+                                    val isSaved = savedKeys.contains(book.key)
+
                                     BookListItemUi(
-                                        heightValue = if (viewModel.showTabOneOrTo.value == true) 1 else 2,
+                                        heightValue = if (viewModel.showTabOneOrTo.value) 1 else 2,
                                         titleIndex = viewModel.categoryState.value.id,
-                                        viewModel.isAdminState.value,
-                                        book,
+                                        showEditButton = viewModel.isAdminState.value,
+                                        book = book,
+                                        isSaved = isSaved,
                                         onBookClick = { bk ->
                                             onBookClick(bk)
                                         },
                                         onEditClick = {
                                             onBookEditClick(it)
                                         },
-                                        onDeleteClick = { book ->
-                                            viewModel.onDeleteRequested(book)
+                                        onDeleteClick = { bookToDelete ->
+                                            viewModel.onDeleteRequested(bookToDelete)
                                         },
                                         onSavedRoomClick = {
-                                            viewModel.insertPost(book)
-                                            if (!book.isFavorite) {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.added_to_memory,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.deleted_from_memory,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
+                                            savedViewModel.toggle(book)
                                         }
                                     )
                                 }
