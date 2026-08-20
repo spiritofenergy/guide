@@ -109,26 +109,7 @@ fun NavigationNavGraph (navController: NavHostController){
                 },
             )
         }
-        composable<NavRoutes.MyPostsNavObject> {
-            MyPostsScreen(
-                onEditClick = { book ->
-                    navController.navigate(NavRoutes.MyPostEditorNavObject(book.key))
-                },
-                onAddClick = {
-                    navController.navigate(NavRoutes.MyPostEditorNavObject())
-                },
-                onBack = { navController.popBackStack() }
-            )
-        }
 
-        composable<NavRoutes.MyPostEditorNavObject> { navEntry ->
-            val navData = navEntry.toRoute<NavRoutes.MyPostEditorNavObject>()
-            MyPostEditorScreen(
-                bookKey = navData.bookKey,
-                onSaved = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
-            )
-        }
         composable<NavRoutes.AddScreenObject> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.AddScreenObject>()
             AddBookScreen(
