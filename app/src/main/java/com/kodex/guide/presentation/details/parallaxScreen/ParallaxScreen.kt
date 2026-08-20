@@ -71,10 +71,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ParallaxScreen(
     viewModel: DetailsScreenViewModel = hiltViewModel(),
-    viewModelHome: HomeViewModel = hiltViewModel(),
     navObject: NavRoutes.ParallaxNavObject = NavRoutes.ParallaxNavObject(),
     onBackPressed: () -> Unit,
-    onCallTaxi: (String, String) -> Unit,
     onNavigateToReviews: () -> Unit,
     onCommentClick: () -> Unit,
     bookCategory: BookCategories = BookCategories.ALL,   // ✅ НОВОЕ
@@ -89,7 +87,6 @@ fun ParallaxScreen(
     var showMap by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val coroutineScope = rememberCoroutineScope()
     val imageHeight = remember { Animatable(expandedHeight.value) }
     var bitmap: Bitmap? = null
@@ -102,23 +99,7 @@ fun ParallaxScreen(
 
     val listState = rememberLazyListState()
 
-/*
-// ✅ пользователь пролистал ОСНОВНОЙ пост (индекс 0)
-    val passedPost by remember {
-        derivedStateOf { gridState.firstVisibleItemIndex > 0 }
-    }
-*/
 
-  /*  // ✅ шит всплывает сразу после поста, а не в конце похожих
-    LaunchedEffect(passedPost) {
-        if (passedPost) showActionsSheet = true
-    }*/
-/*// ✅ скролл дошел до самого низа
-    val atEnd by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.isNotEmpty() && !listState.canScrollForward
-        }
-    }*/
 
     val savedViewModel: SavedPostsViewModel = hiltViewModel()
     val savedKeys by savedViewModel.savedKeys.collectAsStateWithLifecycle()
@@ -144,13 +125,7 @@ fun ParallaxScreen(
     LaunchedEffect(navObject.bookId) {
         viewModel.loadRelatedBooks(bookCategory, navObject.bookId)
     }
-/*
-// ✅ Как только дошли до конца — показываем BottomSheet
-    LaunchedEffect(atEnd) {
-        if (atEnd) {
-            showActionsSheet = true
-        }
-    }*/
+
     LaunchedEffect(key1 = Unit) {
         viewModel.onEvent(
             DetailUiEvents.DetailUiEvent.GetCommentsEvent(navObject.bookId)
