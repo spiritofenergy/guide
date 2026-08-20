@@ -181,7 +181,6 @@ fun NavigationNavGraph (navController: NavHostController){
             ParallaxScreen(
                 navObject = navData,
                 onBackPressed = { navController.popBackStack() },
-                onCallTaxi = { _, _ -> /* Позвонить */ },
                 onNavigateToReviews = {},
                 onCommentClick = {
                     navController.navigate(
