@@ -63,7 +63,9 @@ import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.presentation.home.SavedPostsViewModel
 import com.kodex.guide.presentation.login.LoginButton
 import com.kodex.guide.ui.theme.ButtonColor
+import com.kodex.guide.ui.theme.IconBgLight
 import com.kodex.guide.ui.theme.Orange
+import com.kodex.guide.ui.theme.TextDark
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -75,8 +77,8 @@ fun ParallaxScreen(
     onBackPressed: () -> Unit,
     onNavigateToReviews: () -> Unit,
     onCommentClick: () -> Unit,
-    bookCategory: BookCategories = BookCategories.ALL,   // ✅ НОВОЕ
-    onRelatedBookClick: (Book) -> Unit = {},             // ✅ НОВОЕ
+    bookCategory: BookCategories = BookCategories.ALL,
+    onRelatedBookClick: (Book) -> Unit = {},
 
 ) {
     val configuration = LocalConfiguration.current

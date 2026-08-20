@@ -75,7 +75,8 @@ fun HomeScreen(
 
     ) {
     // Подписываемся на роль пользователя
-    val userRole by viewModel.userRole
+    val userRole by viewModel.userRole.collectAsState()      // ✅ Flow
+    val isAdmin by viewModel.isAdminState.collectAsState()   // ✅ Flow
     val showAuthDialog by viewModel.showAuthDialog
     val isLogoutDialog by viewModel.isLogoutDialog
     val headerUser by viewModel.headerUser
@@ -166,9 +167,9 @@ fun HomeScreen(
                 DrawerBody(
                     onAdminClick = onAdminClick,
                     onAddBookClick = onAddBookClick,
-                    onAdmin = { isAdmin ->
+                   /* onAdmin = { isAdmin ->
                         viewModel.isAdminState.value = isAdmin
-                    },
+                    },*/
                     onCategoryClick = { categoryIndex ->
                         if (categoryIndex == BookCategories.SAVED) {
                             viewModel.selectedBottomItemState.intValue =
@@ -317,7 +318,7 @@ fun HomeScreen(
                                     BookListItemUi(
                                         heightValue = if (viewModel.showTabOneOrTo.value) 1 else 2,
                                         titleIndex = viewModel.categoryState.value.id,
-                                        showEditButton = viewModel.isAdminState.value,
+                                        showEditButton = viewModel.isAdminState.collectAsState().value,
                                         book = book,
                                         isSaved = isSaved,
                                         onBookClick = { bk ->
@@ -349,7 +350,7 @@ fun HomeScreen(
                                     BookListItemUi(
                                         heightValue = if (viewModel.showTabOneOrTo.value) 1 else 2,
                                         titleIndex = viewModel.categoryState.value.id,
-                                        showEditButton = viewModel.isAdminState.value,
+                                        showEditButton = viewModel.isAdminState.collectAsState().value,
                                         book = book,
                                         isSaved = isSaved,
                                         onBookClick = { bk ->

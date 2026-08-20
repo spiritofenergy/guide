@@ -1,9 +1,11 @@
 package com.kodex.guide.presentation.home
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -48,6 +50,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -82,9 +85,7 @@ class HomeViewModel @Inject constructor(
     private val authStateProvider: AuthStateProvider,
     private val userAccessRepository: UserAccessRepoImpl,
     private val observeSavedKeysUseCase: ObserveSavedKeysUseCase,
-
     ) : ViewModel() {
-
     val showPaymentSheet = mutableStateOf(false)
     val paymentInProgress = mutableStateOf(false)
     val minPriceValue = mutableFloatStateOf(0f)
@@ -92,11 +93,11 @@ class HomeViewModel @Inject constructor(
     val isFilterByTitle = mutableStateOf(true)
     var showTabOneOrTo = mutableStateOf(false)
     val selectedBottomItemState = mutableIntStateOf(BottomMenuItem.Home.titleId)
-    val isAdminState = mutableStateOf(false)
+
     // ✅ профиль для DrawerHeader
     val headerUser = mutableStateOf<User?>(null)
-    val isAuthorized = mutableStateOf(authDataSource.getCurrentUser() != null)
-    val userRole = mutableStateOf(UserRole.ANONYMOUS)
+
+
     // Состояние для диалога
     val showAuthDialog = mutableStateOf(false)
     val isLogoutDialog = mutableStateOf(false)
@@ -164,10 +165,25 @@ class HomeViewModel @Inject constructor(
         }
     private val _authEvents = MutableSharedFlow<AuthEvent>()
     val authEvents = _authEvents.asSharedFlow()
-
     private val _uiState = MutableSharedFlow<MainUiState>()
     val uiState = _uiState.asSharedFlow()
 
+    // ===== Роль и авторизация — только StateFlow =====
+    private val _userRole = MutableStateFlow(UserRole.ANONYMOUS)
+    val userRole: StateFlow<UserRole> = _userRole.asStateFlow()
+
+    private val _isAdminState = MutableStateFlow(false)
+    val isAdminState: StateFlow<Boolean> = _isAdminState.asStateFlow()
+
+    private val _isAuthorized = MutableStateFlow(false)
+    val isAuthorized: StateFlow<Boolean> = _isAuthorized.asStateFlow()
+
+    // ... где-то в функции обновления ...
+    fun updateRole(role: UserRole) {
+        // 4. Обновляем значение через .value
+        _userRole.value = role       // ✅ Правильно
+        _isAuthorized.value = true   // ✅ Правильно
+    }
 
     // ✅ Есть ли сохранённый email (пользователь уже входил/регистрировался)
     fun getSavedEmail(): String? {
@@ -282,8 +298,8 @@ class HomeViewModel @Inject constructor(
         refreshHeader()
         // Загружаем роль при старте
         authDataSource.getCurrentUser()?.let { user ->
-            userRole.value = user.role
-            isAuthorized.value = true
+            _userRole.value = user.role
+            _isAuthorized.value = true
         }
 
         // ✅ ДОБАВЛЕНО: Регистрируем слушатель состояния авторизации
@@ -307,8 +323,8 @@ class HomeViewModel @Inject constructor(
                     Log.e("MyLog", "Ошибка загрузки роли: ${error.message}")
                 }
                 .collect { role ->
-                    userRole.value = role
-                    isAuthorized.value = true
+                    _userRole.value = role
+                    _isAuthorized.value = true
 
                     preferenceDataSource.saveRole(role)
                     refreshHeader()
@@ -528,8 +544,8 @@ class HomeViewModel @Inject constructor(
    }
     // ✅ Локальное применение роли: UI + кеш + шапка
     private fun applyRoleLocally(role: UserRole) {
-        userRole.value = role
-        isAuthorized.value = true
+        _userRole.value = role
+        _isAuthorized.value = true
         viewModelScope.launch { preferenceDataSource.saveRole(role) }
         refreshHeader()
     }
@@ -623,9 +639,9 @@ class HomeViewModel @Inject constructor(
         Firebase.auth.signOut()
         authDataSource.signOut()
 
-        userRole.value = UserRole.ANONYMOUS
-        isAuthorized.value = false
-        isAdminState.value = false
+        _userRole.value = UserRole.ANONYMOUS
+        _isAuthorized.value = false
+        _isAdminState.value = false
 
         isRegisterState.value = false
         preferenceDataSource.clearUserSession()
@@ -641,13 +657,13 @@ class HomeViewModel @Inject constructor(
         val uid = authStateProvider.currentUser()?.uid
 
         if (uid == null) {
-            isAdminState.value = false
+            _isAdminState.value = false
             isRegisterState.value = false
             return
         }
 
         viewModelScope.launch {
-            isAdminState.value = userAccessRepository.isAdmin(uid)
+            _isAdminState.value = userAccessRepository.isAdmin(uid)
             isRegisterState.value = userAccessRepository.isRegistered(uid)
         }
     }

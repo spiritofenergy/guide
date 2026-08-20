@@ -22,3 +22,19 @@ val GrayLite = Color(0x2260676E)
 val BoxFilter = Color(0x3196C6EA)
 val Orange = Color(0xFFFF9800)
 val Red = Color(0xFFA1453F)
+val InfoBlue = Color(0xFF3B82F6)
+
+// Бренд
+val PrimaryDark = Color(0xFF3B2F8F)
+val PrimaryLight = Color(0xFF5B4FCF)
+val AccentPurple = Color(0xFF6C5CE7)
+
+// Фон и текст
+val BackgroundWhite = Color(0xFFFFFFFF)
+val TextDark = Color(0xFF1A1A2E)
+val TextGray = Color(0xFF6B7280)
+val DividerColor = Color(0xFFE5E7EB)
+val IconBgLight = Color(0xFFF0EDFF)
+
+// Статусы
+val StatusOpen = Color(0xFF10B98)

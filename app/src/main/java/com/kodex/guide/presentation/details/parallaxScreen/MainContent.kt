@@ -1,39 +1,62 @@
 package com.kodex.guide.presentation.details.parallaxScreen
 
 
-import android.R.attr.navigationIcon
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Streetview
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,31 +64,28 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.kodex.bookmarketcompose.R
-import com.kodex.guide.presentation.navigation.NavRoutes
+import com.kodex.guide.data.service.WorkingHoursServiceImpl
+import com.kodex.guide.domain.service.WorkingHoursService
+import com.kodex.guide.presentation.components.ActionButton
+import com.kodex.guide.presentation.components.ArrowCircleButton
+import com.kodex.guide.presentation.components.DeliveryChip
+import com.kodex.guide.presentation.components.InfoRow
+import com.kodex.guide.presentation.components.SectionHeader
+import com.kodex.guide.presentation.components.ServiceInfoRow
+import com.kodex.guide.presentation.components.StatusChip
+import com.kodex.guide.presentation.components.StatusDelivery
 import com.kodex.guide.presentation.detailScreen.CommentListItem
 import com.kodex.guide.presentation.detailScreen.DetailsScreenViewModel
-import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.presentation.events.DetailUiEvents
-import com.kodex.guide.presentation.placeScreen.InfoRow
+import com.kodex.guide.presentation.navigation.NavRoutes
 import com.kodex.guide.ui.dialods.DialogComments
 import com.kodex.guide.ui.dialods.DialogRating
-import com.kodex.guide.ui.theme.ButtonColorBlue
-import com.kodex.guide.ui.theme.DrawerColorBlue
+import com.kodex.guide.ui.theme.BackgroundWhite
+import com.kodex.guide.ui.theme.IconBgLight
 import com.kodex.guide.ui.theme.Orange
-import kotlinx.coroutines.coroutineScope
+import com.kodex.guide.ui.theme.TextDark
+import com.kodex.guide.ui.theme.TextGray
 import kotlinx.coroutines.launch
-import java.nio.ByteOrder
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
-// Цвета по образцу
-private val PrimaryDark = Color(0xFF3B2F8F) // Темно-синий/фиолетовый
-private val PrimaryLight = Color(0xFF5B4FCF) // Светлее
-private val AccentPurple = Color(0xFF6C5CE7)
-private val BackgroundWhite = Color(0xFFFFFFFF)
-val TextDark = Color(0xFF1A1A2E)
-private val TextGray = Color(0xFF6B7280)
-private val DividerColor = Color(0xFFE5E7EB)
-val IconBgLight = Color(0xFFF0EDFF)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -76,8 +96,12 @@ fun MainContent(
     onShowMapClick: () -> Unit,
     viewModel: DetailsScreenViewModel = viewModel(),
     onBackPressed: () -> Unit,
-
-    ) {
+    timeService: WorkingHoursService = WorkingHoursServiceImpl(),  // ✅ DIP: зависит от абстракции
+) {
+    // ✅ статус вычисляется сервисом из строки часов, а не хранится в navObject
+    val isOpenNow = remember(navObject.openingHours) {
+        timeService.isOpenNow(navObject.openingHours)
+    }
     var showRateDialog by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState.collectAsState()
@@ -288,10 +312,12 @@ fun MainContent(
                         )
                     }
                 }
-                StatusChip(isOpen = navObject.isOpenNow)
 
-                if (navObject.delivery)
-                    StatusDelivery(navObject.delivery)
+                StatusChip(isOpen = isOpenNow)
+
+
+                    if (navObject.delivery)
+                        DeliveryChip()
                 Spacer(modifier = Modifier.width(4.dp))
 
 
@@ -617,326 +643,5 @@ fun MainContent(
     }
 }
 
-// ===== Вспомогательные компоненты =====
 
-@Composable
-fun ActionButton(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = Color.White.copy(alpha = 0.15f),
-            modifier = Modifier
-                .size(56.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.White.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    icon,
-                    contentDescription = label,
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.White
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = label,
-            fontSize = 11.sp,
-            color = Color.White.copy(alpha = 0.9f),
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
 
-@Composable
-fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = TextDark,
-        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
-    )
-    Spacer(modifier = Modifier.height(4.dp))
-}
-
-@Composable
-fun InfoRow(
-    icon: ImageVector,
-    iconTint: Color,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = IconBgLight,
-            modifier = Modifier.size(36.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = iconTint
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                color = TextGray
-            )
-            Text(
-                text = value,
-                fontSize = 15.sp,
-                color = TextDark,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
-fun ServiceInfoRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    color: Color
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = color.copy(alpha = 0.1f),
-            modifier = Modifier.size(36.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = color
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = TextDark
-            )
-            Text(
-                text = subtitle,
-                fontSize = 12.sp,
-                color = TextGray
-            )
-        }
-        Icon(
-            Icons.Default.CheckCircle,
-            contentDescription = "Доступно",
-            tint = color,
-            modifier = Modifier.size(32.dp)
-        )
-    }
-}
-
-@Composable
-fun AddressItem(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = IconBgLight,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = AccentPurple
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                color = TextGray
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = TextDark,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-fun StatusChip(isOpen: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = if (isOpen) Color(0xFF10B981).copy(alpha = 0.1f)
-        else Color(0xFFEF4444).copy(alpha = 0.1f)
-    ) {
-        Text(
-            text = if (isOpen) "Открыто" else "Закрыто",
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isOpen) Color(0xFF10B981) else Color(0xFFEF4444)
-        )
-    }
-}
-
-@Composable
-fun StatusDelivery(isDelivery: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = if (isDelivery) Color(0xFF10B981).copy(alpha = 0.1f)
-        else Color(0xFFEF4444).copy(alpha = 0.1f)
-    ) {
-        Text(
-            text = "Доставка",
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isDelivery) Color(0xFF10B981) else Color(0xFFEF4444)
-        )
-    }
-}
-
-@Composable
-fun ArrowCircleButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    borderColor: Color = Color(0xFF3B82F6),          // тёмная обводка как на картинке
-    arrowColor: Color = Color(0xFF3B82F6),           // цвет стрелки
-    backgroundColor: Color = Color(0xFF3B82F6).copy(alpha = 0.3f) // ✅ прозрачный фон
-) {
-    Box(
-        modifier = modifier
-            .size(44.dp)
-            .border(
-                width = 1.5.dp,
-                color = borderColor,
-                shape = CircleShape
-            )
-            .background(backgroundColor, CircleShape)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowForward,
-            contentDescription = null,
-            tint = arrowColor,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}
-
-/*@Composable
-fun ArrowCircleButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-            .size(20.dp)
-            .background(
-                color = Color(0xFF3B82F6).copy(alpha = 0.5f),
-                shape = CircleShape
-            )
-    ) {
-        Icon(
-            Icons.Default.ArrowForward,
-            contentDescription = "Перейти",
-            tint = Color.White,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}*/
-@Composable
-fun AddressCompactItem(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(
-                shape = CircleShape,
-                color = IconBgLight,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = AccentPurple
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                color = TextGray
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = TextDark,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
