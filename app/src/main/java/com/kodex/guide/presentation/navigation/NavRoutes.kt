@@ -5,6 +5,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class NavRoutes {
+
+
+    @Serializable
+    data class MyPostsNavObject(
+        val uid: String = ""
+    )
+
+    @Serializable
+    data class MyPostEditorNavObject(
+        val bookKey: String = ""
+    )
+
     @Serializable
     data class HomeDataObject(
         val uid: String = "",

@@ -31,5 +31,8 @@ data class BookDTO(
     val payment: Boolean = false,
     val ratingsList: List<Int> = emptyList(),
     val latitude: String? = null,
-    val longitude: String? = null
-    )
+    val longitude: String? = null,
+    val authorUid: String = "",        // ✅ владелец (uid из Firebase Auth)
+    val isUploaded: Boolean = false,   // ✅ опубликован ли в Firebase
+
+)

@@ -16,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,16 +55,17 @@ import com.kodex.guide.ui.theme.Orange
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.nio.ByteOrder
-
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 // Цвета по образцу
 private val PrimaryDark = Color(0xFF3B2F8F) // Темно-синий/фиолетовый
 private val PrimaryLight = Color(0xFF5B4FCF) // Светлее
 private val AccentPurple = Color(0xFF6C5CE7)
 private val BackgroundWhite = Color(0xFFFFFFFF)
-private val TextDark = Color(0xFF1A1A2E)
+val TextDark = Color(0xFF1A1A2E)
 private val TextGray = Color(0xFF6B7280)
 private val DividerColor = Color(0xFFE5E7EB)
-private val IconBgLight = Color(0xFFF0EDFF)
+val IconBgLight = Color(0xFFF0EDFF)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -75,7 +77,7 @@ fun MainContent(
     viewModel: DetailsScreenViewModel = viewModel(),
     onBackPressed: () -> Unit,
 
-) {
+    ) {
     var showRateDialog by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState.collectAsState()
@@ -313,13 +315,13 @@ fun MainContent(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 // Цена справа
-                    Text(
-                        text = "${navObject.price} р",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
+                Text(
+                    text = "${navObject.price} р",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                )
             }
             Spacer(modifier = Modifier.height(6.dp))
 
@@ -380,13 +382,31 @@ fun MainContent(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                    // ✅ НОВОЕ: «Посмотреть / на карте» напротив «Местоположение»
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Посмотреть на",
+                            fontSize = 12.sp,
+                            color = TextGray,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = " карте",
+                            fontSize = 15.sp,
+                            color = TextGray,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // Правая часть: круглая кнопка со стрелкой
                 ArrowCircleButton(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.padding(16.dp),
                     onClick = onShowMapClick
                 )
             }
@@ -394,7 +414,9 @@ fun MainContent(
 // Детальный адрес в одну линию (улица, дом, квартира)
             if (navObject.street.isNotEmpty() || navObject.house.isNotEmpty() || navObject.flat.isNotEmpty()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Улица
@@ -552,7 +574,8 @@ fun MainContent(
 
             if (uiState.value.comments.isNotEmpty()) {
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth().height(280.dp)
+                    modifier = Modifier.fillMaxWidth().height(110.dp)
+
                 ) {
                     items(uiState.value.comments) { ratingData ->
                         CommentListItem(
@@ -568,7 +591,9 @@ fun MainContent(
                 }
             } else {
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(150.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -587,62 +612,7 @@ fun MainContent(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // ===== Нижние кнопки: Добавить в контакт и Поделиться =====
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        // Добавить в контакты
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(listOf(AccentPurple, PrimaryLight))
-                    )
-                ) {
-                    Icon(
-                        Icons.Default.PersonAdd,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = AccentPurple
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("В избранное", color = AccentPurple, fontWeight = FontWeight.Medium)
-                }
-
-                OutlinedButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        scope.launch {
-                            viewModel.sharePlace(
-                                context = context,
-                                place = navObject,
-                                coroutineScope = this
-                            )
-                        }
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(listOf(AccentPurple, PrimaryLight))
-                    )
-                ) {
-                    Icon(
-                        Icons.Default.Share,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = AccentPurple
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Поделиться", color = AccentPurple, fontWeight = FontWeight.Medium)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            // Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -710,7 +680,9 @@ fun InfoRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
         Surface(
@@ -752,7 +724,9 @@ fun ServiceInfoRow(
     color: Color
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
@@ -791,6 +765,7 @@ fun ServiceInfoRow(
         )
     }
 }
+
 @Composable
 fun AddressItem(
     icon: ImageVector,
@@ -835,6 +810,7 @@ fun AddressItem(
         )
     }
 }
+
 @Composable
 fun StatusChip(isOpen: Boolean) {
     Surface(
@@ -851,6 +827,7 @@ fun StatusChip(isOpen: Boolean) {
         )
     }
 }
+
 @Composable
 fun StatusDelivery(isDelivery: Boolean) {
     Surface(
@@ -868,8 +845,36 @@ fun StatusDelivery(isDelivery: Boolean) {
     }
 }
 
-
 @Composable
+fun ArrowCircleButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    borderColor: Color = Color(0xFF3B82F6),          // тёмная обводка как на картинке
+    arrowColor: Color = Color(0xFF3B82F6),           // цвет стрелки
+    backgroundColor: Color = Color(0xFF3B82F6).copy(alpha = 0.3f) // ✅ прозрачный фон
+) {
+    Box(
+        modifier = modifier
+            .size(44.dp)
+            .border(
+                width = 1.5.dp,
+                color = borderColor,
+                shape = CircleShape
+            )
+            .background(backgroundColor, CircleShape)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowForward,
+            contentDescription = null,
+            tint = arrowColor,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+/*@Composable
 fun ArrowCircleButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -879,7 +884,7 @@ fun ArrowCircleButton(
         modifier = modifier
             .size(20.dp)
             .background(
-                color = Color(0xFF3B82F6),
+                color = Color(0xFF3B82F6).copy(alpha = 0.5f),
                 shape = CircleShape
             )
     ) {
@@ -890,7 +895,7 @@ fun ArrowCircleButton(
             modifier = Modifier.size(20.dp)
         )
     }
-}
+}*/
 @Composable
 fun AddressCompactItem(
     icon: ImageVector,

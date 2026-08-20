@@ -4,6 +4,8 @@ import com.kodex.guide.data.repository.BooksRepo_Impl
 import com.kodex.guide.data.repository.FavoritesFirebaseRepoImpl
 import com.kodex.guide.data.repository.FirebaseAuthRepoImpl
 import com.kodex.guide.data.repository.ModerationRepoImpl
+import com.kodex.guide.data.repository.MyPostsRepositoryImpl
+import com.kodex.guide.data.repository.RelatedBooksRepositoryImpl
 import com.kodex.guide.data.repository.SavedPostsLocalSourceImpl
 import com.kodex.guide.data.repository.SavedPostsRepositoryImpl
 import com.kodex.guide.data.repository.UserSettingsRepoImpl
@@ -14,6 +16,8 @@ import com.kodex.guide.domain.repository.AuthRepo
 import com.kodex.guide.domain.repository.BooksRepo
 import com.kodex.guide.domain.repository.FavoritesRepo
 import com.kodex.guide.domain.repository.ModerationRepo
+import com.kodex.guide.domain.repository.MyPostsRepo
+import com.kodex.guide.domain.repository.RelatedBooksRepo
 import com.kodex.guide.domain.repository.SavedPostsRepo
 import com.kodex.guide.domain.repository.UserAccessRepo
 import com.kodex.guide.domain.repository.UserRoleRepo
@@ -33,6 +37,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepoModule {
+
+
+    @Binds
+    @Singleton
+    abstract fun bindMyPostsRepo(impl: MyPostsRepositoryImpl): MyPostsRepo
+
+    @Binds
+    @Singleton
+    abstract fun bindRelatedBooksRepository(
+        impl: RelatedBooksRepositoryImpl
+    ): RelatedBooksRepo
+
     @Binds
     @Singleton
     abstract fun bindSavedPostsLocalSource(

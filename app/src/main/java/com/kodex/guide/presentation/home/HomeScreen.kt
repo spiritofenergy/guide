@@ -70,6 +70,8 @@ fun HomeScreen(
     onCategoryClick: () -> Unit,
     onRegistrationNeeded: () -> Unit,
     onEnter: () -> Unit,
+    showMyPosts: Boolean = false,       // ✅ НОВОЕ
+    onMyPostsClick: () -> Unit = {}     // ✅ НОВОЕ
 
     ) {
     // Подписываемся на роль пользователя
@@ -205,6 +207,11 @@ fun HomeScreen(
                         onEnter()
                         coroutineScope.launch { drawerState.close() }
                     },
+                    onMyPostsClick = {
+                        onMyPostsClick()
+                        coroutineScope.launch { drawerState.close() }
+                    },
+
                 )
             }
         }
@@ -214,7 +221,7 @@ fun HomeScreen(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { onAddBookClick() },
-                    containerColor = Orange,
+                    containerColor = Orange.copy(alpha = 0.6F),
                     contentColor = Color.White,
 
                     ) {
@@ -292,7 +299,7 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.TopCenter),
                             isRefreshing = books.loadState.refresh is LoadState.Loading,
                             containerColor = Color.LightGray,
-                            color = Color.White,
+                            color = Orange,
                             state = state
 
                         )
