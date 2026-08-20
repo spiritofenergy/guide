@@ -3,6 +3,7 @@ package com.kodex.guide.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kodex.guide.domain.model.Book
+import com.kodex.guide.domain.repository.SavedPostsRepo
 import com.kodex.guide.domain.usecase.ObserveSavedKeysUseCase
 import com.kodex.guide.domain.usecase.ObserveSavedPostsUseCase
 import com.kodex.guide.domain.usecase.ToggleSavedPostUseCase
@@ -20,7 +21,9 @@ import javax.inject.Inject
 class SavedPostsViewModel @Inject constructor(
     observeSavedPostsUseCase: ObserveSavedPostsUseCase,
     observeSavedKeysUseCase: ObserveSavedKeysUseCase,
-    private val toggleSavedPostUseCase: ToggleSavedPostUseCase
+    private val toggleSavedPostUseCase: ToggleSavedPostUseCase,
+    private val repo: SavedPostsRepo
+
 ) : ViewModel() {
 
     val savedPosts: StateFlow<List<Book>> = observeSavedPostsUseCase()

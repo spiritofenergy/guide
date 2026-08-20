@@ -20,6 +20,8 @@ import com.kodex.guide.presentation.home.HomeScreen
 import com.kodex.guide.presentation.home.HomeViewModel
 import com.kodex.guide.presentation.login.LoginScreen
 import com.kodex.guide.presentation.login.sign_up.SignUpScreen
+import com.kodex.guide.presentation.myPosts.MyPostEditorScreen
+import com.kodex.guide.presentation.myPosts.MyPostsScreen
 import com.kodex.guide.presentation.settingsScreen.SettingsScreen
 
  @RequiresApi(Build.VERSION_CODES.O)
@@ -99,7 +101,32 @@ fun NavigationNavGraph (navController: NavHostController){
                     navController.navigate(NavRoutes.LoginNavObject)
                     // или
                     // signUpViewModel.signUp(...)
-                }
+                },
+                onMyPostsClick = {
+                    navController.navigate(NavRoutes.MyPostsNavObject(
+                        uid = ""
+                    ))
+                },
+            )
+        }
+        composable<NavRoutes.MyPostsNavObject> {
+            MyPostsScreen(
+                onEditClick = { book ->
+                    navController.navigate(NavRoutes.MyPostEditorNavObject(book.key))
+                },
+                onAddClick = {
+                    navController.navigate(NavRoutes.MyPostEditorNavObject())
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<NavRoutes.MyPostEditorNavObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.MyPostEditorNavObject>()
+            MyPostEditorScreen(
+                bookKey = navData.bookKey,
+                onSaved = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
             )
         }
         composable<NavRoutes.AddScreenObject> { navEntry ->
@@ -173,28 +200,29 @@ fun NavigationNavGraph (navController: NavHostController){
                 },
             )
         }
-     /*   composable<NavRoutes.ParallaxNavObject> { navEntry ->
-            val navData = navEntry.toRoute<NavRoutes.ParallaxNavObject>()
-            ParallaxScreen(
-                navObject = navData,
-                onBackPressed = { navController.popBackStack() },
-                onCallTaxi = { _, _ -> *//* Позвонить *//* },
-                onNavigateToReviews = {},
-                onCommentClick = {
-                    navController.navigate(NavRoutes.CommentsNavData(
-                        bookId = navData.bookId,
-                        title = navData.title,
-                        ratingsList =  navData.ratingsList
-                    ))
-                },
-                bookCategory = book.categoryIndex,
-                onRelatedBookClick = { relatedBook ->
-                    place.toParallaxNavObject()
-                    // тот же переход, что и в onBookClick из HomeScreen
-                },
-            )
-        }*/
 
+        composable<NavRoutes.MyPostsNavObject> {
+            MyPostsScreen(
+                onEditClick = { book ->
+                    navController.navigate(
+                        NavRoutes.MyPostEditorNavObject(bookKey = book.key)
+                    )
+                },
+                onAddClick = {
+                    navController.navigate(NavRoutes.MyPostEditorNavObject(bookKey = ""))
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<NavRoutes.MyPostEditorNavObject> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.MyPostEditorNavObject>()
+            MyPostEditorScreen(
+                bookKey = navData.bookKey,
+                onSaved = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
+        }
 
         composable<NavRoutes.CommentsNavData> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.CommentsNavData>()

@@ -70,6 +70,8 @@ fun HomeScreen(
     onCategoryClick: () -> Unit,
     onRegistrationNeeded: () -> Unit,
     onEnter: () -> Unit,
+    showMyPosts: Boolean = false,       // ✅ НОВОЕ
+    onMyPostsClick: () -> Unit = {}     // ✅ НОВОЕ
 
     ) {
     // Подписываемся на роль пользователя
@@ -205,6 +207,11 @@ fun HomeScreen(
                         onEnter()
                         coroutineScope.launch { drawerState.close() }
                     },
+                    onMyPostsClick = {
+                        onMyPostsClick()
+                        coroutineScope.launch { drawerState.close() }
+                    },
+
                 )
             }
         }

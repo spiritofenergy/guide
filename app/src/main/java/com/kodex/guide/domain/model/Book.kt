@@ -32,5 +32,7 @@ data class Book(
     val latitude: String? = null,
     val longitude: String? = null,
     val searchTitle: String = title.lowercase(),
+    val authorUid: String = "",        // ✅ владелец (uid из Firebase Auth)
+    val isUploaded: Boolean = false,   // ✅ опубликован ли в Firebase
 
     )

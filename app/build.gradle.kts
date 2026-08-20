@@ -49,16 +49,21 @@ android {
 }
 
 dependencies {
-
+// ✅ ТЕСТЫ
+  /*  testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)*/
+    // ✅ ТЕСТЫ — прямыми строками, независимо от toml
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("io.mockk:mockk:1.14.11")
 
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.remote.creation.core)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.constraintlayout)
-    val koin_version = "4.1.0"
-    implementation("io.insert-koin:koin-androidx-compose:$koin_version")
+
+     implementation(libs.koin.androidx.compose)
 
     implementation(libs.androidx.paging)
 
@@ -98,7 +103,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.storage)
 
-    testImplementation(libs.junit)
+  //  testImplementation(libs.junit)
     implementation(libs.coil.compose)
 
     androidTestImplementation(libs.androidx.junit)
