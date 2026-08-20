@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
 import com.kodex.guide.domain.model.RatingData
 import com.kodex.guide.domain.repository.ModerationRepo
 
@@ -24,6 +23,7 @@ class ModerationScreenViewModel @Inject constructor(
         result.fold(
             onSuccess = {
                 commentState.value = commentState.value.filter { it.uid != ratingData.uid }
+                Log.d("MyLog", "Accept success:  ")
             },
             onFailure = {
 

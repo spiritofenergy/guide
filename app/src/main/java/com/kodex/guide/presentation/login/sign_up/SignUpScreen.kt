@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +29,23 @@ fun SignUpScreen(
     viewModel: SingUpViewModel = hiltViewModel(),
     onNavigationToMainScreen: (NavRoutes.HomeDataObject) -> Unit
 ) {
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getAccountState()
+        viewModel.getName()
+        viewModel.getPassword()
+        viewModel.getPhone()
+        viewModel.getEmail()
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.saveLastEmail()
+            viewModel.saveLastName()
+            viewModel.saveLastPhone()
+            viewModel.saveLastPassword()
+            viewModel.passwordState.value = ""
+        }
+    }
     Image(
         painter = painterResource(
             id = R.drawable.bereg
@@ -46,7 +65,7 @@ fun SignUpScreen(
         Text(
             text = stringResource(R.string.create_account),
             color = Color.White,
-            fontSize = 20.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif
         )
@@ -56,7 +75,7 @@ fun SignUpScreen(
         //User name
             RoundedCornerTextField(
                 text = viewModel.nameState.value,
-                label = "User name:",
+                label = stringResource(R.string.user_name),
                 isPassword = false
             ) {
                 viewModel.nameState.value = it
@@ -64,17 +83,17 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(5.dp))
         //Telephone
         RoundedCornerTextField(
-                text = viewModel.phoneNumberState.value,
-                label = "Phone number:",
+                text = viewModel.phoneState.value,
+                label = stringResource(R.string.phone_number),
                 isPassword = false
             ) {
-                viewModel.phoneNumberState.value = it
+                viewModel.phoneState.value = it
             }
         Spacer(modifier = Modifier.height(5.dp))
         //email
         RoundedCornerTextField(
                 text = viewModel.emailState.value,
-                label = "Logon:",
+                label = stringResource(R.string.login),
                 isPassword = false
             ) {
                 viewModel.emailState.value = it
@@ -83,7 +102,7 @@ fun SignUpScreen(
             //Password
                 RoundedCornerTextField(
                     text = viewModel.passwordState.value,
-                    label = "Password:",
+                    label = stringResource(R.string.password),
                     isPassword = true
                 ) {
                     viewModel.passwordState.value = it
@@ -98,11 +117,8 @@ fun SignUpScreen(
                     textAlign = TextAlign.Center
                 )
             }
-
-
-
             LoginButton(
-                text = "Sign Up"
+                text = stringResource(R.string.enter)
             ) {
                 viewModel.signUp(
                     onSignUpSuccess = { navData ->

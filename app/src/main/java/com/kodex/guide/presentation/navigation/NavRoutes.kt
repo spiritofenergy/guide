@@ -5,15 +5,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class NavRoutes {
+
+
+    @Serializable
+    data class MyPostsNavObject(
+        val uid: String = ""
+    )
+
+    @Serializable
+    data class MyPostEditorNavObject(
+        val bookKey: String = ""
+    )
+
     @Serializable
     data class HomeDataObject(
         val uid: String = "",
-        val email: String = ""
-    )
-  @Serializable
-    data class RoomDataObject(
-        val uid: String = "",
-        val email: String = ""
+        val email: String?
     )
 
     @Serializable
@@ -28,8 +35,10 @@ class NavRoutes {
 
     @Serializable
     object SingUpNavObject
+
     @Serializable
     object SettingsNavObject
+
     @Serializable
     data class ParallaxNavObject(
         val bookId: String = "",
@@ -38,18 +47,51 @@ class NavRoutes {
         val price: Int = 0,
         val isOpenNow: Boolean = true,
         val openingHours: String = "09:00 - 20:00",
-        val address: String = "Москва, ул. Тверская, 15",
+        val address: String = "Кучугуры",
+        val apartment: String? = null,
         val telephone: String = "+7(495)123-45-67",
         val website: String = "coffeehouse.ru",
-        val latitude: String = "9",
-        val longitude:String = "22",
+        val village: String = "",
+        val street: String = "ул. Ленина",
+        val house: String = "14",
+        val flat: String = "22",
+        val location:  Boolean = false,
+        val delivery: Boolean = false,
+        val payment: Boolean = false,
+        val latitude: String = "55.7558",   // Москва по умолчанию
+        val longitude: String = "37.6173",
         val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val author: String = "",
         val timestamp: Long = System.currentTimeMillis(),
         val isFaves: Boolean = false,
-        val ratingsList: List<Int> = emptyList()
-    )
+        val ratingsList: List<Int> = emptyList(),
+        val hasDelivery: Boolean = true,
+        val acceptsCard: Boolean = true )
+                @Serializable
+                data class ParallaxNavObject1(
+                    val bookId: String = "",
+                    val title: String = "",
+                    val address: String = "",
+                    val street: String = "",           //  Улица
+                    val house: String = "",            // 🆕 Дом
+                    val apartment: String? = null,     //  Квартира (опционально)
+                    val price: Int = 0,
+                    val imageUrl: String = "",
+                    val isOpenNow: Boolean = true,
+                    val openingHours: String = "",
+                    val telephone: String = "",
+                    val website: String = "",
+                    val latitude: String = "",
+                    val longitude: String = "",
+                    val description: String = "",
+                    val categoryIndex: BookCategories = BookCategories.ALL,
+                    val ratingsList: List<Int> = emptyList(),
+                    val hasDelivery: Boolean = false,  // 🆕 Наличие доставки
+                    val acceptsCard: Boolean = false   // 🆕 Оплата картой
+        )
+
+
     @Serializable
     data class DetailNavObject(
         val bookId: String = "",
@@ -64,6 +106,7 @@ class NavRoutes {
         val isFaves: Boolean = false,
         val ratingsList: List<Int> = emptyList()
     )
+
     @Serializable
     data class PlaceNavObject(
         val bookId: String = "",
@@ -84,6 +127,7 @@ class NavRoutes {
         val ratingsList: List<Int> = emptyList()
 
     )
+
     fun DetailNavObject.toCommentsNavData(): CommentsNavData {
         return CommentsNavData(
             bookId = bookId,
@@ -95,26 +139,34 @@ class NavRoutes {
 
     @Serializable
     data class AddScreenObject(
+        val id: Int = 0,
         val key: String = "",
         val title: String = "",
+        val searchTitle: String = title.lowercase(),
         val description: String = "",
         val price: Int = 0,
         val telephone: String = "",
-        val categoryIndex: BookCategories = BookCategories.MISCELLANEOUS,
+        val categoryIndex: BookCategories = BookCategories.ALL,
         val imageUrl: String = "",
         val isFavorite: Boolean = false,
         val isAuthor: Boolean = false,
         val authorId: Int = 0,
         val publishPeriod: Int = 1,
         val timeStamp: Long = System.currentTimeMillis(),
-        val deleteDate: String = "",
+        val deleteDate: Int = 0,
         val village: String = "",
+        val street: String = "",
+        val house: String = "",
+        val flat: String = "",
+        val location: Boolean = false,
         val delivery: Boolean = false,
-        val ratingsList: List<Double> = emptyList(),
-    )
+        val payment: Boolean = false,
+        val ratingsList: List<String> = emptyList(),
+
+        )
 
     @Serializable
-    data class CommentsNavData (
+    data class CommentsNavData(
         val bookId: String = "",
         val title: String = "",
         val ratingsList: List<Int> = emptyList(),

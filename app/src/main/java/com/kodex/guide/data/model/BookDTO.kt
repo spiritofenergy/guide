@@ -23,7 +23,16 @@ data class BookDTO(
     val timeStamp: Long = System.currentTimeMillis(),
     val deleteDate: Int = 0,
     val village: String = "",
+    val street: String = "",
+    val house: String = "",
+    val flat: String = "",
+    val location: Boolean = false,
     val delivery: Boolean = false,
+    val payment: Boolean = false,
     val ratingsList: List<Int> = emptyList(),
+    val latitude: String? = null,
+    val longitude: String? = null,
+    val authorUid: String = "",        // ✅ владелец (uid из Firebase Auth)
+    val isUploaded: Boolean = false,   // ✅ опубликован ли в Firebase
 
-    )
+)

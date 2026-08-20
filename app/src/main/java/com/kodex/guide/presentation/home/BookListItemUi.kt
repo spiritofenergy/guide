@@ -1,6 +1,10 @@
 package com.kodex.guide.presentation.home
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,29 +39,42 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kodex.guide.domain.model.Book
-import com.kodex.guide.utils.toBitmap
- import com.kodex.bookmarketcompose.R
+import com.kodex.bookmarketcompose.R
 import com.kodex.guide.ui.theme.GreenSea
 import com.kodex.guide.ui.theme.Orange
+import com.kodex.guide.ui.theme.Red
 
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun BookListItemUi(
+    heightValue: (Int) = 0,
     titleIndex: Int,
     showEditButton: Boolean = true,
     book: Book = Book(),
+    isSaved: Boolean = false,
     onEditClick: (Book) -> Unit = {},
     onDeleteClick: (Book) -> Unit = {},
-    onFavesClick: () -> Unit = {},
+    onSavedRoomClick: () -> Unit = {},
     onBookClick: (Book) -> Unit = {},
 ) {
-    Column(
+
+    var bitmap: Bitmap? = null
+    try {
+        val base64Image = Base64.decode(book.imageUrl, Base64.DEFAULT)
+        bitmap = BitmapFactory.decodeByteArray(
+            base64Image, 0,
+            base64Image.size
+        )
+    } catch (e: IllegalArgumentException){
+
+    }
+
+        Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -71,7 +89,8 @@ fun BookListItemUi(
         ) {
             // 1. Фоновое изображение
             AsyncImage(
-                model = book.imageUrl.toBitmap(),
+               // model = book.imageUrl.toBitmap(),
+                model =  bitmap,
                 contentDescription = "Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -111,18 +130,18 @@ fun BookListItemUi(
 
             // 4. Bookmark в правом нижнем углу
             IconButton(
-                onClick = { onFavesClick() },
+                onClick = { onSavedRoomClick() },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp)
             ) {
                 Icon(
-                    if (book.isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     contentDescription = "",
                     modifier = Modifier
                         .background(Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
                         .padding(8.dp),
-                    tint = if (book.isFavorite) colorResource(R.color.orang) else Color.White
+                    tint = if (isSaved) Orange else Color.White
                 )
             }
 
@@ -186,7 +205,7 @@ fun BookListItemUi(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             if (!showEditButton)
                 Text(
                     modifier = Modifier
@@ -198,13 +217,25 @@ fun BookListItemUi(
                     maxLines = 1,
                     fontSize = 18.sp
                 )
-            Icon(
-                Icons.Default.DeliveryDining,
-                contentDescription = "Location",
-                modifier = Modifier.size(20.dp),
-                tint = GreenSea
+            Spacer(modifier = Modifier.width(5.dp))
 
-            )
+            if(book.delivery) {
+                Icon(
+                    Icons.Default.DeliveryDining,
+                    contentDescription = "Delivery",
+                    modifier = Modifier.size(20.dp),
+                    tint = GreenSea
+                )
+            }
+            Spacer(modifier = Modifier.width(5.dp))
+            if (book.payment) {
+                Icon(
+                    Icons.Default.Payment,
+                    contentDescription = "Payment",
+                    modifier = Modifier.size(20.dp),
+                    tint = Red
+                )
+            }
             Spacer(modifier = Modifier.width(5.dp))
             Icon(
                 Icons.Default.LocationOn,
@@ -213,8 +244,6 @@ fun BookListItemUi(
                 tint = Orange
 
             )
-
-            if (!showEditButton) {
                 Text(
                     modifier = Modifier
                         .padding(10.dp),
@@ -223,7 +252,7 @@ fun BookListItemUi(
                     fontWeight = FontWeight.Light,
                     fontSize = 16.sp
                 )
-            }
+
 
             if (showEditButton) IconButton(onClick = {
                 onEditClick(book)
@@ -247,11 +276,4 @@ fun BookListItemUi(
         }
     }
 }
-/*
-@Composable
-@Preview(showBackground = true)
-fun BookListItemUiPreview() {
-    BookListItemUi(
-        titleIndex = 0,
-    )
-}*/
+

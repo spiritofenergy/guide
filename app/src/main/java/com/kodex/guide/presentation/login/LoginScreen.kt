@@ -58,14 +58,14 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Тамань",
+            text = stringResource(R.string.taman),
             color = Color.White,
             fontSize = 50.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif
         )
         Text(
-            text = "Guide",
+            text = stringResource(R.string.guide),
             color = Color.White,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -77,7 +77,7 @@ fun LoginScreen(
         if (viewModel.currentUser.value == null) {
             RoundedCornerTextField(
                 text = viewModel.emailState.value,
-                label = "Логин:",
+                label = stringResource(R.string.login),
                 isPassword = false
             ) {
                 viewModel.emailState.value = it
@@ -87,7 +87,7 @@ fun LoginScreen(
             if (!viewModel.resetPasswordState.value) {
                 RoundedCornerTextField(
                     text = viewModel.passwordState.value,
-                    label = "Пароль:",
+                    label = stringResource(R.string.password),
                     isPassword = true
                 ) {
                     viewModel.passwordState.value = it
@@ -98,7 +98,7 @@ fun LoginScreen(
             if (viewModel.errorState.value.isNotEmpty()) {
                 Text(
                     text = viewModel.errorState.value,
-                    color = Color.Red,
+                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
             }
@@ -106,7 +106,7 @@ fun LoginScreen(
 
             if (!viewModel.resetPasswordState.value) {
                 LoginButton(
-                    text = "Вход"
+                    text = stringResource(R.string.enter)
                 ) {
                       viewModel.signIn(
                           onSignInSuccess = { navData ->
@@ -117,9 +117,9 @@ fun LoginScreen(
             }
             LoginButton(
                 text = if (viewModel.resetPasswordState.value) {
-                    "Восстановить пароль "
+                    stringResource(R.string.recover_the_password)
                 } else {
-                    "Авторизация"
+                    stringResource(R.string.authorization)
                 }
             ) {
                 if (viewModel.resetPasswordState.value) {
@@ -136,13 +136,13 @@ fun LoginScreen(
                         viewModel.errorState.value = ""
                         viewModel.resetPasswordState.value = true
                     },
-                    text = "Напомнить пароль",
+                    text = stringResource(R.string.remind_password),
                     color = Color.White
                 )
 
         } else {
             Spacer(modifier = Modifier.height(10.dp))
-            LoginButton(text = "Вход") {
+            LoginButton(text = stringResource(R.string.enter)) {
                 onNavigationToMainScreen(
                     NavRoutes.HomeDataObject(
                         viewModel.currentUser.value!!.uid,
@@ -150,7 +150,7 @@ fun LoginScreen(
                     )
                 )
             }
-            LoginButton(text = "Выход") {
+            LoginButton(text = stringResource(R.string.exit)) {
                 viewModel.signOut()
             }
         }

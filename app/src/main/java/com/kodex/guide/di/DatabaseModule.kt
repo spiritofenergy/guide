@@ -21,13 +21,14 @@ object DatabaseModule {
             context,
             MainDb::class.java,
             "books"
-        ).build()
+        )   .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
     @Singleton
     fun providePostDao(database: MainDb): RoomDao {
-        return database.trackDao // или database.mainDao(), зависит от вашей реализации
+        return database.trackDao() // или database.mainDao(), зависит от вашей реализации
     }
 }
 

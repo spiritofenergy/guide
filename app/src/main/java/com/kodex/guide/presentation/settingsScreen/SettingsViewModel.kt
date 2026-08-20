@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
@@ -22,6 +23,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val authRepo: AuthRepo,
     private val userSettingsRepo: UserSettingsRepo,
+    private val preferenceDataSource: PreferenceDataSource   // ✅ добавили
+
 ) : ViewModel() {
     var newPersonalData = PersonalData()
     var oldPersonalData = PersonalData()
@@ -36,7 +39,7 @@ class SettingsViewModel @Inject constructor(
 
     val personalData = mutableStateOf(PersonalData())
     val addressData = mutableStateOf(AddressData())
-    // val userSettingsData = mutableStateOf(UserSettingsData())
+     val userSettingsData = mutableStateOf(UserSettingsData())
 
     private val _settingsBundleState = MutableStateFlow(
         UserSettingsBundle(
@@ -71,9 +74,9 @@ class SettingsViewModel @Inject constructor(
 
     fun signOut() = authRepo.signOut()
 
-    fun saveSettings(onSuccess: () -> Unit = {}) = viewModelScope.launch(Dispatchers.IO) {
+    fun saveSettings() = viewModelScope.launch(Dispatchers.IO) {
         if (!newPersonalData.upToDate(oldPersonalData)) {
-            val result = userSettingsRepo.insertPersonalData(newPersonalData, Unit)
+            val result = userSettingsRepo.insertPersonalData(newPersonalData)
             result.fold(
                 onSuccess = {
                     Log.d("MyLog", "newPersonalData ${newPersonalData}")
@@ -103,7 +106,6 @@ class SettingsViewModel @Inject constructor(
                 oldAddressData = userSettingsBundle.addressData
                 addressData.value = oldAddressData
                 oldUserSettingsData = userSettingsBundle.userSettingsData
-                //  userSettingsData.value = oldUserSettingsData
                 _settingsBundleState.value = userSettingsBundle
             },
             onFailure = {

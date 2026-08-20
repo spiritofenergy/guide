@@ -1,18 +1,19 @@
 package com.kodex.guide.di
 
-import android.app.Application
+import  android.app.Application
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.kodex.guide.data.source.remote.BooksFirebaseRemoteDataSource
-import com.kodex.guide.data.source.remote.FavoritesDataSource
-import com.kodex.guide.utils.StoreManager
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
+import com.kodex.guide.data.source.remote.FirebaseBooksDataSource
+import com.kodex.guide.data.source.remote.FirebaseFavoritesDataSource
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import com.kodex.guide.data.source.remote.FirebaseAuthDataSource
-import com.kodex.guide.data.source.remote.ModerationDataSource
-import com.kodex.guide.data.source.remote.UserSettingsDataSource
-import com.kodex.guide.utils.firebase.FireStoreManagerPaging
+import com.kodex.guide.data.source.remote.FirebaseModerationDataSource
+import com.kodex.guide.data.source.remote.FirebaseUserSettingsDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,15 +22,22 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object MainModule {
+object   MainModule {
+
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return Firebase.storage
+    }
     @Provides
     @Singleton
 
     fun provideFirebaseDataSource (
         db: FirebaseFirestore,
         auth: FirebaseAuth,
-    ): BooksFirebaseRemoteDataSource{
-        return BooksFirebaseRemoteDataSource(db, auth)
+    ): FirebaseBooksDataSource{
+        return FirebaseBooksDataSource(db, auth)
     }
 
     @Provides
@@ -37,8 +45,8 @@ object MainModule {
     fun provideFavoritesDataSource (
         db: FirebaseFirestore,
         auth: FirebaseAuth,
-    ): FavoritesDataSource{
-        return FavoritesDataSource(db, auth)
+    ): FirebaseFavoritesDataSource{
+        return FirebaseFavoritesDataSource(db, auth)
     }
 
     @Provides
@@ -46,8 +54,8 @@ object MainModule {
     fun provideUserSettingsDataSource (
         db: FirebaseFirestore,
         auth: FirebaseAuth,
-    ): UserSettingsDataSource {
-        return UserSettingsDataSource(db, auth)
+    ): FirebaseUserSettingsDataSource {
+        return FirebaseUserSettingsDataSource(db, auth)
     }
 
     @Provides
@@ -55,16 +63,8 @@ object MainModule {
     fun provideModerationDataSource (
         db: FirebaseFirestore,
         auth: FirebaseAuth,
-    ): ModerationDataSource {
-        return ModerationDataSource(db, auth)
-    }
-    @Provides
-    @Singleton
-    fun provideFirebaseManager (
-        db: FirebaseFirestore,
-        auth: FirebaseAuth,
-    ): FireStoreManagerPaging{
-        return FireStoreManagerPaging(db, auth)
+    ): FirebaseModerationDataSource {
+        return FirebaseModerationDataSource(db, auth)
     }
 
     @Provides
@@ -90,7 +90,8 @@ object MainModule {
     @Singleton
     fun provideStoreManager(
         app: Application
-    ):StoreManager{
-        return StoreManager(app)
+    ):PreferenceDataSource{
+        return PreferenceDataSource(app)
     }
+
 }

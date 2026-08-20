@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,26 +41,41 @@ import androidx.compose.ui.res.stringResource
 import com.kodex.guide.domain.model.AddressData
 import com.kodex.guide.domain.model.PersonalData
 import com.kodex.guide.domain.model.UserSettingsData
-import com.kodex.guide.utils.firebase.TimeUtils
+import com.kodex.guide.presentation.castom.TimeUtils
+import com.kodex.guide.presentation.home.HomeViewModel
 
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
+    viewModelHome: HomeViewModel = hiltViewModel(),
+
     onBackClick: () -> Unit = {},
     onCloseAccountClick: () -> Unit = {}
 ) {
     var dialogData by remember { mutableStateOf(AccountDialogData()) }
-    val dropDownMenuSelectedOptions = remember { mutableStateListOf(0, 0, 0) }
+   // val dropDownMenuSelectedOptions = remember { mutableStateListOf(0, 0, 0) }
+    val dropDownMenuSelectedOptions = remember {
+        mutableStateOf(
+            mutableMapOf(
+                DropDownMenuType.IMAGE_FORMAT to 0,
+                DropDownMenuType.IMAGE_QUALITY to 0,
+                DropDownMenuType.IMAGE_SIZE to 0
+            )
+        )
+    }
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.getSettings()
         viewModel.settingsBundleState.collect { settingsData ->
-            dropDownMenuSelectedOptions[0] = settingsData.userSettingsData.imageFormat
+            dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_FORMAT] = settingsData.userSettingsData.imageFormat
+            dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_QUALITY] = settingsData.userSettingsData.quality
+            dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_SIZE] = settingsData.userSettingsData.size
+            /*dropDownMenuSelectedOptions[0] = settingsData.userSettingsData.imageFormat
             dropDownMenuSelectedOptions[1] = settingsData.userSettingsData.quality
-            dropDownMenuSelectedOptions[2] = settingsData.userSettingsData.size
+            dropDownMenuSelectedOptions[2] = settingsData.userSettingsData.size*/
         }
     }
     Column(
@@ -141,12 +157,14 @@ fun SettingsScreen(
                     .padding(10.dp)
             ) {
                 Text(
-                    text = viewModel.personalData.value.name,
+                    text = viewModel.personalData.value.name.ifEmpty { "Имя не указано" },
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "   Email: example@gmail.com")
+                Text(text = "   Email: ${viewModelHome.headerUser}")
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "   Role: ${viewModelHome.userRole.value}")
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(text = "   Address: ${viewModel.addressData.value.toStringAddress()}")
                 Spacer(modifier = Modifier.height(2.dp))
@@ -221,12 +239,16 @@ fun SettingsScreen(
                         is MenuItem.DropDownItem -> {
                             DropDownMenuItem(
                                 item,
-                                selectedOption = dropDownMenuSelectedOptions[item.menuType.ordinal],
+                                selectedOption = dropDownMenuSelectedOptions.value[item.menuType] ?: 0,
+                                onItemClick = { selectedIndex ->
+                                    dropDownMenuSelectedOptions.value[item.menuType] = selectedIndex
+                                }
+                              /*  selectedOption = dropDownMenuSelectedOptions[item.menuType.ordinal],
                                 onItemClick = { selectedIndex ->
                                     dropDownMenuSelectedOptions[item.menuType.ordinal] =
                                         selectedIndex
 
-                                }
+                                }*/
                             )
                         }
                     }
@@ -246,8 +268,26 @@ fun SettingsScreen(
         ) {
             Text(text = "Back")
         }
-
         Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            onClick = {
+                    viewModel.newUserSettingsData = UserSettingsData(
+                        imageFormat = dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_FORMAT] ?: 0,
+                        quality = dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_QUALITY] ?: 0,
+                        size = dropDownMenuSelectedOptions.value[DropDownMenuType.IMAGE_SIZE] ?: 0
+                )
+                viewModel.saveSettings()
+                Log.d("MyLog", "saveSettings(): ")
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ButtonColorBlue
+            )
+        ) {
+            Text(text = "Save")
+        }
+        /*Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp),
@@ -266,7 +306,7 @@ fun SettingsScreen(
             )
         ) {
             Text(text = "Save")
-        }
+        }*/
         Spacer(modifier = Modifier.height(5.dp))
     }
 }

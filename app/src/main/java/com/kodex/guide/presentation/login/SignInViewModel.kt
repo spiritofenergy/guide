@@ -3,10 +3,10 @@ package com.kodex.guide.presentation.login
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kodex.guide.data.repository.FirebaseAuthRepo_Impl
+import com.kodex.guide.data.repository.FirebaseAuthRepoImpl
 import com.kodex.guide.domain.model.User
 import com.kodex.guide.presentation.navigation.NavRoutes
-import com.kodex.guide.utils.StoreManager
+import com.kodex.guide.data.source.local.PreferenceDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,44 +15,49 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel@Inject constructor(
-    private val authRepo: FirebaseAuthRepo_Impl,
-    private val storeManager: StoreManager
+    private val authRepo: FirebaseAuthRepoImpl,
+    private val preferenceDataSource: PreferenceDataSource
 ): ViewModel() {
     val currentUser = mutableStateOf<User?>(null)
     val errorState = mutableStateOf("")
     val successState = mutableStateOf(false)
-    val emailState = mutableStateOf(
-        "" +
-                //' "nillsimon24@gmail.com" +
-                ""
-    )
-    val passwordState = mutableStateOf("test2401")
+    val emailState = mutableStateOf("")
+    val nameState = mutableStateOf("")
+    val passwordState = mutableStateOf("")
     val resetPasswordState = mutableStateOf(false)
     val showResetPasswordDialog = mutableStateOf(false)
+
 
     fun signIn(
         onSignInSuccess: (NavRoutes.HomeDataObject)-> Unit,
     ) = viewModelScope.launch(Dispatchers.IO){
         errorState.value = ""
-        val result = authRepo.signIn(emailState.value, passwordState.value)
+        val result = authRepo.signIn(emailState.value.trim(), passwordState.value.trim())
         result.fold(
             onSuccess = { user ->
-                withContext(Dispatchers.Main){
+                // ✅ Сохраняем email только если он не null
+                // (user.email — String?, поэтому используем ?.let)
+                user.email?.let { email ->
+                    preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, email)
+                }
+                withContext(Dispatchers.Main) {
                     onSignInSuccess(NavRoutes.HomeDataObject(user.uid, user.email))
                 }
-
             },
-            onFailure = { exception->
+            onFailure = { exception ->
                 errorState.value = exception.message ?: "Unknown error"
             }
         )
     }
     fun getEmail(){
-        emailState.value = storeManager.getString(StoreManager.Companion.EMAIL_KEY, "")
+        emailState.value = preferenceDataSource.getEmail(PreferenceDataSource.EMAIL_KEY, "")
     }
+
     fun saveLastEmail(){
-        storeManager.saveString(StoreManager.Companion.EMAIL_KEY, emailState.value)
+        preferenceDataSource.saveEmail(PreferenceDataSource.EMAIL_KEY, emailState.value)
     }
+
+
      fun resetPassword() = viewModelScope.launch(Dispatchers.IO) {
         errorState.value = ""
          val result = authRepo.signUp(emailState.value, passwordState.value)
